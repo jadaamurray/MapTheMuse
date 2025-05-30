@@ -1,0 +1,6 @@
+@MapTheMuseApi_HostAddress = http://localhost:5062
+
+GET {{MapTheMuseApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
