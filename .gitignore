@@ -310,6 +310,9 @@ Temporary Items
 # iCloud generated files
 *.icloud
 
+# Ignore app settings
+appsettings*.json
+
 ### react ###
 .DS_*
 logs
