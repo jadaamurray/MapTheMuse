@@ -311,7 +311,7 @@ Temporary Items
 *.icloud
 
 # Ignore app settings
-appsettings*.json
+appsettings.Development.json
 
 ### react ###
 .DS_*
@@ -346,3 +346,6 @@ sketch
 # Ignore all local history of files
 .history
 .ionide
+
+# react env file
+.env
