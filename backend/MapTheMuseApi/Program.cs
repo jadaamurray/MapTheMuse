@@ -1,11 +1,14 @@
 using MapTheMuseApi.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity; 
 
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<MapTheMuseContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+    .AddEntityFrameworkStores<MapTheMuseContext>().AddDefaultTokenProviders();
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 

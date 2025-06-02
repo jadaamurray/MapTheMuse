@@ -1,9 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using MapTheMuseApi.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 
 namespace MapTheMuseApi.Data
 {
-    public class MapTheMuseContext : DbContext
+    public class MapTheMuseContext : IdentityDbContext<IdentityUser>
     {
         public MapTheMuseContext(DbContextOptions<MapTheMuseContext> options)
             : base(options)
