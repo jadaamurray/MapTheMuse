@@ -15,6 +15,7 @@ namespace MapTheMuseApi.Data
         public DbSet<Destination> Destinations { get; set; }
         public DbSet<Media> Media { get; set; }
         public DbSet<PhysicalArt> PhysicalArtworks { get; set; }
+        public DbSet<MapTheMuseApi.Models.AppUser> AppUser { get; set; } = default!;
 
     }
 }

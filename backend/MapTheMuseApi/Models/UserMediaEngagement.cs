@@ -1,6 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Identity;
+using MapTheMuseApi.Models; 
 
 namespace MapTheMuseApi.Models
 {
@@ -10,8 +12,11 @@ namespace MapTheMuseApi.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         // foreign keys
-        public int UserId { get; set; }
+        [ForeignKey("User")]
+        public string UserId { get; set; }
+        [ForeignKey("Destination")]
         public int DestinationId { get; set; }
+        [ForeignKey("Media")]
         public int MediaId { get; set; }
         // Metadata
         public DateTime DateVisited { get; set; } = DateTime.UtcNow;
@@ -20,7 +25,7 @@ namespace MapTheMuseApi.Models
 
         // navigation properties
         [JsonIgnore]
-        public IdentityUser User { get; set; }
+        public AppUser User { get; set; }
         public Destination Destination { get; set; }
         public Media Media { get; set; }
     }

@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MapTheMuseApi.Migrations
 {
     [DbContext(typeof(MapTheMuseContext))]
-    [Migration("20250615171451_LinkTableAdded")]
-    partial class LinkTableAdded
+    [Migration("20250717111734_LinkTablesAdded")]
+    partial class LinkTablesAdded
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -130,6 +130,70 @@ namespace MapTheMuseApi.Migrations
                     b.ToTable("PhysicalArtworks");
                 });
 
+            modelBuilder.Entity("MapTheMuseApi.Models.UserArtEngagement", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("DateVisited")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("DestinationId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PhysicalArtId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DestinationId");
+
+                    b.HasIndex("PhysicalArtId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserArtEngagement");
+                });
+
+            modelBuilder.Entity("MapTheMuseApi.Models.UserMediaEngagement", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("DateVisited")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("DestinationId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("MediaId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DestinationId");
+
+                    b.HasIndex("MediaId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserMediaEngagement");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
                     b.Property<string>("Id")
@@ -193,6 +257,11 @@ namespace MapTheMuseApi.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("text");
 
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
+                        .HasMaxLength(13)
+                        .HasColumnType("character varying(13)");
+
                     b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
@@ -243,6 +312,10 @@ namespace MapTheMuseApi.Migrations
                         .HasDatabaseName("UserNameIndex");
 
                     b.ToTable("AspNetUsers", (string)null);
+
+                    b.HasDiscriminator().HasValue("IdentityUser");
+
+                    b.UseTphMappingStrategy();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
@@ -326,13 +399,89 @@ namespace MapTheMuseApi.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("MapTheMuseApi.Models.AppUser", b =>
+                {
+                    b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
+
+                    b.Property<string>("Country")
+                        .HasColumnType("text");
+
+                    b.Property<string>("FirstName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("LastName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PreferredLanguage")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ProfilePictureUrl")
+                        .HasColumnType("text");
+
+                    b.HasDiscriminator().HasValue("AppUser");
+                });
+
             modelBuilder.Entity("MapTheMuseApi.Models.PhysicalArt", b =>
                 {
                     b.HasOne("MapTheMuseApi.Models.Destination", "Destination")
-                        .WithMany()
+                        .WithMany("PhysicalArtworks")
                         .HasForeignKey("DestinationId");
 
                     b.Navigation("Destination");
+                });
+
+            modelBuilder.Entity("MapTheMuseApi.Models.UserArtEngagement", b =>
+                {
+                    b.HasOne("MapTheMuseApi.Models.Destination", "Destination")
+                        .WithMany("ArtEngagements")
+                        .HasForeignKey("DestinationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MapTheMuseApi.Models.PhysicalArt", "PhysicalArt")
+                        .WithMany("UserEngagements")
+                        .HasForeignKey("PhysicalArtId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MapTheMuseApi.Models.AppUser", "User")
+                        .WithMany("ArtEngagements")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Destination");
+
+                    b.Navigation("PhysicalArt");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("MapTheMuseApi.Models.UserMediaEngagement", b =>
+                {
+                    b.HasOne("MapTheMuseApi.Models.Destination", "Destination")
+                        .WithMany("MediaEngagements")
+                        .HasForeignKey("DestinationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MapTheMuseApi.Models.Media", "Media")
+                        .WithMany()
+                        .HasForeignKey("MediaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MapTheMuseApi.Models.AppUser", "User")
+                        .WithMany("MediaEngagements")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Destination");
+
+                    b.Navigation("Media");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -384,6 +533,27 @@ namespace MapTheMuseApi.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("MapTheMuseApi.Models.Destination", b =>
+                {
+                    b.Navigation("ArtEngagements");
+
+                    b.Navigation("MediaEngagements");
+
+                    b.Navigation("PhysicalArtworks");
+                });
+
+            modelBuilder.Entity("MapTheMuseApi.Models.PhysicalArt", b =>
+                {
+                    b.Navigation("UserEngagements");
+                });
+
+            modelBuilder.Entity("MapTheMuseApi.Models.AppUser", b =>
+                {
+                    b.Navigation("ArtEngagements");
+
+                    b.Navigation("MediaEngagements");
                 });
 #pragma warning restore 612, 618
         }

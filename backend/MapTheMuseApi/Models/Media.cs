@@ -25,5 +25,7 @@ namespace MapTheMuseApi.Models
 
         public DateOnly? ReleaseDate { get; set; }
 
+        // Navigation property
+
     }
 }

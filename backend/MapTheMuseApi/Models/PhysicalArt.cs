@@ -30,5 +30,8 @@ namespace MapTheMuseApi.Models
         // Foreign key to Destination
         public int? DestinationId { get; set; }
         public Destination? Destination { get; set; }
+
+        // Navigation property
+        public ICollection<UserArtEngagement> UserEngagements { get; set; } = new List<UserArtEngagement>();
     }
 }
