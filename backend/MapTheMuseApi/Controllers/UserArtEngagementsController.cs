@@ -25,14 +25,14 @@ namespace MapTheMuseApi.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<UserArtEngagement>>> GetUserArtEngagement()
         {
-            return await _context.UserArtEngagement.ToListAsync();
+            return await _context.UserArtEngagements.ToListAsync();
         }
 
         // GET: api/UserArtEngagements/5
         [HttpGet("{id}")]
         public async Task<ActionResult<UserArtEngagement>> GetUserArtEngagement(int id)
         {
-            var userArtEngagement = await _context.UserArtEngagement.FindAsync(id);
+            var userArtEngagement = await _context.UserArtEngagements.FindAsync(id);
 
             if (userArtEngagement == null)
             {
@@ -78,7 +78,7 @@ namespace MapTheMuseApi.Controllers
         [HttpPost]
         public async Task<ActionResult<UserArtEngagement>> PostUserArtEngagement(UserArtEngagement userArtEngagement)
         {
-            _context.UserArtEngagement.Add(userArtEngagement);
+            _context.UserArtEngagements.Add(userArtEngagement);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetUserArtEngagement", new { id = userArtEngagement.Id }, userArtEngagement);
@@ -88,13 +88,13 @@ namespace MapTheMuseApi.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUserArtEngagement(int id)
         {
-            var userArtEngagement = await _context.UserArtEngagement.FindAsync(id);
+            var userArtEngagement = await _context.UserArtEngagements.FindAsync(id);
             if (userArtEngagement == null)
             {
                 return NotFound();
             }
 
-            _context.UserArtEngagement.Remove(userArtEngagement);
+            _context.UserArtEngagements.Remove(userArtEngagement);
             await _context.SaveChangesAsync();
 
             return NoContent();
@@ -102,7 +102,7 @@ namespace MapTheMuseApi.Controllers
 
         private bool UserArtEngagementExists(int id)
         {
-            return _context.UserArtEngagement.Any(e => e.Id == id);
+            return _context.UserArtEngagements.Any(e => e.Id == id);
         }
     }
 }

@@ -11,21 +11,21 @@ namespace MapTheMuseApi.Models
 
         [Required]
         [MaxLength(400)]
-        public string Title { get; set; }
+        public required string Title { get; set; }
 
         [MaxLength(600)]
-        public string Description { get; set; }
+        public string? Description { get; set; }
 
         [MaxLength(100)]
-        public string Artist { get; set; }
+        public required string Artist { get; set; }
 
         [MaxLength(100)]
-        public string ArtType { get; set; } // e.g. "Sculpture", "Mural", "Architecture", etc.
+        public required string ArtType { get; set; } // Sculpture, Mural, Architecture, etc
 
         public DateOnly? DateCreated { get; set; }
 
         [MaxLength(300)]
-        public string LocationName { get; set; } // e.g. Museum, Landmark
+        public required string LocationName { get; set; } // Museum, Landmark
 
         // Foreign key to Destination
         public int? DestinationId { get; set; }

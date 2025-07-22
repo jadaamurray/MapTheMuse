@@ -13,7 +13,7 @@ namespace MapTheMuseApi.Models
         public int Id { get; set; }
         // foreign keys
         [ForeignKey("User")]
-        public string UserId { get; set; }
+        public required string UserId { get; set; }
         [ForeignKey("Destination")]
         public int DestinationId { get; set; }
         [ForeignKey("PhysicalArt")]
@@ -25,8 +25,8 @@ namespace MapTheMuseApi.Models
 
         // navigation properties
         [JsonIgnore]
-        public AppUser User { get; set; }
-        public Destination Destination { get; set; }
-        public PhysicalArt PhysicalArt { get; set; }
+        public AppUser? User { get; set; }
+        public Destination? Destination { get; set; }
+        public PhysicalArt? PhysicalArt { get; set; }
     }
 }

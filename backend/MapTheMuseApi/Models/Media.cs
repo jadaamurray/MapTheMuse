@@ -11,17 +11,17 @@ namespace MapTheMuseApi.Models
 
         [Required]
         [MaxLength(400)]
-        public string Title { get; set; }
+        public required string Title { get; set; }
 
         [MaxLength(600)]
-        public string Description { get; set; }
+        public required string Description { get; set; }
 
         [MaxLength(100)]
-        public string Creator { get; set; } // Author, Director, Artist, etc.
+        public required string Creator { get; set; } // Author, Director, Artist, etc
 
         [Required]
         [MaxLength(50)]
-        public string MediaType { get; set; } // "Book", "Film", "Music"
+        public required string MediaType { get; set; } // Book, Film, Music, etc
 
         public DateOnly? ReleaseDate { get; set; }
 

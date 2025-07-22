@@ -25,14 +25,14 @@ namespace MapTheMuseApi.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<UserMediaEngagement>>> GetUserMediaEngagement()
         {
-            return await _context.UserMediaEngagement.ToListAsync();
+            return await _context.UserMediaEngagements.ToListAsync();
         }
 
         // GET: api/UserMediaEngagements/5
         [HttpGet("{id}")]
         public async Task<ActionResult<UserMediaEngagement>> GetUserMediaEngagement(int id)
         {
-            var userMediaEngagement = await _context.UserMediaEngagement.FindAsync(id);
+            var userMediaEngagement = await _context.UserMediaEngagements.FindAsync(id);
 
             if (userMediaEngagement == null)
             {
@@ -76,7 +76,7 @@ namespace MapTheMuseApi.Controllers
         [HttpPost]
         public async Task<ActionResult<UserMediaEngagement>> PostUserMediaEngagement(UserMediaEngagement userMediaEngagement)
         {
-            _context.UserMediaEngagement.Add(userMediaEngagement);
+            _context.UserMediaEngagements.Add(userMediaEngagement);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetUserMediaEngagement", new { id = userMediaEngagement.Id }, userMediaEngagement);
@@ -86,13 +86,13 @@ namespace MapTheMuseApi.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUserMediaEngagement(int id)
         {
-            var userMediaEngagement = await _context.UserMediaEngagement.FindAsync(id);
+            var userMediaEngagement = await _context.UserMediaEngagements.FindAsync(id);
             if (userMediaEngagement == null)
             {
                 return NotFound();
             }
 
-            _context.UserMediaEngagement.Remove(userMediaEngagement);
+            _context.UserMediaEngagements.Remove(userMediaEngagement);
             await _context.SaveChangesAsync();
 
             return NoContent();
@@ -100,7 +100,7 @@ namespace MapTheMuseApi.Controllers
 
         private bool UserMediaEngagementExists(int id)
         {
-            return _context.UserMediaEngagement.Any(e => e.Id == id);
+            return _context.UserMediaEngagements.Any(e => e.Id == id);
         }
     }
 }
