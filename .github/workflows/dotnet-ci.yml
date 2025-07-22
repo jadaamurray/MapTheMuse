@@ -1,0 +1,34 @@
+name: .NET CI
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master, develop ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Check out repo
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 2. Install .NET 9 SDK
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '9.0'
+
+      # 3. Restore dependencies
+      - name: Restore NuGet packages
+        run: dotnet restore
+
+      # 4. Build the solution
+      - name: Build
+        run: dotnet build --no-restore --configuration Release
+
+      # 5. Run all tests
+      - name: Run tests
+        run: dotnet test --no-build --configuration Release --verbosity normal
