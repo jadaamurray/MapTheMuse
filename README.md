@@ -1,5 +1,7 @@
 # MapTheMuse
 
+![.NET CI](https://github.com/jadaamurray/MapTheMuse/actions/workflows/dotnet-ci.yml/badge.svg)
+
 **MapTheMuse** is a media-inspired travel platform that helps users discover and plan trips through books, films, music, and TV shows connected to real-world destinations.
 
 ## ✨ Features
