@@ -14,7 +14,7 @@ namespace MapTheMuseApi.Models
         public required string Title { get; set; }
 
         [MaxLength(600)]
-        public required string Description { get; set; }
+        public string? Description { get; set; }
 
         [MaxLength(100)]
         public required string Creator { get; set; } // Author, Director, Artist, etc

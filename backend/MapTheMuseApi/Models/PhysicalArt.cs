@@ -33,5 +33,7 @@ namespace MapTheMuseApi.Models
 
         // Navigation property
         public ICollection<UserArtEngagement> UserEngagements { get; set; } = new List<UserArtEngagement>();
+        public ICollection<ItineraryItem> ItineraryItems { get; set; } = new List<ItineraryItem>();
+
     }
 }
