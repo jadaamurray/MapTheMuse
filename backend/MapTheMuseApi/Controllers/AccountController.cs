@@ -1,3 +1,4 @@
+using MapTheMuseApi.Dtos;
 using MapTheMuseApi.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -13,21 +14,31 @@ namespace MapTheMuseApi.Controllers
     [ApiController]
     public class AccountController : ControllerBase
     {
-        private readonly UserManager<IdentityUser> _userManager;
-        private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly UserManager<AppUser> _userManager;
+        private readonly SignInManager<AppUser> _signInManager;
         private readonly EmailService _emailService;
-        public AccountController(UserManager<IdentityUser> userManager,
-       SignInManager<IdentityUser> signInManager, EmailService emailService)
+        public AccountController(UserManager<AppUser> userManager,
+       SignInManager<AppUser> signInManager, EmailService emailService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _emailService = emailService;
         }
         [HttpPost("register")]
-        public async Task<IActionResult> Register(Auth model)
+        public async Task<IActionResult> Register(RegisterDto dto)
         {
-            var user = new IdentityUser { UserName = model.Email, Email = model.Email };
-            var result = await _userManager.CreateAsync(user, model.Password);
+            var user = new AppUser
+            {
+                Email = dto.Email,
+                UserName = dto.UserName,
+                FirstName = dto.FirstName,
+                LastName = dto.LastName,
+                Country = dto.Country,
+                PreferredLanguage = dto.PreferredLanguage
+            };
+
+            var result = await _userManager.CreateAsync(user, dto.Password);
+            
             if (result.Succeeded)
             {
                 // Generate an email verification token

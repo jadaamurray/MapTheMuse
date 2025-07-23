@@ -3,6 +3,7 @@ using System;
 using MapTheMuseApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MapTheMuseApi.Migrations
 {
     [DbContext(typeof(MapTheMuseContext))]
-    partial class MapTheMuseContextModelSnapshot : ModelSnapshot
+    [Migration("20250723112508_AppUsersTableNameChange")]
+    partial class AppUsersTableNameChange
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -35,7 +38,6 @@ namespace MapTheMuseApi.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("Country")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Email")
@@ -46,11 +48,9 @@ namespace MapTheMuseApi.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<string>("FirstName")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("LastName")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<bool>("LockoutEnabled")
@@ -77,7 +77,6 @@ namespace MapTheMuseApi.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<string>("PreferredLanguage")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("ProfilePictureUrl")
