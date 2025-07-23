@@ -21,6 +21,8 @@ namespace MapTheMuseApi.Models
         public string? Description { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
 
         [JsonIgnore]
         public AppUser? User { get; set; }
