@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MapTheMuseApi.Data;
 using MapTheMuseApi.Models;
+using MapTheMuseApi.Dtos;
 
 namespace MapTheMuseApi.Controllers
 {
@@ -23,23 +24,49 @@ namespace MapTheMuseApi.Controllers
 
         // GET: api/Destinations
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Destination>>> GetDestinations()
+        public async Task<ActionResult<IEnumerable<DestinationListDto>>> GetAll()
         {
-            return await _context.Destinations.ToListAsync();
+            var list = await _context.Destinations
+                .AsNoTracking()
+                .Select(d => new DestinationListDto
+                {
+                    Id = d.Id,
+                    Name = d.Name,
+                    ShortDescription =
+                        d.Description.Length <= 100
+                            ? d.Description
+                            : d.Description.Substring(0, 97) + "..."
+                })
+                .ToListAsync();
+
+            return Ok(list);
         }
 
         // GET: api/Destinations/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Destination>> GetDestination(int id)
+        public async Task<ActionResult<DestinationDetailDto>> GetById(int id)
         {
-            var destination = await _context.Destinations.FindAsync(id);
+            var d = await _context.Destinations
+                .AsNoTracking()
+                .Include(x => x.PhysicalArtworks)
+                .FirstOrDefaultAsync(x => x.Id == id);
 
-            if (destination == null)
+            if (d == null) return NotFound();
+
+            var dto = new DestinationDetailDto
             {
-                return NotFound();
-            }
+                Id = d.Id,
+                Name = d.Name,
+                Description = d.Description,
+                PhysicalArtworks = d.PhysicalArtworks.Select(pa => new PhysicalArtListDto
+                {
+                    Id = pa.Id,
+                    Title = pa.Title,
+                    Artist = pa.Artist
+                }),
+            };
 
-            return destination;
+            return Ok(dto);
         }
 
         // PUT: api/Destinations/5
