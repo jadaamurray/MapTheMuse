@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MapTheMuseApi.Data;
 using MapTheMuseApi.Models;
+using MapTheMuseApi.Dtos;
 
 namespace MapTheMuseApi.Controllers
 {
@@ -40,6 +41,35 @@ namespace MapTheMuseApi.Controllers
             }
 
             return userArtEngagement;
+        }
+        
+        // GET /api/userartengagements/user/{userId}
+        [HttpGet("user/{userId}")]
+        public async Task<ActionResult<IEnumerable<UserArtEngagementReadDto>>> GetByUser(string userId)
+        {
+            var engagements = await _context.UserArtEngagements
+                .AsNoTracking()
+                .Where(e => e.UserId == userId)
+                .Include(e => e.Destination)
+                .Include(e => e.PhysicalArt)
+                .Select(e => new UserArtEngagementReadDto
+                {
+                    Id = e.Id,
+                    DateVisited = e.DateVisited,
+                    Destination = new DestinationSummaryDto
+                    {
+                        Id = e.Destination.Id,
+                        Name = e.Destination.Name
+                    },
+                    PhysicalArt = new PhysicalArtSummaryDto
+                    {
+                        Id = e.PhysicalArt.Id,
+                        Title = e.PhysicalArt.Title
+                    }
+                })
+                .ToListAsync();
+
+            return Ok(engagements);
         }
 
         // PUT: api/UserArtEngagements/5
@@ -76,12 +106,86 @@ namespace MapTheMuseApi.Controllers
         // POST: api/UserArtEngagements
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<UserArtEngagement>> PostUserArtEngagement(UserArtEngagement userArtEngagement)
+        public async Task<ActionResult<UserArtEngagementCreateDto>> PostUserArtEngagement([FromBody] UserArtEngagementCreateDto dto)
         {
-            _context.UserArtEngagements.Add(userArtEngagement);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var engagement = new UserArtEngagement
+            {
+                UserId = dto.UserId,
+                DestinationId = dto.DestinationId,
+                PhysicalArtId = dto.PhysicalArtId,
+                DateVisited = DateTime.UtcNow
+            };
+
+            _context.UserArtEngagements.Add(engagement);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetUserArtEngagement", new { id = userArtEngagement.Id }, userArtEngagement);
+            var loaded = await _context.UserArtEngagements
+                .AsNoTracking()
+                .Include(e => e.Destination)
+                .Include(e => e.PhysicalArt)
+                .FirstOrDefaultAsync(e => e.Id == engagement.Id)!;
+
+            var readDto = new UserArtEngagementReadDto
+            {
+                Id = loaded.Id,
+                DateVisited = loaded.DateVisited,
+
+                Destination = new DestinationSummaryDto
+                {
+                    Id = loaded.Destination.Id,
+                    Name = loaded.Destination.Name
+                },
+
+                PhysicalArt = new PhysicalArtSummaryDto
+                {
+                    Id = loaded.PhysicalArt.Id,
+                    Title = loaded.PhysicalArt.Title
+                }
+            };
+
+            return CreatedAtAction(
+                nameof(GetById),
+                new { id = readDto.Id },
+                readDto
+            );
+        }
+
+        /// <summary>
+        /// GET /api/userartengagements/{id}
+        /// Fetches a single engagement, used by CreatedAtAction above.
+        /// </summary>
+        [HttpGet("{id}", Name = nameof(GetById))]
+        public async Task<ActionResult<UserArtEngagementReadDto>> GetById(int id)
+        {
+            var e = await _context.UserArtEngagements
+                .AsNoTracking()
+                .Include(x => x.Destination)
+                .Include(x => x.PhysicalArt)
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            if (e == null)
+                return NotFound();
+
+            var dto = new UserArtEngagementReadDto
+            {
+                Id = e.Id,
+                DateVisited = e.DateVisited,
+                Destination = new DestinationSummaryDto
+                {
+                    Id = e.Destination.Id,
+                    Name = e.Destination.Name
+                },
+                PhysicalArt = new PhysicalArtSummaryDto
+                {
+                    Id = e.PhysicalArt.Id,
+                    Title = e.PhysicalArt.Title
+                }
+            };
+
+            return Ok(dto);
         }
 
         // DELETE: api/UserArtEngagements/5

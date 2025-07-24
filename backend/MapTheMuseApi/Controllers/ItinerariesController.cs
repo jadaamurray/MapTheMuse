@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MapTheMuseApi.Data;
 using MapTheMuseApi.Models;
+using MapTheMuseApi.Dtos;
 
 namespace MapTheMuseApi.Controllers
 {
@@ -23,23 +24,77 @@ namespace MapTheMuseApi.Controllers
 
         // GET: api/Itineraries
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Itinerary>>> GetItineraries()
+        public async Task<ActionResult<IEnumerable<ItineraryListDto>>> GetItineraries()
         {
-            return await _context.Itineraries.ToListAsync();
+            var list = await _context.Itineraries
+                                                    .AsNoTracking()
+                                                    .Select(i => new ItineraryListDto
+                                                    {
+                                                        Id = i.Id,
+                                                        UserId = i.UserId,
+                                                        Name = i.Name,
+                                                        ShortDescription =
+                                                            i.Description.Length <= 100
+                                                                ? i.Description
+                                                                : i.Description.Substring(0, 97) + "...",
+                                                        CreatedAt = i.CreatedAt,
+                                                        StartDate = i.StartDate,
+                                                        EndDate = i.EndDate
+                                                    })
+                                                    .ToListAsync();
+
+            return Ok(list);
         }
 
         // GET: api/Itineraries/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Itinerary>> GetItinerary(int id)
+        public async Task<ActionResult<ItineraryDetailDto>> FindbyId(int id)
         {
-            var itinerary = await _context.Itineraries.FindAsync(id);
+            var itinerary = await _context.Itineraries
+                .AsNoTracking()
+                .Include(x => x.ItineraryItems)
+            .ThenInclude(it => it.Destination)
+        .Include(i => i.ItineraryItems)
+            .ThenInclude(it => it.PhysicalArt)
+                .FirstOrDefaultAsync(i => i.Id == id);
 
-            if (itinerary == null)
+            if (itinerary == null) return NotFound();
+
+            var dto = new ItineraryDetailDto
             {
-                return NotFound();
-            }
+                Id = itinerary.Id,
+                UserId = itinerary.UserId,
+                Name = itinerary.Name,
+                Description = itinerary.Description,
+                CreatedAt = itinerary.CreatedAt,
+                StartDate = itinerary.StartDate,
+                EndDate = itinerary.EndDate,
+                Items = itinerary.ItineraryItems
+            .Select(it => new ItineraryItemReadDto
+            {
+                Id = it.Id,
+                StartDate = it.StartDate,
+                EndDate = it.EndDate,
+                Order = it.Order,
+                Note = it.Note,
 
-            return itinerary;
+                Destination = new DestinationSummaryDto
+                {
+                    Id = it.Destination!.Id,
+                    Name = it.Destination.Name
+                },
+
+                PhysicalArt = new PhysicalArtSummaryDto
+                {
+                    Id = it.PhysicalArt!.Id,
+                    Title = it.PhysicalArt.Title
+                }
+            })
+            .ToList()
+            };
+
+
+            return Ok(dto);
         }
 
         // PUT: api/Itineraries/5
@@ -76,8 +131,16 @@ namespace MapTheMuseApi.Controllers
         // POST: api/Itineraries
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Itinerary>> PostItinerary(Itinerary itinerary)
+        public async Task<ActionResult<ItineraryCreateDto>> PostItinerary(ItineraryCreateDto dto)
         {
+            var itinerary = new Itinerary
+            {
+                UserId = dto.UserId,
+                Name = dto.Name,
+                Description = dto.Description,
+                StartDate = dto.StartDate,
+                EndDate = dto.EndDate
+            };
             _context.Itineraries.Add(itinerary);
             await _context.SaveChangesAsync();
 

@@ -11,8 +11,9 @@ namespace MapTheMuseApi.Dtos
     {
         public int Id { get; set; }
         public DestinationSummaryDto Destination { get; set; } = null!;
-        public DateOnly StartDate { get; set; }
-        public DateOnly EndDate { get; set; }
+        public PhysicalArtSummaryDto? PhysicalArt { get; set; } = null!;
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
         public int Order { get; set; }
         public string? Note { get; set; }
     }

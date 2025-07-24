@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MapTheMuseApi.Data;
 using MapTheMuseApi.Models;
+using MapTheMuseApi.Dtos;
 
 namespace MapTheMuseApi.Controllers
 {
@@ -23,23 +24,52 @@ namespace MapTheMuseApi.Controllers
 
         // GET: api/PhysicalArtworks
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<PhysicalArt>>> GetPhysicalArtworks()
+        public async Task<ActionResult<IEnumerable<PhysicalArtListDto>>> GetPhysicalArtworks()
         {
-            return await _context.PhysicalArtworks.ToListAsync();
+            var list = await _context.PhysicalArtworks
+                                        .AsNoTracking()
+                                        .Select(p => new PhysicalArtListDto
+                                        {
+                                            Id = p.Id,
+                                            Title = p.Title,
+                                            ShortDescription =
+                                                p.Description.Length <= 100
+                                                    ? p.Description
+                                                    : p.Description.Substring(0, 97) + "...",
+                                            Artist = p.Artist,
+                                            ArtType = p.ArtType,
+                                            DateCreated = p.DateCreated,
+                                            LocationName = p.LocationName,
+                                            DestinationId = p.DestinationId
+                                        })
+                                        .ToListAsync();
+
+            return Ok(list);
         }
 
         // GET: api/PhysicalArtworks/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<PhysicalArt>> GetPhysicalArt(int id)
+        public async Task<ActionResult<PhysicalArtDetailDto>> GetById(int id)
         {
-            var physicalArt = await _context.PhysicalArtworks.FindAsync(id);
+            var p = await _context.PhysicalArtworks
+               .AsNoTracking()
+               .FirstOrDefaultAsync(x => x.Id == id);
 
-            if (physicalArt == null)
+            if (p == null) return NotFound();
+
+            var dto = new PhysicalArtDetailDto
             {
-                return NotFound();
-            }
+                Id = p.Id,
+                Title = p.Title,
+                Description = p.Description,
+                Artist = p.Artist,
+                ArtType = p.ArtType,
+                DateCreated = p.DateCreated,
+                LocationName = p.LocationName,
+                DestinationId = p.DestinationId
+            };
 
-            return physicalArt;
+            return Ok(dto);
         }
 
         // PUT: api/PhysicalArtworks/5
