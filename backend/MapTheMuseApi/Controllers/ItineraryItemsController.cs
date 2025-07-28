@@ -24,24 +24,77 @@ namespace MapTheMuseApi.Controllers
 
         // GET: api/ItineraryItems
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ItineraryItem>>> GetItineraryItems()
+        public async Task<ActionResult<IEnumerable<ItineraryItemReadDto>>> GetItineraryItems()
         {
-            return await _context.ItineraryItems.ToListAsync();
+            var items = await _context.ItineraryItems
+                            .AsNoTracking()
+                            .Include(it => it.Destination)
+                            .Include(it => it.PhysicalArt)
+                            .Select(it => new ItineraryItemReadDto
+                            {
+                                Id = it.Id,
+                                StartDate = it.StartDate,
+                                EndDate = it.EndDate,
+                                Order = it.Order,
+                                Note = it.Note,
+
+                                Destination = new DestinationSummaryDto
+                                {
+                                    Id = it.Destination.Id,
+                                    Name = it.Destination.Name
+                                },
+
+                                PhysicalArt = it.PhysicalArt != null
+                                    ? new PhysicalArtSummaryDto
+                                    {
+                                        Id = it.PhysicalArt.Id,
+                                        Title = it.PhysicalArt.Title
+                                    }
+                                    : null
+                            })
+                            .ToListAsync();
+
+            return Ok(items);
         }
 
         // GET: api/ItineraryItems/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<ItineraryItem>> GetItineraryItem(int id)
+        public async Task<ActionResult<ItineraryItemReadDto>> GetById(int id)
         {
-            var itineraryItem = await _context.ItineraryItems.FindAsync(id);
+            var item = await _context.ItineraryItems
+                 .AsNoTracking()
+                 .Include(it => it.Destination)
+                 .Include(it => it.PhysicalArt)
+                 .Where(it => it.Id == id)
+                 .Select(it => new ItineraryItemReadDto
+                 {
+                     Id = it.Id,
+                     Destination = new DestinationSummaryDto
+                     {
+                         Id = it.Destination.Id,
+                         Name = it.Destination.Name
+                     },
+                     StartDate = it.StartDate,
+                     EndDate = it.EndDate,
+                     Order = it.Order,
+                     Note = it.Note,
+                     PhysicalArt = it.PhysicalArt != null
+                         ? new PhysicalArtSummaryDto
+                         {
+                             Id = it.PhysicalArt.Id,
+                             Title = it.PhysicalArt.Title
+                         }
+                         : null
+                 })
+                 .FirstOrDefaultAsync();
 
-            if (itineraryItem == null)
-            {
+            if (item == null)
                 return NotFound();
-            }
 
-            return itineraryItem;
+            return Ok(item);
         }
+
+
 
         // PUT: api/ItineraryItems/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
@@ -91,11 +144,11 @@ namespace MapTheMuseApi.Controllers
                 Order = dto.Order,
                 Note = dto.Note
             };
-            
+
             _context.ItineraryItems.Add(item);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetItineraryItem), new { id = item.Id }, item);
+            return CreatedAtAction(nameof(GetById), new { id = item.Id }, item);
         }
 
         // DELETE: api/ItineraryItems/5

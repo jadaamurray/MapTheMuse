@@ -15,7 +15,7 @@ namespace MapTheMuseApi.Data
         public DbSet<Destination> Destinations { get; set; } = default!;
         public DbSet<Media> Media { get; set; } = default!;
         public DbSet<PhysicalArt> PhysicalArtworks { get; set; } = default!;
-        public DbSet<MapTheMuseApi.Models.AppUser> AppUser { get; set; } = default!;
+        public DbSet<MapTheMuseApi.Models.AppUser> AppUsers { get; set; } = default!;
         public DbSet<MapTheMuseApi.Models.UserArtEngagement> UserArtEngagements { get; set; } = default!;
         public DbSet<MapTheMuseApi.Models.UserMediaEngagement> UserMediaEngagements { get; set; } = default!;
         public DbSet<MapTheMuseApi.Models.Itinerary> Itineraries { get; set; } = default!;

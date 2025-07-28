@@ -5,13 +5,13 @@ namespace MapTheMuseApi.Models
 {
     public class AppUser : IdentityUser
     {
-        public string? FirstName { get; set; }
-        public string? LastName { get; set; }
+        public required string FirstName { get; set; }
+        public required string LastName { get; set; }
 
         public string? ProfilePictureUrl { get; set; }
 
-        public string? Country { get; set; }
-        public string? PreferredLanguage { get; set; }
+        public required string Country { get; set; }
+        public required string PreferredLanguage { get; set; }
 
         // Navigation properties
         public ICollection<UserArtEngagement> ArtEngagements { get; set; } = new List<UserArtEngagement>();

@@ -5,8 +5,10 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 using MapTheMuseApi.Data;
 using MapTheMuseApi.Models;
+using MapTheMuseApi.Dtos;
 
 namespace MapTheMuseApi.Controllers
 {
@@ -14,45 +16,58 @@ namespace MapTheMuseApi.Controllers
     [ApiController]
     public class AppUsersController : ControllerBase
     {
+        private readonly UserManager<AppUser> _userManager;
         private readonly MapTheMuseContext _context;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
-        public AppUsersController(MapTheMuseContext context)
+        public AppUsersController(MapTheMuseContext context, UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager)
         {
+            _userManager = userManager;
             _context = context;
+            _roleManager = roleManager;
+
         }
 
         // GET: api/AppUsers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<AppUser>>> GetAppUser()
         {
-            return await _context.AppUser.ToListAsync();
+            return await _context.AppUsers.ToListAsync();
         }
 
         // GET: api/AppUsers/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<AppUser>> GetAppUser(string id)
+        public async Task<ActionResult<UserProfileDto>> GetById(string id)
         {
-            var appUser = await _context.AppUser.FindAsync(id);
+            var appUser = await _context.AppUsers.FindAsync(id);
 
-            if (appUser == null)
+            if (appUser == null) return NotFound();
+
+            var dto = new UserProfileDto
             {
-                return NotFound();
-            }
+                Id = appUser.Id,
+                UserName = appUser.UserName,
+                Email = appUser.Email,
+                FirstName = appUser.FirstName,
+                LastName = appUser.LastName,
+                ProfilePictureUrl = appUser.ProfilePictureUrl,
+                Country = appUser.Country,
+                PreferredLanguage = appUser.PreferredLanguage
+            };
 
-            return appUser;
+            return Ok(dto);
         }
 
         // PUT: api/AppUsers/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutAppUser(string id, AppUser appUser)
+        public async Task<IActionResult> PutAppUser(string id, [FromBody] UserUpdateDto dto)
         {
-            if (id != appUser.Id)
-            {
-                return BadRequest();
-            }
+            if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            _context.Entry(appUser).State = EntityState.Modified;
+            var user = await _userManager.FindByIdAsync(id);
+
+            _context.Entry(user).State = EntityState.Modified;
 
             try
             {
@@ -78,7 +93,7 @@ namespace MapTheMuseApi.Controllers
         [HttpPost]
         public async Task<ActionResult<AppUser>> PostAppUser(AppUser appUser)
         {
-            _context.AppUser.Add(appUser);
+            _context.AppUsers.Add(appUser);
             try
             {
                 await _context.SaveChangesAsync();
@@ -102,21 +117,39 @@ namespace MapTheMuseApi.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAppUser(string id)
         {
-            var appUser = await _context.AppUser.FindAsync(id);
+            var appUser = await _context.AppUsers.FindAsync(id);
             if (appUser == null)
             {
                 return NotFound();
             }
 
-            _context.AppUser.Remove(appUser);
+            _context.AppUsers.Remove(appUser);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
+        // Assign role to user: api/AppUsers/5/roles
+        [HttpPost("{userId}/roles")]
+        public async Task<IActionResult> AddRoleToUser(string userId, [FromBody] RoleNameDto dto)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+                return NotFound($"User '{userId}' not found.");
+
+            if (!await _roleManager.RoleExistsAsync(dto.RoleName))
+                return NotFound($"Role '{dto.RoleName}' not found.");
+
+            var result = await _userManager.AddToRoleAsync(user, dto.RoleName);
+            if (!result.Succeeded)
+                return BadRequest(result.Errors);
+            return NoContent();
+        }
+
+
         private bool AppUserExists(string id)
         {
-            return _context.AppUser.Any(e => e.Id == id);
+            return _context.AppUsers.Any(e => e.Id == id);
         }
     }
 }

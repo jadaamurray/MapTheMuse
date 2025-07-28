@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MapTheMuseApi.Data;
 using MapTheMuseApi.Models;
+using MapTheMuseApi.Dtos;
 
 namespace MapTheMuseApi.Controllers
 {
@@ -23,23 +24,48 @@ namespace MapTheMuseApi.Controllers
 
         // GET: api/Media
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Media>>> GetMedia()
+        public async Task<ActionResult<IEnumerable<MediaListDto>>> GetMedia()
         {
-            return await _context.Media.ToListAsync();
+            var list = await _context.Media
+                            .AsNoTracking()
+                            .Select(m => new MediaListDto
+                            {
+                                Id = m.Id,
+                                Title = m.Title,
+                                ShortDescription =
+                                    m.Description.Length <= 100
+                                        ? m.Description
+                                        : m.Description.Substring(0, 97) + "...",
+                                Creator = m.Creator,
+                                MediaType = m.MediaType,
+                                ReleaseDate = m.ReleaseDate
+                            })
+                            .ToListAsync();
+
+            return Ok(list);
         }
 
         // GET: api/Media/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Media>> GetMedia(int id)
+        public async Task<ActionResult<MediaDetailDto>> GetbyId(int id)
         {
-            var media = await _context.Media.FindAsync(id);
+            var m = await _context.Media
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == id);
 
-            if (media == null)
+            if (m == null) return NotFound();
+
+            var dto = new MediaDetailDto
             {
-                return NotFound();
-            }
+                Id = m.Id,
+                Title = m.Title,
+                Description = m.Description,
+                Creator = m.Creator,
+                MediaType = m.MediaType,
+                ReleaseDate = m.ReleaseDate
+            };
 
-            return media;
+            return Ok(dto);
         }
 
         // PUT: api/Media/5
