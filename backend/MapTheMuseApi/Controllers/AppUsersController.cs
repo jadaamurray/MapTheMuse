@@ -18,10 +18,14 @@ namespace MapTheMuseApi.Controllers
     {
         private readonly UserManager<AppUser> _userManager;
         private readonly MapTheMuseContext _context;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
-        public AppUsersController(MapTheMuseContext context)
+        public AppUsersController(MapTheMuseContext context, UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager)
         {
+            _userManager = userManager;
             _context = context;
+            _roleManager = roleManager;
+
         }
 
         // GET: api/AppUsers
@@ -124,6 +128,24 @@ namespace MapTheMuseApi.Controllers
 
             return NoContent();
         }
+
+        // Assign role to user: api/AppUsers/5/roles
+        [HttpPost("{userId}/roles")]
+        public async Task<IActionResult> AddRoleToUser(string userId, [FromBody] RoleNameDto dto)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+                return NotFound($"User '{userId}' not found.");
+
+            if (!await _roleManager.RoleExistsAsync(dto.RoleName))
+                return NotFound($"Role '{dto.RoleName}' not found.");
+
+            var result = await _userManager.AddToRoleAsync(user, dto.RoleName);
+            if (!result.Succeeded)
+                return BadRequest(result.Errors);
+            return NoContent();
+        }
+
 
         private bool AppUserExists(string id)
         {
