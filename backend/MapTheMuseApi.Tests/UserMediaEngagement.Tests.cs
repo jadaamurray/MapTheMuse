@@ -3,6 +3,7 @@ using MapTheMuseApi.Data;
 using MapTheMuseApi.Models;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
+using MapTheMuseApi;
 
 namespace MapTheMuseApi.Tests
 {
@@ -34,7 +35,11 @@ namespace MapTheMuseApi.Tests
             var user = new AppUser
             {
                 UserName = "test@unit.com",
-                Email = "test@unit.com"
+                Email = "test@unit.com",
+                FirstName = "Test",
+                LastName = "User",
+                Country = "United Kingdom",
+                PreferredLanguage = "English"
             };
 
             context.Destinations.Add(dest);
