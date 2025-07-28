@@ -8,11 +8,13 @@ using Microsoft.EntityFrameworkCore;
 using MapTheMuseApi.Data;
 using MapTheMuseApi.Models;
 using MapTheMuseApi.Dtos;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MapTheMuseApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin")]
     public class UserArtEngagementsController : ControllerBase
     {
         private readonly MapTheMuseContext _context;
@@ -42,7 +44,7 @@ namespace MapTheMuseApi.Controllers
 
             return userArtEngagement;
         }
-        
+
         // GET /api/userartengagements/user/{userId}
         [HttpGet("user/{userId}")]
         public async Task<ActionResult<IEnumerable<UserArtEngagementReadDto>>> GetByUser(string userId)

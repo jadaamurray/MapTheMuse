@@ -8,11 +8,14 @@ using Microsoft.EntityFrameworkCore;
 using MapTheMuseApi.Data;
 using MapTheMuseApi.Models;
 using MapTheMuseApi.Dtos;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MapTheMuseApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
+
     public class ItinerariesController : ControllerBase
     {
         private readonly MapTheMuseContext _context;

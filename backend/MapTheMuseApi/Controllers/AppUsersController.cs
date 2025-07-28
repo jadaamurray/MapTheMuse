@@ -9,11 +9,15 @@ using Microsoft.AspNetCore.Identity;
 using MapTheMuseApi.Data;
 using MapTheMuseApi.Models;
 using MapTheMuseApi.Dtos;
+using Microsoft.AspNetCore.Authorization;
+
 
 namespace MapTheMuseApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin")]
+
     public class AppUsersController : ControllerBase
     {
         private readonly UserManager<AppUser> _userManager;
