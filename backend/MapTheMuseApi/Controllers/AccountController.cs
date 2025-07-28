@@ -7,6 +7,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using NuGet.Packaging.Signing;
+
 
 namespace MapTheMuseApi.Controllers
 {
@@ -17,12 +24,14 @@ namespace MapTheMuseApi.Controllers
         private readonly UserManager<AppUser> _userManager;
         private readonly SignInManager<AppUser> _signInManager;
         private readonly EmailService _emailService;
+        private readonly IConfiguration _config;
         public AccountController(UserManager<AppUser> userManager,
-       SignInManager<AppUser> signInManager, EmailService emailService)
+       SignInManager<AppUser> signInManager, EmailService emailService, IConfiguration config)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _emailService = emailService;
+            _config = config;
         }
         [HttpPost("register")]
         public async Task<IActionResult> Register(RegisterDto dto)
@@ -76,15 +85,53 @@ namespace MapTheMuseApi.Controllers
             return BadRequest("Email verification failed.");
         }
         [HttpPost("login")]
-        public async Task<IActionResult> Login(Auth model)
+        public async Task<IActionResult> Login(LoginDto dto)
         {
-            var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password,
-           isPersistent: false, lockoutOnFailure: false);
-            if (result.Succeeded)
-            {
-                return Ok("Login successful.");
-            }
-            return Unauthorized("Invalid login attempt.");
-        }
+            // Find the user
+        var user = await _userManager.FindByEmailAsync(dto.Email);
+        if (user == null)
+            return Unauthorized("Email or password invalid.");
+
+        // Check password
+        var result = await _signInManager.CheckPasswordSignInAsync(
+            user, dto.Password, lockoutOnFailure: false);
+        if (!result.Succeeded)
+            return Unauthorized("Email or password invalid.");
+
+        // Build the token claims
+        var claims = new List<Claim>
+        {
+            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+            new Claim(JwtRegisteredClaimNames.Email, user.Email),
+            // you can add more claims here if you need
+        };
+
+        // Include role claims
+        var roles = await _userManager.GetRolesAsync(user);
+        claims.AddRange(roles.Select(r => new Claim(ClaimTypes.Role, r)));
+
+        // Create the signing key
+        var keyBytes = Encoding.UTF8.GetBytes(_config["Jwt:Key"]!);
+        var creds = new SigningCredentials(
+            new SymmetricSecurityKey(keyBytes),
+            SecurityAlgorithms.HmacSha256);
+
+        // Set expiry
+        var expires = DateTime.UtcNow
+                    .AddDays(double.Parse(_config["Jwt:ExpiryDays"]!));
+
+        // 7) Build the JWT
+        var token = new JwtSecurityToken(
+            issuer:             _config["Jwt:Issuer"],
+            audience:           _config["Jwt:Audience"],
+            claims:             claims,
+            expires:            expires,
+            signingCredentials: creds
+        );
+
+        var jwt = new JwtSecurityTokenHandler().WriteToken(token);
+
+        return Ok(new { token = jwt });
+    }
     }
 }

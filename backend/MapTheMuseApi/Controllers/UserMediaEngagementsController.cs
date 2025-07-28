@@ -30,7 +30,7 @@ namespace MapTheMuseApi.Controllers
         }
 
         // GET: api/UserMediaEngagements/5
-        [HttpGet("{id}", Name = nameof(GetById))]
+        [HttpGet("{id}")]
         public async Task<ActionResult<UserMediaEngagementReadDto>> GetById(int id)
         {
             var e = await _context.UserMediaEngagements

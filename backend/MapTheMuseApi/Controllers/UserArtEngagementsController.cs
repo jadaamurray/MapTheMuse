@@ -157,7 +157,7 @@ namespace MapTheMuseApi.Controllers
         /// GET /api/userartengagements/{id}
         /// Fetches a single engagement, used by CreatedAtAction above.
         /// </summary>
-        [HttpGet("{id}", Name = nameof(GetById))]
+        [HttpGet("{id}")]
         public async Task<ActionResult<UserArtEngagementReadDto>> GetById(int id)
         {
             var e = await _context.UserArtEngagements
