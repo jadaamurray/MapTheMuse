@@ -38,7 +38,8 @@ builder.Services.AddAuthentication(options =>
 
         };
     });
-    
+// Interfaces
+builder.Services.AddScoped<IDestinationService, DestinationService>();
 builder.Services.AddAuthorization();
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
