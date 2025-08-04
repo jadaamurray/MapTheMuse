@@ -16,122 +16,50 @@ namespace MapTheMuseApi.Controllers
     [ApiController]
     public class DestinationsController : ControllerBase
     {
-        private readonly MapTheMuseContext _context;
+        private readonly IDestinationService _destinationService;
 
-        public DestinationsController(MapTheMuseContext context)
+        public DestinationsController(IDestinationService destinationService)
         {
-            _context = context;
+            _destinationService = destinationService;
         }
 
-        // GET: api/Destinations
         [HttpGet]
         public async Task<ActionResult<IEnumerable<DestinationListDto>>> GetAll()
-        {
-            var list = await _context.Destinations
-                .AsNoTracking()
-                .Select(d => new DestinationListDto
-                {
-                    Id = d.Id,
-                    Name = d.Name,
-                    ShortDescription =
-                        d.Description.Length <= 100
-                            ? d.Description
-                            : d.Description.Substring(0, 97) + "..."
-                })
-                .ToListAsync();
+        => Ok(await _destinationService.GetAllDestinationsAsync());
 
-            return Ok(list);
-        }
-
-        // GET: api/Destinations/5
         [HttpGet("{id}")]
         public async Task<ActionResult<DestinationDetailDto>> GetById(int id)
         {
-            var d = await _context.Destinations
-                .AsNoTracking()
-                .Include(x => x.PhysicalArtworks)
-                .FirstOrDefaultAsync(x => x.Id == id);
-
-            if (d == null) return NotFound();
-
-            var dto = new DestinationDetailDto
-            {
-                Id = d.Id,
-                Name = d.Name,
-                Description = d.Description,
-                PhysicalArtworks = d.PhysicalArtworks.Select(pa => new PhysicalArtListDto
-                {
-                    Id = pa.Id,
-                    Title = pa.Title,
-                    Artist = pa.Artist
-                }),
-            };
-
+            var dto = await _destinationService.GetDestinationByIdAsync(id);
+            if (dto == null) return NotFound();
             return Ok(dto);
         }
 
-        [Authorize(Roles = "Admin")]
-        // PUT: api/Destinations/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutDestination(int id, Destination destination)
-        {
-            if (id != destination.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(destination).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!DestinationExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
-        // POST: api/Destinations
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Destination>> PostDestination(Destination destination)
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<DestinationDetailDto>> Create([FromBody] DestinationCreateUpdateDto dto)
         {
-            _context.Destinations.Add(destination);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetDestination", new { id = destination.Id }, destination);
+            var created = await _destinationService.CreateDestinationAsync(dto);
+            return CreatedAtAction(nameof(GetById),
+                new { id = created.Id }, created);
         }
 
-        // DELETE: api/Destinations/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteDestination(int id)
+        [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Update(int id, [FromBody] DestinationCreateUpdateDto dto)
         {
-            var destination = await _context.Destinations.FindAsync(id);
-            if (destination == null)
-            {
+            if (!await _destinationService.UpdateDestinationAsync(id, dto))
                 return NotFound();
-            }
-
-            _context.Destinations.Remove(destination);
-            await _context.SaveChangesAsync();
-
             return NoContent();
         }
 
-        private bool DestinationExists(int id)
+        [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Delete(int id)
         {
-            return _context.Destinations.Any(e => e.Id == id);
+            if (!await _destinationService.DeleteDestinationAsync(id))
+                return NotFound();
+            return NoContent();
         }
     }
 }
