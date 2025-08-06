@@ -1,5 +1,5 @@
 import { Box, List, ListItemButton, Stack, Typography } from '@mui/material';
-import LinkList from '../LinkList';
+import LinkList from '../ui/LinkList';
 
 export default function Footer() {
   const features = ['Destinations', 'Music', 'Books', 'TV Shows', 'Movies', 'Painting & Sculpture', 'Architecture'];

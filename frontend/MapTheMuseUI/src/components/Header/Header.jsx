@@ -17,7 +17,7 @@ export default function HeaderNav() {
             position="sticky"
             elevation={0}
             sx={{
-                height: "100px",
+                height: "85px",
                 bgcolor: "background.default",
                 color: "text.primary",
                 px: 2,
