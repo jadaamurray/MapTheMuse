@@ -1,14 +1,26 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Destinations from './pages/Destinations';
+import { useState } from 'react'
+import './App.css'
+import CssBaseline from '@mui/material/CssBaseline';
+import { ThemeProvider } from './theme';
+import HeaderNav from './components/Header/Header'
+import Footer from './components/Footer/Footer';
 
 function App() {
+
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/destinations" element={<Destinations />} />
-      </Routes>
-    </BrowserRouter>
+    <ThemeProvider>
+      {/* Normalise browser styles and apply theme’s global overrides */}
+      <CssBaseline />
+      {/* header/nav bar */}
+      <HeaderNav />
+      {/* main content area */}
+      <main>
+        {/* Add your main content here */}
+      </main> 
+      {/* footer */}
+      <Footer />
+    </ThemeProvider>
   );
 }
 
-export default App;
+export default App

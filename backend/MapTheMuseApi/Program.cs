@@ -40,6 +40,17 @@ builder.Services.AddAuthentication(options =>
     });
 // Interfaces
 builder.Services.AddScoped<IDestinationService, DestinationService>();
+// Adding CORS services
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowReactApp", builder =>
+    {
+        builder.WithOrigins("http://localhost:5173")     // Allow all origins
+               .AllowAnyMethod()     // Allow any HTTP method
+               .AllowAnyHeader();    // Allow any header
+    });
+});
+
 builder.Services.AddAuthorization();
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
