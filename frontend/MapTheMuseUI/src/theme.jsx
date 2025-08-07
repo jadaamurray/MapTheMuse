@@ -6,11 +6,11 @@ import {
 } from '@mui/material';
 import { red } from '@mui/material/colors';
 
-// 1️⃣ Base theme definition
+// Base theme definition
 let theme = createTheme({
   palette: {
     primary: {
-      main: 'rgba(16, 55, 74, 1)',   // textnavy
+      main: 'hsla(200, 64%, 18%, 1.00)',   // textnavy
     },
     secondary: {
       main: 'rgba(250, 198, 104, 1)', // apricot
@@ -27,15 +27,9 @@ let theme = createTheme({
       secondary: 'rgba(68, 68, 68, 1)',  // grey600
       disabled:  'rgba(179,179,179,1)',  // grey400
     },
-    action: {
-      active: 'rgba(16, 55, 74, 1)',      // textnavy
-    },
-    success: {
-      main: 'rgba(28, 184, 17, 1)',       // boarding green
-    },
-    info: {
-      main: 'rgba(243,212,213,1)',        // soft pink
-    },
+    action: {active: 'rgba(16, 55, 74, 1)' },      // textnavy
+    success: {main: 'rgba(28, 184, 17, 1)' },       // boarding green
+    info: {main: 'rgba(243,212,213,1)' },       // soft pink
     divider: 'rgba(217,217,217,1)',       // grey300
     // custom palette keys
     flightBoard: { main: "rgba(13,17,23,1)" },

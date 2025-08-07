@@ -2,10 +2,10 @@ import { useState } from 'react'
 import './App.css'
 import { Box } from '@mui/material';
 import CssBaseline from '@mui/material/CssBaseline';
-import { ThemeProvider } from './themeOld';
+import { ThemeProvider } from './theme';
 import HeaderNav from './components/Header/Header'
 import Footer from './components/Footer/Footer';
-import SignInPage from './pages/SignIn/SignInPage';
+import AuthPage from './pages/SignIn/AuthPage';
 
 function App() {
 
@@ -29,10 +29,10 @@ function App() {
             component="main"
             sx={{
               flexGrow: 1,           // push footer to bottom
-              px: 2, py: 4,                 // padding
+              px: 2, py: 4,         // padding
             }}
           >
-            <SignInPage />
+            <AuthPage />
           </Box>
         </main>
         {/* footer */}
