@@ -8,8 +8,8 @@ import {
   Typography,
 } from "@mui/material";
 import React, { useState } from "react";
-import AuthForm from "./AuthForm";
-import BlurCircleBackground from "../../components/ui/BlurCircleBackground";
+import AuthForm from "../components/ui/AuthForm";
+import BlurCircleBackground from "../components/ui/BlurCircleBackground";
 
 const AuthPage = () => {
   const [error, setError] = useState(null);

@@ -5,7 +5,7 @@ import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider } from './theme';
 import HeaderNav from './components/Header/Header'
 import Footer from './components/Footer/Footer';
-import AuthPage from './pages/SignIn/AuthPage';
+import AuthPage from './pages/AuthPage';
 
 function App() {
 
