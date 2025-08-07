@@ -23,10 +23,10 @@ const AuthForm = ({ type, onSubmit, loading, error }) => {
   });
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { id, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [id]: value
     }));
   };
 

@@ -350,3 +350,14 @@ sketch
 # react env file
 .env
 .config/
+
+# logs
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
