@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import React, { useState } from "react";
 
-const AuthForm = ({ type, onSubmit, loading, error }) => {
+const AuthForm = ({ toggleType, type, onSubmit, loading, error }) => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -59,7 +59,7 @@ const AuthForm = ({ type, onSubmit, loading, error }) => {
           <>
             <Typography
               variant="h2"
-              sx={{ textAlign: "left", }}
+              sx={{ textAlign: "left" }}
             >
               Hello!
             </Typography>
@@ -95,30 +95,32 @@ const AuthForm = ({ type, onSubmit, loading, error }) => {
         <Stack spacing={4}>
           <Box>
             <TextField
-            label="Email"
+              label="Email"
               id="email"
               type="email"
               fullWidth
               value={formData.email}
               onChange={handleChange}
               variant="outlined"
+              autoComplete="email"
               required
             />
           </Box>
 
           <Box>
             <TextField
-            label="Password"
+              label="Password"
               id="password"
               type="password"
               fullWidth
               value={formData.password}
               onChange={handleChange}
               variant="outlined"
+              autoComplete="current-password"
               required
               {...(type !== 'login' && {
-                        helperText: 'Password must be at least 6 characters'
-                    })}
+                helperText: 'Password must be at least 6 characters'
+              })}
             />
           </Box>
 
@@ -141,6 +143,7 @@ const AuthForm = ({ type, onSubmit, loading, error }) => {
                 onChange={handleChange}
                 variant="outlined"
                 type="text"
+                autoComplete="given-name"
                 required
               />
               <TextField
@@ -150,6 +153,7 @@ const AuthForm = ({ type, onSubmit, loading, error }) => {
                 value={formData.lName}
                 onChange={handleChange}
                 variant="outlined"
+                autoComplete="family-name"
                 required
               />
               <TextField
@@ -159,6 +163,7 @@ const AuthForm = ({ type, onSubmit, loading, error }) => {
                 value={formData.username}
                 onChange={handleChange}
                 variant="outlined"
+                autoComplete="username"
                 required
               />
               <TextField
@@ -168,6 +173,7 @@ const AuthForm = ({ type, onSubmit, loading, error }) => {
                 value={formData.country}
                 onChange={handleChange}
                 variant="outlined"
+                autoComplete="country"
                 required
               />
               <TextField
@@ -198,6 +204,11 @@ const AuthForm = ({ type, onSubmit, loading, error }) => {
           New here?{" "}
           <Link
             href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              console.log('Switching to register');
+              toggleType();
+            }}
           >
             Register an Account
           </Link>
@@ -206,6 +217,12 @@ const AuthForm = ({ type, onSubmit, loading, error }) => {
             Already have an account?{" "}
             <Link
               href="#"
+              onClick={(e) => {
+                e.preventDefault();
+                console.log('Switching to login');
+                toggleType();
+              }}
+
             >
               Sign In
             </Link>

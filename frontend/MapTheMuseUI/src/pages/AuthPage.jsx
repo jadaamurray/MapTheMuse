@@ -9,17 +9,27 @@ import {
 } from "@mui/material";
 import React, { useState } from "react";
 import AuthForm from "../components/ui/AuthForm";
+import useAuth from "../hooks/useAuth";
 import BlurCircleBackground from "../components/ui/BlurCircleBackground";
 
 const AuthPage = () => {
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const type = 'register'; // or 'login' based on your logic
+  //const [error, setError] = useState(null);
+  //const [loading, setLoading] = useState(false);
+  const [type, setType] = useState('login');  // will be either login or register
+  const toggleType = () => {
+    setType(prev => (prev === 'login' ? 'register' : 'login'));
+  };
+
+  const { login, register, loading, error } = useAuth();
 
   const handleSubmit = async (formData) => {
     setError(null);
     try {
-      //await login(formData); 
+      if (type === 'login') {
+      await login(formData); 
+      } else {
+        await register(formData);
+      }
       //navigate('/dashboard');
     } catch (error) {
       setError(
@@ -75,7 +85,7 @@ const AuthPage = () => {
                 <Typography
                   variant="h2"
                   textAlign="left"
-                  fontColor="black"
+                  fontcolor="black"
                   sx={(theme) => ({
                     WebkitTextStrokeColor: theme.palette.background.white,
                     WebkitTextStrokeWidth: '1px',
@@ -90,6 +100,9 @@ const AuthPage = () => {
             <AuthForm
               type={type}
               onSubmit={handleSubmit}
+              loading={loading}
+              error={error}
+              toggleType={toggleType}
             />
           </Box>
         </Stack>
