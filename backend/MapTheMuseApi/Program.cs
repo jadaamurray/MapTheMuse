@@ -23,21 +23,41 @@ builder.Services.AddAuthentication(options =>
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 })
-    .AddJwtBearer(options =>
+.AddJwtBearer(options =>
+{
+    options.Events = new JwtBearerEvents
     {
-        options.TokenValidationParameters = new TokenValidationParameters
+        OnMessageReceived = context =>
         {
-            ValidateIssuer = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidateAudience = true,
-            ValidAudience = builder.Configuration["Jwt:Audience"],
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!)),
-            ClockSkew = TimeSpan.Zero
+            var accessToken = context.Request.Cookies["authToken"];
 
-        };
-    });
+            if (!string.IsNullOrEmpty(accessToken))
+            {
+                context.Token = accessToken;
+            }
+
+            return Task.CompletedTask;
+        }
+    };
+
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+
+        ValidateAudience = true,
+        ValidAudience = builder.Configuration["Jwt:Audience"],
+
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!)
+        ),
+
+        ClockSkew = TimeSpan.Zero
+    };
+});
+
 // Interfaces
 builder.Services.AddScoped<IDestinationService, DestinationService>();
 // Adding CORS services
@@ -46,8 +66,9 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowReactApp", builder =>
     {
         builder.WithOrigins("http://localhost:5173")     // Allow all origins
-               .AllowAnyMethod()     // Allow any HTTP method
-               .AllowAnyHeader();    // Allow any header
+            .AllowCredentials()   // Allow credentials (cookies, authorization headers, etc.)
+            .AllowAnyMethod()     // Allow any HTTP method
+            .AllowAnyHeader();    // Allow any header
     });
 });
 
@@ -64,6 +85,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseCors("AllowReactApp");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
