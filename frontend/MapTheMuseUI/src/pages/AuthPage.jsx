@@ -23,19 +23,11 @@ const AuthPage = () => {
   const { login, register, loading, error } = useAuth();
 
   const handleSubmit = async (formData) => {
-    setError(null);
-    try {
-      if (type === 'login') {
-      await login(formData); 
-      } else {
-        await register(formData);
-      }
-      //navigate('/dashboard');
-    } catch (error) {
-      setError(
-        error.response?.data?.message ||
-        error.message ||
-        'Login failed. Please try again.');
+    //console.log ('Form submitted with data: ', formData);
+    if (type === 'login') {
+      await login(formData);
+    } else {
+      await register(formData);
     }
   };
 

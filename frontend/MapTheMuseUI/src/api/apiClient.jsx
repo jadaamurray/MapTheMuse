@@ -15,9 +15,9 @@ const apiClient = axios.create({
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    /* if (error.response?.status === 401) {
       window.location.href = '/login'; // or use navigate() if using react-router. Put this in the useAuth hook
-    }
+    } */
 
     return Promise.reject(error.response?.data || error.message);
   }

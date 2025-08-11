@@ -33,6 +33,7 @@ const useAuth = () => {
   const register = async (data) => {
     setLoading(true);
     setError(null);
+    console.log('Registering with data: ', data)
     try {
       await AuthService.register(data); // backend sets cookie
       const profile = await AuthService.getCurrentUser();

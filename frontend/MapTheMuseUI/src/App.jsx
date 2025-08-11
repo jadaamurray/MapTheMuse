@@ -6,12 +6,16 @@ import { ThemeProvider } from './theme';
 import HeaderNav from './components/Header/Header'
 import Footer from './components/Footer/Footer';
 import AuthPage from './pages/AuthPage';
+import FlightBoardButton from './components/ui/FlightBoard/FlightBoardButton';
+import FbB from './components/ui/FlightBoard/FlightBoardButton2';
+import { StatusSection } from './components/ui/FlightBoard/StatusSection';
+import FlightBoardHeader from './components/ui/FlightBoard/FlightBoardHeader';
+import FlightBoard from './components/ui/FlightBoard/FlightBoard';
 
 function App() {
 
   return (
     <ThemeProvider>
-      {/* Normalise browser styles and apply theme’s global overrides */}
       <CssBaseline />
       {/* header/nav bar */}
       <Box
@@ -32,8 +36,9 @@ function App() {
               px: 2, py: 4,         // padding
             }}
           >
-            <AuthPage />
+            <FlightBoard />
           </Box>
+          <AuthPage />
         </main>
         {/* footer */}
         <Footer />

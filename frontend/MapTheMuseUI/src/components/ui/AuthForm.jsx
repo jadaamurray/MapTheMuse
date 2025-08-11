@@ -6,6 +6,8 @@ import {
   Stack,
   TextField,
   Typography,
+  CircularProgress,
+  Alert
 } from "@mui/material";
 import React, { useState } from "react";
 
@@ -13,13 +15,12 @@ const AuthForm = ({ toggleType, type, onSubmit, loading, error }) => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
-    ...(type === 'register' && {
-      fName: '',
-      lName: '',
-      username: '',
-      country: '',
-      preferredLanguage: ''
-    })
+    confirmPassword: '',
+    firstName: '',
+    lastName: '',
+    userName: '',
+    country: '',
+    preferredLanguage: ''
   });
 
   const handleChange = (e) => {
@@ -32,8 +33,8 @@ const AuthForm = ({ toggleType, type, onSubmit, loading, error }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Handle login logic here
-    // probably onSubmit(formData); and then call the API
+    //console.log('AuthForm.handleSubmit()', formData);
+    onSubmit?.(formData);
   };
 
   return (
@@ -116,10 +117,11 @@ const AuthForm = ({ toggleType, type, onSubmit, loading, error }) => {
               value={formData.password}
               onChange={handleChange}
               variant="outlined"
-              autoComplete="current-password"
+              autoComplete={type === 'login' ? 'current-password' : 'new-password'}
               required
               {...(type !== 'login' && {
-                helperText: 'Password must be at least 6 characters'
+                helperText: 'Password must be at least 6 characters',
+                inputProps: { minLength: 6 }
               })}
             />
           </Box>
@@ -136,10 +138,21 @@ const AuthForm = ({ toggleType, type, onSubmit, loading, error }) => {
           ) : (
             <>
               <TextField
-                id="fName"
+                id="confirmPassword"
+                label="Confirm Password"
+                type="password"
+                fullWidth
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                variant="outlined"
+                autoComplete='new-password'
+                required
+              />
+              <TextField
+                id="firstName"
                 label="First Name"
                 fullWidth
-                value={formData.fName}
+                value={formData.firstName}
                 onChange={handleChange}
                 variant="outlined"
                 type="text"
@@ -147,20 +160,20 @@ const AuthForm = ({ toggleType, type, onSubmit, loading, error }) => {
                 required
               />
               <TextField
-                id="lName"
+                id="lastName"
                 label="Last Name"
                 fullWidth
-                value={formData.lName}
+                value={formData.lastName}
                 onChange={handleChange}
                 variant="outlined"
                 autoComplete="family-name"
                 required
               />
               <TextField
-                id="username"
-                label="Username"
+                id="userName"
+                label="UserName"
                 fullWidth
-                value={formData.username}
+                value={formData.userName}
                 onChange={handleChange}
                 variant="outlined"
                 autoComplete="username"
