@@ -6,11 +6,8 @@ import { ThemeProvider } from './theme';
 import HeaderNav from './components/Header/Header'
 import Footer from './components/Footer/Footer';
 import AuthPage from './pages/AuthPage';
-import FlightBoardButton from './components/ui/FlightBoard/FlightBoardButton';
-import FbB from './components/ui/FlightBoard/FlightBoardButton2';
-import { StatusSection } from './components/ui/FlightBoard/StatusSection';
-import FlightBoardHeader from './components/ui/FlightBoard/FlightBoardHeader';
-import FlightBoard from './components/ui/FlightBoard/FlightBoard';
+import { Routes, Route} from 'react-router-dom';
+import Homepage from './pages/Homepage';
 
 function App() {
 
@@ -23,7 +20,9 @@ function App() {
           display: 'flex',
           flexDirection: 'column',
           minHeight: '100vh',      // stretch to fill screen
-          p: 2, // padding around content
+          width: '100%',
+          margin:0,
+          //p: 2,
         }}
       >
         <HeaderNav />
@@ -32,13 +31,15 @@ function App() {
           <Box
             component="main"
             sx={{
-              flexGrow: 1,           // push footer to bottom
+              flex: 1,           // push footer to bottom
               px: 2, py: 4,         // padding
             }}
           >
-            <FlightBoard />
+            < Routes >
+            <Route path='/homepage' element={<Homepage />} />
+            <Route path="/auth" element={<AuthPage />} />
+            </Routes>
           </Box>
-          <AuthPage />
         </main>
         {/* footer */}
         <Footer />

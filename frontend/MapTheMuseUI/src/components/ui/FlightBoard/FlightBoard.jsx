@@ -6,7 +6,7 @@ export default function FlightBoard() {
     return (
         <Box sx={{
             display: "flex",
-            width: 636,
+            //width: 636,
             height: 460,
             flexDirection: "column",
             alignItems: "flex-start",

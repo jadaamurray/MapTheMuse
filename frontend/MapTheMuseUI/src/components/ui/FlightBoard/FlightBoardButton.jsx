@@ -18,7 +18,6 @@ export const FlightBoardButton = ({ onClickFlight }) => {
                         alignItems: "center",
                         width: "100%",
                         alignSelf: 'stretch',
-                        display: "flex",
                         justifyContent: "space-between",
                         alignItems: "left",
                         minWidth: 0,
