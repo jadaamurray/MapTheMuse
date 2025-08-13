@@ -13,44 +13,46 @@ let theme = createTheme({
       main: 'hsla(200, 64%, 18%, 1.00)',   // textnavy
     },
     secondary: {
-      main: 'rgba(250, 198, 104, 1)', // apricot
+      main: 'rgba(186, 104, 115, 1)', // rose
+      apricot: 'rgba(250, 198, 104, 1)', // apricot
+      burntSienna: 'rgba(204, 85, 0, 1)', // burnt sienna
     },
     error: {
-        main: "#f44336", // red
-        },
+      main: "#f44336", // red
+    },
     background: {
       white: 'rgba(255, 254, 251, 1)', // white
-      cream:   'rgba(252, 248, 239, 1)', // cream
+      cream: 'rgba(252, 248, 239, 1)', // cream
     },
     text: {
-      primary:   'rgba(30, 30, 30, 1)',  // grey900
+      primary: 'rgba(30, 30, 30, 1)',  // grey900
       secondary: 'rgba(68, 68, 68, 1)',  // grey600
-      disabled:  'rgba(179,179,179,1)',  // grey400
+      disabled: 'rgba(179,179,179,1)',  // grey400
     },
-    action: {active: 'rgba(16, 55, 74, 1)' },      // textnavy
-    success: {main: 'rgba(28, 184, 17, 1)' },       // boarding green
-    info: {main: 'rgba(243,212,213,1)' },       // soft pink
+    action: { active: 'rgba(16, 55, 74, 1)' },      // textnavy
+    success: { main: 'rgba(28, 184, 17, 1)' },       // boarding green
+    info: { main: 'rgba(243,212,213,1)' },       // soft pink
     divider: 'rgba(217,217,217,1)',       // grey300
     // custom palette keys
     flightBoard: { main: "rgba(13,17,23,1)" },
-    boarding:    { main: "rgba(28,184,17,1)" },
+    boarding: { main: "rgba(28,184,17,1)" },
   },
   typography: {
-    fontFamily: ['Inter','Outfit','Helvetica','sans-serif'].join(','),
-    h1: { fontFamily: 'Outfit, Helvetica', fontSize: '64px', fontWeight:700 },
-    h2: { fontFamily: 'Outfit, Helvetica', fontSize: '36px', fontWeight:500 },
-    h3: { fontFamily: 'Outfit, Helvetica', fontSize: '28px', fontWeight:500 },
-    body1: { fontFamily: 'Inter, Helvetica', fontSize:'16px', fontWeight:400 },
-    body2: { fontFamily: 'Inter, Helvetica', fontSize:'18px', fontWeight:400 },
-    subtitle1: { fontFamily: 'Inter, Helvetica', fontSize:'16px', fontWeight:600 },
-    button: { fontFamily: 'Inter, Helvetica', fontSize:'16px', fontWeight:400 },
+    fontFamily: ['Inter', 'Outfit', 'Helvetica', 'sans-serif'].join(','),
+    h1: { fontFamily: 'Outfit, Helvetica', fontSize: '64px', fontWeight: 700 },
+    h2: { fontFamily: 'Outfit, Helvetica', fontSize: '36px', fontWeight: 500 },
+    h3: { fontFamily: 'Outfit, Helvetica', fontSize: '28px', fontWeight: 500 },
+    body1: { fontFamily: 'Inter, Helvetica', fontSize: '16px', fontWeight: 400 },
+    body2: { fontFamily: 'Inter, Helvetica', fontSize: '18px', fontWeight: 400 },
+    subtitle1: { fontFamily: 'Inter, Helvetica', fontSize: '16px', fontWeight: 600 },
+    button: { fontFamily: 'Inter, Helvetica', fontSize: '16px', fontWeight: 400 },
   },
   shape: {
     borderRadius: 8,
   },
   // Custom spacing scale, returns number * 8px
   spacing: (factor) => {
-    const map = { 2:1, 3:1.5, 4:2, 6:3, 8:4 };
+    const map = { 2: 1, 3: 1.5, 4: 2, 6: 3, 8: 4 };
     return (map[factor] || factor) * 8;
   },
   components: {

@@ -1,26 +1,46 @@
-import { useEffect, useState } from 'react';
-import axios from '../api/axios';
+import FlightBoard from "../components/ui/FlightBoard/FlightBoard";
+import { Box, Stack, Typography } from "@mui/material";
+import { useDestinations } from "../hooks/useDestinations";
 
 export default function DestinationsPage() {
-  const [destinations, setDestinations] = useState([]);
+    const { data: destinations, loading, error } = useDestinations();
+    //console.log("PAGE destinations prop ->", destinations);
 
-  useEffect(() => {
-    axios.get('/destinations')
-      .then(res => setDestinations(res.data))
-      .catch(err => console.error(err));
-  }, []);
 
-  return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Destinations</h1>
-      <ul className="space-y-4">
-        {destinations.map(dest => (
-          <li key={dest.id} className="border p-4 rounded">
-            <h2 className="text-xl font-semibold">{dest.name}</h2>
-            <p>{dest.shortDescription}</p>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
+    /*const names = (destinations ?? [])
+        .map(d => d?.name)
+        .filter(Boolean);*/
+
+    if (loading) return <Box py={4}>Loading…</Box>;
+    if (error) return <Box py={4}>Failed to load destinations</Box>;
+
+    console.log(
+        " PAGE dest keys",
+        destinations.map(d => d?.id)
+    );
+    console.log('PAGE dest names', destinations.map(d => d?.name))
+
+
+    return (
+        <Box
+            sx={{
+                width: '100%',
+                py: 25,
+                display: 'flex',
+                gap: 15,
+                flexDirection: 'column'
+            }}
+        >
+            <Box sx={{ alignItems: 'center' }}>
+                <Typography variant='h1' sx={{ color: 'primary.main' }}>Where are you off to?</Typography>
+                <Typography variant='body2'>Pick your next adventure from our curated flight board</Typography>
+            </Box>
+
+            {/* want to change something about the scrolling postion here */}
+            <Box position={'sticky'} >
+                <FlightBoard destinations={destinations ?? []} />
+            </Box>
+
+        </Box>
+    )
 }

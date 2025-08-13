@@ -18,6 +18,7 @@ export default function HeaderNav() {
             elevation={0}
             sx={{
                 height: "85px",
+                width: '100%',
                 bgcolor: "background.cream",
                 color: "text.primary",
                 px: 2,
@@ -25,12 +26,24 @@ export default function HeaderNav() {
                 alignItems: "center",
             }}
         >
-            <Toolbar sx={{ height: "100%", gap: "50px" }}>
+            <Toolbar
+                disableGutters
+                sx={{
+                    height: "100%",
+                    gap: "50px",
+                    width: '100%',
+                    justifyContent: 'space-between'
+                }}
+            >
                 <Typography
                     variant="h1"
                     component="div"
                     color="primary"
-                    sx={{ width: "500px" }}
+                    sx={{
+                        textAlign: 'left',
+                        flexGrow: 1,
+                        whiteSpace: 'nowrap'
+                    }}
                 >
                     Map The Muse
                 </Typography>

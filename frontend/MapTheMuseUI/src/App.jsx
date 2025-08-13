@@ -5,13 +5,16 @@ import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider } from './theme';
 import HeaderNav from './components/Header/Header'
 import Footer from './components/Footer/Footer';
-import AuthPage from './pages/SignIn/AuthPage';
+import AuthPage from './pages/AuthPage';
+import { Routes, Route } from 'react-router-dom';
+import Homepage from './pages/Homepage';
+import DestinationsPage from './pages/DestinationsPage';
+import DetailDestinationPage from './pages/DetailDestinationPage';
 
 function App() {
 
   return (
     <ThemeProvider>
-      {/* Normalise browser styles and apply theme’s global overrides */}
       <CssBaseline />
       {/* header/nav bar */}
       <Box
@@ -19,7 +22,9 @@ function App() {
           display: 'flex',
           flexDirection: 'column',
           minHeight: '100vh',      // stretch to fill screen
-          p: 2, // padding around content
+          width: '100%',
+          margin: 0,
+          //p: 2,
         }}
       >
         <HeaderNav />
@@ -28,11 +33,24 @@ function App() {
           <Box
             component="main"
             sx={{
-              flexGrow: 1,           // push footer to bottom
+              flex: 1,           // push footer to bottom
               px: 2, py: 4,         // padding
             }}
           >
-            <AuthPage />
+            < Routes >
+              <Route path='/homepage' element={<Homepage />} />
+              <Route path="/auth" element={<AuthPage />} />
+              {/* Group destinations routes */}
+              <Route path="/destinations">
+                {/* List page: /destinations */}
+                <Route index element={<DestinationsPage />} />
+                {/* Detail page: /destinations/:id */}
+                <Route path=":id" element={<DetailDestinationPage />} />
+
+                <Route path="*" element={<div>Not found</div>} />
+              </Route>
+
+            </Routes>
           </Box>
         </main>
         {/* footer */}

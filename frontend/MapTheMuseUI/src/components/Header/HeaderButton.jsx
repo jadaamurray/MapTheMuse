@@ -30,12 +30,12 @@ export default function HeaderButton({
         // hover underline
         '&:hover': {
           backgroundColor: disabled ? 'inherit' : 'action.hover',
-          borderColor: active ? 'transparent': 'primary.dark',    // change border color on hover if active
+          borderBottomColor: active ? 'transparent': 'primary.dark',    // change border color on hover if active
         },
         //  Click (mousedown) effect
         '&:active': {
-            borderColor: 'primary.main',
-            borderBotton  : '2px solid',
+            borderBottomColor: 'primary.main',
+            borderBottom  : '2px solid',
             fontWeight: 600,
           boxShadow: '0px 0px 0px 2px rgba(16, 55, 74, 0.2)', // subtle glow effect
         },
