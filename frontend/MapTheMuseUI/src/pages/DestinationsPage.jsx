@@ -3,14 +3,22 @@ import { Box, Stack, Typography } from "@mui/material";
 import { useDestinations } from "../hooks/useDestinations";
 
 export default function DestinationsPage() {
-      const { data: destinations, loading, error } = useDestinations();
+    const { data: destinations, loading, error } = useDestinations();
+    //console.log("PAGE destinations prop ->", destinations);
 
-      const names = (destinations ?? [])
-    .map(d => d?.name)
-    .filter(Boolean);
 
-  if (loading) return <Box py={4}>Loading…</Box>;
-  if (error)   return <Box py={4}>Failed to load destinations</Box>;
+    /*const names = (destinations ?? [])
+        .map(d => d?.name)
+        .filter(Boolean);*/
+
+    if (loading) return <Box py={4}>Loading…</Box>;
+    if (error) return <Box py={4}>Failed to load destinations</Box>;
+
+    console.log(
+        " PAGE dest keys",
+        destinations.map(d => d?.id)
+    );
+    console.log('PAGE dest names', destinations.map(d => d?.name))
 
 
     return (
@@ -30,7 +38,7 @@ export default function DestinationsPage() {
 
             {/* want to change something about the scrolling postion here */}
             <Box position={'sticky'} >
-                <FlightBoard destinations={names}/>
+                <FlightBoard destinations={destinations ?? []} />
             </Box>
 
         </Box>

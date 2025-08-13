@@ -7,8 +7,10 @@ import AutoStoriesTwoTone from "@mui/icons-material/AutoStoriesTwoTone";
 import MovieCreationTwoTone from "@mui/icons-material/MovieCreationTwoTone";
 import PaletteTwoTone from "@mui/icons-material/PaletteTwoTone"
 import CardRail from '../components/ui/CardRail';
+import { useDestinations } from '../hooks/useDestinations';
 
 export default function Homepage() {
+    const { data: destinations } = useDestinations();
     return (
         <Stack
             gap={5}
@@ -46,7 +48,8 @@ export default function Homepage() {
                 </Box>
                 {/* Flight board right */}
                 <Box sx={{ flex: '1 1 480px', minWidth: 220, }}>
-                    <FlightBoard />
+                    <FlightBoard 
+                    destinations={destinations ?? []}/>
                 </Box>
             </Stack>
             {/* Features Section */}
@@ -64,41 +67,41 @@ export default function Homepage() {
                 </Typography>
                 {/* Feature Cards */}
                 <CardRail cardWidth={289 + 24} showArrows snap="start">
-                        <FeatureCard
-                            title='Itinerary'
-                            subtitle='Create your own'
-                            description='Create a specialised plan for your trip. Whether that’s one destination or multiple cities!'
-                            Icon={EventNoteTwoTone}
-                            bg='secondary.main'
-                        />
-                        <FeatureCard
-                            title='Music'
-                            subtitle='Discover linked'
-                            description='Discover the soundtrack to your journey. From local legends to global hits, match the music to every moment of your travels.'
-                            Icon={LibraryMusicTwoTone}
-                            bg='secondary.burntSienna'
-                        />
-                        <FeatureCard
-                            title='Books'
-                            subtitle='Read your way through'
-                            description='Pair your journey with the perfect story. From local legends to world-renowned novels, let every page bring your destination to life.'
-                            Icon={AutoStoriesTwoTone}
-                            bg='secondary.apricot'
-                        />
-                        <FeatureCard
-                            title='Film & TV'
-                            subtitle="Watch the world's"
-                            description='From blockbuster favourites to hidden gems, explore films and shows that capture the spirit of your destination.'
-                            Icon={MovieCreationTwoTone}
-                            bg='primary.main'
-                        />
-                        <FeatureCard
-                            title='Artwork'
-                            subtitle='Experience the'
-                            description='From timeless masterpieces to vibrant local creations, explore art that captures the essence of your destination.'
-                            bg='secondary.main'
-                            Icon={PaletteTwoTone}
-                        />
+                    <FeatureCard
+                        title='Itinerary'
+                        subtitle='Create your own'
+                        description='Create a specialised plan for your trip. Whether that’s one destination or multiple cities!'
+                        Icon={EventNoteTwoTone}
+                        bg='secondary.main'
+                    />
+                    <FeatureCard
+                        title='Music'
+                        subtitle='Discover linked'
+                        description='Discover the soundtrack to your journey. From local legends to global hits, match the music to every moment of your travels.'
+                        Icon={LibraryMusicTwoTone}
+                        bg='secondary.burntSienna'
+                    />
+                    <FeatureCard
+                        title='Books'
+                        subtitle='Read your way through'
+                        description='Pair your journey with the perfect story. From local legends to world-renowned novels, let every page bring your destination to life.'
+                        Icon={AutoStoriesTwoTone}
+                        bg='secondary.apricot'
+                    />
+                    <FeatureCard
+                        title='Film & TV'
+                        subtitle="Watch the world's"
+                        description='From blockbuster favourites to hidden gems, explore films and shows that capture the spirit of your destination.'
+                        Icon={MovieCreationTwoTone}
+                        bg='primary.main'
+                    />
+                    <FeatureCard
+                        title='Artwork'
+                        subtitle='Experience the'
+                        description='From timeless masterpieces to vibrant local creations, explore art that captures the essence of your destination.'
+                        bg='secondary.main'
+                        Icon={PaletteTwoTone}
+                    />
                 </CardRail>
             </Stack>
             {/* Video in bottom section */}
