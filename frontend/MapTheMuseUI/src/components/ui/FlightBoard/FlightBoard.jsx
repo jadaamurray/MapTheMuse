@@ -2,7 +2,10 @@ import FlightBoardButton from "./FlightBoardButton";
 import FlightBoardHeader from "./FlightBoardHeader";
 import { Box, Stack, Typography } from "@mui/material";
 
-export default function FlightBoard() {
+export default function FlightBoard({
+    destinations = [],
+    onSelect,
+}) {
     return (
         <Box sx={{
             display: "flex",
@@ -18,9 +21,26 @@ export default function FlightBoard() {
         }}
         >
             <FlightBoardHeader />
-            <Stack spacing={1} sx={{width: "100%"}}>
-                <FlightBoardButton />
-            </Stack>
+            <Stack spacing={1} sx={{ width: "100%" }}>
+                {destinations.length === 0 ? (
+                    <Typography variant="body2" sx={{ opacity: 0.7, px: 1 }}>
+                        No destinations yet.
+                    </Typography>
+                ) : (
+                    destinations.map((d, index) => {
+                        const name = typeof d === "string" ? d : d?.name;
+                        const key = typeof d === "string" ? name : d?.id ?? index;
+                        if (!name) return null;
+
+                        return (
+                            <FlightBoardButton
+                                key={key}
+                                destination={name}
+                                onClick={() => onSelect?.(d)}
+                            />
+                        );
+                    })
+                )}            </Stack>
         </Box>
     )
 }

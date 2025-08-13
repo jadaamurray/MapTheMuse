@@ -7,9 +7,9 @@ import { useCardWheel } from "../../hooks/useCardWheel";
 
 export default function CardRail({
     children,
-    gap = 10,
-    px = 6,
-    py = 4,
+    gap = 5,
+    px = 10,
+    py = 9,
     showArrows = true,
     snap = "start", // 'start' | 'center'
     cardWidth,      // optional: if provided, scrolls exactly one card per click
@@ -60,7 +60,7 @@ export default function CardRail({
                     display: "flex",
                     gap,
                     px,
-                    py: 2,
+                    py,
                     overflowX: "auto",
                     overflowY: "hidden",
                     scrollSnapType: "x mandatory",

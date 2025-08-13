@@ -8,6 +8,7 @@ import Footer from './components/Footer/Footer';
 import AuthPage from './pages/AuthPage';
 import { Routes, Route} from 'react-router-dom';
 import Homepage from './pages/Homepage';
+import DestinationsPage from './pages/DestinationsPage';
 
 function App() {
 
@@ -38,6 +39,7 @@ function App() {
             < Routes >
             <Route path='/homepage' element={<Homepage />} />
             <Route path="/auth" element={<AuthPage />} />
+            <Route path="/destinations" element={<DestinationsPage />} />
             </Routes>
           </Box>
         </main>

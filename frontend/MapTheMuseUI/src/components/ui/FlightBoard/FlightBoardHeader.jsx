@@ -24,26 +24,28 @@ export const FlightBoardHeader = () => {
                 <Stack direction={"row"} spacing={10} sx={{ width: "100%" }}>
                     <Typography
                         sx={{
+                            width: "100%",
                             fontFamily: "monospace",
                             fontSize: 32,
                             fontWeight: 700,
                             color: "#FFFFFF",
+                            display: "flex",
+                            justifyContent: "space-between"
+
                         }}
                     >
                         DEPARTURES
                     </Typography>
-                    <Box
-                        sx={{
-                            width: 258,
-                            height: 32,
-                        }}
-                    ></Box>
+                    
                     <Typography
                         sx={{
+                            width: "100%",
                             fontFamily: "monospace",
                             fontSize: 32,
                             fontWeight: 700,
                             color: "#FFDF29",
+                            textAlign: "right",
+                            px: 7
                         }}
                     >
                         18:03
@@ -51,7 +53,7 @@ export const FlightBoardHeader = () => {
                 </Stack>
             </Box>
             {/* Column Headers */}
-            <Stack direction={"row"} sx={{ width: '100%', justifyContent: 'space-between'}}>
+            <Stack direction={"row"} sx={{ width: '100%', justifyContent: 'space-between' }}>
                 <Typography
                     sx={{
                         color: "#FBF4E3",

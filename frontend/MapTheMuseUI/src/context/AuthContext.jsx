@@ -12,6 +12,7 @@ export const AuthProvider = ({ children }) => {
   // On mount, fetch the current user (if JWT cookie exists)
   useEffect(() => {
     const fetchUser = async () => {
+      console.log('Fetching user...')
       try {
         const profile = await AuthService.getCurrentUser();
         setUser(profile);

@@ -1,17 +1,18 @@
 import { Box as MuiBox, Stack, Typography, ButtonBase } from "@mui/material";
 import React from "react";
+import PropTypes from "prop-types";
 
-const flightData = [
+
+/*const flightData = [
     { time: "18:08", destination: "NEW YORK", status: "BOARDING" },
     // { time: "19:45", destination: "LONDON", status: "ON TIME" },
-];
+]; */
 
-export const FlightBoardButton = ({ onClickFlight }) => {
+export const FlightBoardButton = ({ onClickFlight, destination = "" }) => {
     return (
-        <MuiBox sx={{width: "100%"}}>
-            {flightData.map((flight, index) => (
+        <MuiBox sx={{ width: "100%" }}>
                 <ButtonBase
-                    key={index}
+                    key={destination}
                     onClick={() => onClickFlight(flight)}
                     sx={{
                         display: "flex",
@@ -47,7 +48,7 @@ export const FlightBoardButton = ({ onClickFlight }) => {
                             flex: 1,
                         }}
                     >
-                        {flight.time}
+                        18:08
                     </Typography>
 
                     <Typography
@@ -60,7 +61,7 @@ export const FlightBoardButton = ({ onClickFlight }) => {
                             flex: 1,
                         }}
                     >
-                        {flight.destination}
+                        {destination}
                     </Typography>
 
                     <Typography
@@ -73,12 +74,14 @@ export const FlightBoardButton = ({ onClickFlight }) => {
                             flex: 1,
                         }}
                     >
-                        {flight.status}
+                        BOARDING
                     </Typography>
                 </ButtonBase>
-            ))}
         </MuiBox>
     );
-};
+}
 
+FlightBoardButton.PropTypes = {
+    destination: PropTypes.oneOfType([PropTypes.string, PropTypes.func])
+}
 export default FlightBoardButton;

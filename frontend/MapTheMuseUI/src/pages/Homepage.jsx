@@ -53,7 +53,7 @@ export default function Homepage() {
             <Stack
                 alignItems={'center'}
                 spacing={0}
-                sx={{ display: 'flex' }}
+                sx={{ display: 'flex', py: 10 }}
             >
                 <Typography variant='h1' sx={{ color: 'primary.main' }}>
                     Immerse Yourself Before You Go
@@ -64,11 +64,6 @@ export default function Homepage() {
                 </Typography>
                 {/* Feature Cards */}
                 <CardRail cardWidth={289 + 24} showArrows snap="start">
-                    <Stack
-                        direction={'row'}
-                        spacing={5}
-                        sx={{ flexWrap: 'nowrap' }}
-                    >
                         <FeatureCard
                             title='Itinerary'
                             subtitle='Create your own'
@@ -104,9 +99,21 @@ export default function Homepage() {
                             bg='secondary.main'
                             Icon={PaletteTwoTone}
                         />
-                    </Stack>
                 </CardRail>
             </Stack>
+            {/* Video in bottom section */}
+            <Box
+                component="video"
+                src="/homepageVideo.mp4"  // public/videos/myvideo.mp4
+                autoPlay
+                muted
+                loop
+                sx={{
+                    width: "100%",
+                    height: "auto",
+                    display: "block",
+                }}
+            />
         </Stack >
     )
 }

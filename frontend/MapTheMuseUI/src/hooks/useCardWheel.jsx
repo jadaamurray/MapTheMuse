@@ -1,3 +1,4 @@
+// want it to “hand back control” to vertical scrolling when the horizontal scroll is finished
 import { useEffect } from "react";
 
 export function useCardWheel(ref, { cardWidth } = {}) {
