@@ -7,5 +7,5 @@ export const AuthService = {
     params: { userId, token }
   }),
   logout: () => apiClient.post('/account/logout'),
-  getCurrentUser: () => apiClient.get('/account/me').then(r => r.data),
+  getCurrentUser: () => apiClient.get('/me').then(r => r.data),
 };

@@ -11,20 +11,27 @@ import React, { useState } from "react";
 import AuthForm from "../components/ui/AuthForm";
 import useAuth from "../hooks/useAuth";
 import BlurCircleBackground from "../components/ui/BlurCircleBackground";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const AuthPage = () => {
-  //const [error, setError] = useState(null);
-  //const [loading, setLoading] = useState(false);
-  const [type, setType] = useState('login');  // will be either login or register
+  /* const [type, setType] = useState('login');  // will be either login or register
   const toggleType = () => {
     setType(prev => (prev === 'login' ? 'register' : 'login'));
-  };
+  }; */
 
   const { login, register, loading, error } = useAuth();
+  const { pathname } = useLocation();
+  const navigate = useNavigate();
+
+  const mode = pathname.endsWith("/register") ? "register" : "login";
+
+  const toggleMode = () => {
+    navigate(mode === "login" ? "/register" : "/login");
+  };
 
   const handleSubmit = async (formData) => {
     //console.log ('Form submitted with data: ', formData);
-    if (type === 'login') {
+    if (mode === 'login') {
       await login(formData);
     } else {
       await register(formData);
@@ -57,7 +64,7 @@ const AuthPage = () => {
         <BlurCircleBackground />
         {/* Foreground elements */}
         <Stack direction="row" spacing={4} alignItems={"center"} zIndex={1}>
-          {type === 'register' && (
+          {mode === 'register' && (
             <>
               <Box sx={{ flex: '0 1 50%' }}>
                 <Typography
@@ -77,7 +84,7 @@ const AuthPage = () => {
                 <Typography
                   variant="h2"
                   textAlign="left"
-                  fontcolor="black"
+                  color="black"
                   sx={(theme) => ({
                     WebkitTextStrokeColor: theme.palette.background.white,
                     WebkitTextStrokeWidth: '1px',
@@ -90,11 +97,11 @@ const AuthPage = () => {
           )}
           <Box sx={{ minWidth: '300px' }}>
             <AuthForm
-              type={type}
+              type={mode}
               onSubmit={handleSubmit}
               loading={loading}
               error={error}
-              toggleType={toggleType}
+              toggleType={toggleMode}
             />
           </Box>
         </Stack>

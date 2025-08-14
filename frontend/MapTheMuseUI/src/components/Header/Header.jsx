@@ -1,16 +1,25 @@
 import React, { useState } from 'react';
 import { Box, AppBar, Toolbar, Typography, Stack } from '@mui/material';
 import HeaderButton from './HeaderButton';
+import { Link as RouterLink, useLocation, useNavigate } from "react-router-dom";
 
 const navItems = [
-    { id: 1, label: 'About' },
-    { id: 2, label: 'Destinations' },
-    { id: 3, label: 'My Trips' },
-    { id: 4, label: 'Log in', disabled: false },
+    { id: 1, label: 'About', path: "/about" },
+    { id: 2, label: 'Destinations', path: "/destinations" },
+    { id: 3, label: 'My Trips', path: "/trips" },
+    { id: 4, label: 'Log in', path: "/login", disabled: false },
 ];
 
 export default function HeaderNav() {
-    const [activeId, setActiveId] = useState(1);
+    const navigate = useNavigate();
+    const { pathname } = useLocation();
+
+    const handleClick = (item) => {
+        console.log("handling click");
+        if (item.disabled) return;
+        console.log("Click handled. Navigating to ", item.path);
+        navigate(item.path);
+    };
 
     return (
         <AppBar
@@ -37,12 +46,14 @@ export default function HeaderNav() {
             >
                 <Typography
                     variant="h1"
-                    component="div"
+                    onClick={() => navigate('/homepage')} 
                     color="primary"
                     sx={{
                         textAlign: 'left',
                         flexGrow: 1,
-                        whiteSpace: 'nowrap'
+                        whiteSpace: 'nowrap',
+                        textDecoration: "none",
+                        cursor: "pointer"
                     }}
                 >
                     Map The Muse
@@ -68,9 +79,9 @@ export default function HeaderNav() {
                             <HeaderButton
                                 key={item.id}
                                 label={item.label}
-                                active={activeId === item.id}
+                                active={pathname === item.path}
                                 disabled={item.disabled}
-                                onClick={() => setActiveId(item.id)}
+                                onClick={() => handleClick(item)}
                             />
                         ))}
                     </Stack>

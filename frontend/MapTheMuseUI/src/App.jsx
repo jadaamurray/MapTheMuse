@@ -39,7 +39,8 @@ function App() {
           >
             < Routes >
               <Route path='/homepage' element={<Homepage />} />
-              <Route path="/auth" element={<AuthPage />} />
+              <Route path="/login" element={<AuthPage />} />
+              <Route path="/register" element={<AuthPage />} />
               {/* Group destinations routes */}
               <Route path="/destinations">
                 {/* List page: /destinations */}

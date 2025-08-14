@@ -29,7 +29,7 @@ export default function Homepage() {
                 direction='row'
                 sx={{
                     width: '100%',
-                    justifyContent: 'space-between',
+                    justifyContent: 'center',
                     alignItems: 'stretch',
                     gap: 9,
                     width: '100%',
