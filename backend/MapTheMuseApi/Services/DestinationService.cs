@@ -114,17 +114,15 @@ public class DestinationService : IDestinationService
         if (entity == null) return false;
 
         entity.Name = dto.Name;
-        entity.Summary = dto.Summary;
-        entity.Description = dto.Description;
-        entity.ImageUrl = dto.ImageUrl;
-        entity.ThumbUrl = dto.ThumbUrl;
-        entity.Continent = dto.Continent;
-        entity.Country = dto.Country;
-        entity.Region = dto.Region;
-        entity.CultureHighlights = dto.CultureHighlights ?? new List<string>();
-        entity.QuickFacts = dto.QuickFacts != null
-            ? new Dictionary<string, string>(dto.QuickFacts)
-            : new Dictionary<string, string>(); // if your column is NOT NULL
+        entity.Summary = dto.Summary ?? entity.Summary;
+        entity.Description = dto.Description ?? entity.Description;
+        entity.ImageUrl = dto.ImageUrl ?? entity.ImageUrl;
+        entity.ThumbUrl = dto.ThumbUrl ?? entity.ThumbUrl;
+        entity.Continent = dto.Continent ?? entity.Continent;
+        entity.Country = dto.Country ?? entity.Country;
+        entity.Region = dto.Region ?? entity.Region;
+        entity.CultureHighlights = dto.CultureHighlights ?? entity.CultureHighlights ?? new List<string>();
+        entity.QuickFacts = dto.QuickFacts ?? entity.QuickFacts ?? new();
 
         // slug recalculation only if needed
         var baseSlug = Slugify.From(entity.Name);
