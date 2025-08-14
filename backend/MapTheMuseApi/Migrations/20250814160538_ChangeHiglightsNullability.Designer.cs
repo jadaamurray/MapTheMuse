@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using MapTheMuseApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,15 +13,18 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MapTheMuseApi.Migrations
 {
     [DbContext(typeof(MapTheMuseContext))]
-    partial class MapTheMuseContextModelSnapshot : ModelSnapshot
+    [Migration("20250814160538_ChangeHiglightsNullability")]
+    partial class ChangeHiglightsNullability
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "9.0.5")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
+            NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "hstore");
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("MapTheMuseApi.Models.AppUser", b =>
@@ -123,6 +127,7 @@ namespace MapTheMuseApi.Migrations
                         .HasColumnType("character varying(100)");
 
                     b.PrimitiveCollection<List<string>>("CultureHighlights")
+                        .IsRequired()
                         .HasColumnType("text[]");
 
                     b.Property<string>("Description")
@@ -138,7 +143,7 @@ namespace MapTheMuseApi.Migrations
                         .HasColumnType("character varying(200)");
 
                     b.Property<Dictionary<string, string>>("QuickFacts")
-                        .HasColumnType("jsonb");
+                        .HasColumnType("hstore");
 
                     b.Property<string>("Region")
                         .HasMaxLength(100)

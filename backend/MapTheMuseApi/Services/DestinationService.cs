@@ -45,6 +45,7 @@ public class DestinationService : IDestinationService
             Country = d.Country,
             Region = d.Region,
             CultureHighlights = d.CultureHighlights,
+            QuickFacts = d.QuickFacts,
             PhysicalArtworks = d.PhysicalArtworks
                 .Select(pa => new PhysicalArtListDto { Id = pa.Id, Title = pa.Title, Artist = pa.Artist })
                 .ToList()
@@ -66,6 +67,8 @@ public class DestinationService : IDestinationService
             Country = dto.Country,
             Region = dto.Region,
             CultureHighlights = dto.CultureHighlights,
+            QuickFacts = dto.QuickFacts ?? new Dictionary<string, string>()
+
         };
         _context.Destinations.Add(entity);
         await _context.SaveChangesAsync();
@@ -100,6 +103,7 @@ public class DestinationService : IDestinationService
             Country = entity.Country,
             Region = entity.Region,
             CultureHighlights = entity.CultureHighlights,
+            QuickFacts = entity.QuickFacts,
             PhysicalArtworks = Enumerable.Empty<PhysicalArtListDto>()
         };
     }
@@ -117,12 +121,20 @@ public class DestinationService : IDestinationService
         entity.Continent = dto.Continent;
         entity.Country = dto.Country;
         entity.Region = dto.Region;
-        entity.CultureHighlights = dto.CultureHighlights;
+        entity.CultureHighlights = dto.CultureHighlights ?? new List<string>();
+        entity.QuickFacts = dto.QuickFacts != null
+            ? new Dictionary<string, string>(dto.QuickFacts)
+            : new Dictionary<string, string>(); // if your column is NOT NULL
 
+        // slug recalculation only if needed
         var baseSlug = Slugify.From(entity.Name);
+        if (string.IsNullOrWhiteSpace(baseSlug))
+            baseSlug = $"destination-{entity.Id}";
 
-        // Only change the slug if the base would differ from current (ignoring an "-id" suffix)
-        var currentBase = entity.Slug?.Split('-', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ?? "";
+        var currentBase = entity.Slug ?? "";
+        var idSuffix = "-" + entity.Id;
+        if (currentBase.EndsWith(idSuffix, StringComparison.Ordinal))
+            currentBase = currentBase[..^idSuffix.Length];
         if (!string.Equals(baseSlug, currentBase, StringComparison.Ordinal))
         {
             entity.Slug = baseSlug;

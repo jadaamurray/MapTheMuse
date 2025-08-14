@@ -11,7 +11,8 @@ namespace MapTheMuseApi.Dtos
     public string? Continent { get; set; }
     public string? Country { get; set; }
     public string? Region { get; set; }
-    public List<string> CultureHighlights { get; set; } = new();
+    public Dictionary<string, string>? QuickFacts { get; set; }
+    public List<string>? CultureHighlights { get; set; } = new();
     public IEnumerable<PhysicalArtListDto> PhysicalArtworks { get; set; } = new List<PhysicalArtListDto>();
   }
 }
