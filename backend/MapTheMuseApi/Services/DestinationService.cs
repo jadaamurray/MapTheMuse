@@ -2,7 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using MapTheMuseApi.Data;
 using MapTheMuseApi.Dtos;
 using MapTheMuseApi.Models;
-
+using MapTheMuseApi.Infrastructure.Text;
+using Npgsql;
 public class DestinationService : IDestinationService
 {
     private readonly MapTheMuseContext _context;
@@ -18,35 +19,38 @@ public class DestinationService : IDestinationService
             {
                 Id = d.Id,
                 Name = d.Name,
-                ShortDescription = (d.Description ?? string.Empty).Length <= 100
-                ? (d.Description ?? string.Empty)
-                : (d.Description ?? string.Empty).Substring(0, 97) + "..."
+                Summary = string.IsNullOrWhiteSpace(d.Summary)
+                    ? ((d.Description ?? "").Length <= 100 ? d.Description : (d.Description ?? "").Substring(0, 97) + "…")
+                    : d.Summary,
+                Slug = d.Slug,
+                ThumbUrl = d.ThumbUrl
             })
             .ToListAsync();
     }
 
     public async Task<DestinationDetailDto?> GetDestinationByIdAsync(int id)
     {
-        var d = await _context.Destinations
-            .AsNoTracking()
-            .Include(d => d.PhysicalArtworks)
-            .FirstOrDefaultAsync(d => d.Id == id);
-
-        if (d == null) return null;
-
-        return new DestinationDetailDto
+        return await _context.Destinations
+        .AsNoTracking()
+        .Where(x => x.Id == id)
+        .Select(d => new DestinationDetailDto
         {
             Id = d.Id,
             Name = d.Name,
+            Slug = d.Slug,
+            Summary = d.Summary,
             Description = d.Description,
+            ImageUrl = d.ImageUrl,
+            Continent = d.Continent,
+            Country = d.Country,
+            Region = d.Region,
+            CultureHighlights = d.CultureHighlights,
+            QuickFacts = d.QuickFacts,
             PhysicalArtworks = d.PhysicalArtworks
-                .Select(pa => new PhysicalArtListDto
-                {
-                    Id = pa.Id,
-                    Title = pa.Title,
-                    Artist = pa.Artist
-                })
-        };
+                .Select(pa => new PhysicalArtListDto { Id = pa.Id, Title = pa.Title, Artist = pa.Artist })
+                .ToList()
+        })
+        .SingleOrDefaultAsync();
     }
 
     public async Task<DestinationDetailDto> CreateDestinationAsync(DestinationCreateUpdateDto dto)
@@ -54,17 +58,52 @@ public class DestinationService : IDestinationService
         var entity = new Destination
         {
             Name = dto.Name,
-            Description = dto.Description
+            Slug = Guid.NewGuid().ToString("n"), // temp unique slug
+            Summary = dto.Summary,
+            Description = dto.Description,
+            ImageUrl = dto.ImageUrl,
+            ThumbUrl = dto.ThumbUrl,
+            Continent = dto.Continent,
+            Country = dto.Country,
+            Region = dto.Region,
+            CultureHighlights = dto.CultureHighlights,
+            QuickFacts = dto.QuickFacts ?? new Dictionary<string, string>()
+
         };
         _context.Destinations.Add(entity);
         await _context.SaveChangesAsync();
+
+        var baseSlug = Slugify.From(entity.Name);
+        if (string.IsNullOrWhiteSpace(baseSlug))
+            baseSlug = $"destination-{entity.Id}";
+
+        // Try to claim base slug
+        entity.Slug = baseSlug;
+        try
+        {
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateException ex) when (IsUniqueViolation(ex))
+        {
+            // If taken, append the Id
+            entity.Slug = $"{baseSlug}-{entity.Id}";
+            await _context.SaveChangesAsync();
+        }
 
         // map back to a detail DTO
         return new DestinationDetailDto
         {
             Id = entity.Id,
             Name = entity.Name,
+            Slug = entity.Slug,
+            Summary = entity.Summary,
             Description = entity.Description,
+            ImageUrl = entity.ImageUrl,
+            Continent = entity.Continent,
+            Country = entity.Country,
+            Region = entity.Region,
+            CultureHighlights = entity.CultureHighlights,
+            QuickFacts = entity.QuickFacts,
             PhysicalArtworks = Enumerable.Empty<PhysicalArtListDto>()
         };
     }
@@ -75,7 +114,42 @@ public class DestinationService : IDestinationService
         if (entity == null) return false;
 
         entity.Name = dto.Name;
+        entity.Summary = dto.Summary;
         entity.Description = dto.Description;
+        entity.ImageUrl = dto.ImageUrl;
+        entity.ThumbUrl = dto.ThumbUrl;
+        entity.Continent = dto.Continent;
+        entity.Country = dto.Country;
+        entity.Region = dto.Region;
+        entity.CultureHighlights = dto.CultureHighlights ?? new List<string>();
+        entity.QuickFacts = dto.QuickFacts != null
+            ? new Dictionary<string, string>(dto.QuickFacts)
+            : new Dictionary<string, string>(); // if your column is NOT NULL
+
+        // slug recalculation only if needed
+        var baseSlug = Slugify.From(entity.Name);
+        if (string.IsNullOrWhiteSpace(baseSlug))
+            baseSlug = $"destination-{entity.Id}";
+
+        var currentBase = entity.Slug ?? "";
+        var idSuffix = "-" + entity.Id;
+        if (currentBase.EndsWith(idSuffix, StringComparison.Ordinal))
+            currentBase = currentBase[..^idSuffix.Length];
+        if (!string.Equals(baseSlug, currentBase, StringComparison.Ordinal))
+        {
+            entity.Slug = baseSlug;
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex) when (IsUniqueViolation(ex))
+            {
+                entity.Slug = $"{baseSlug}-{entity.Id}";
+                await _context.SaveChangesAsync();
+            }
+            return true;
+        }
+
         await _context.SaveChangesAsync();
         return true;
     }
@@ -87,5 +161,10 @@ public class DestinationService : IDestinationService
         _context.Destinations.Remove(entity);
         await _context.SaveChangesAsync();
         return true;
+    }
+    private static bool IsUniqueViolation(DbUpdateException ex)
+    {
+        // Npgsql -> Postgres unique violation SQLSTATE is 23505
+        return ex.InnerException is Npgsql.PostgresException pg && pg.SqlState == "23505";
     }
 }

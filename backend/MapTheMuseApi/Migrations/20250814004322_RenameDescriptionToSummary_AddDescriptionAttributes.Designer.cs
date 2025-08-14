@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using MapTheMuseApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MapTheMuseApi.Migrations
 {
     [DbContext(typeof(MapTheMuseContext))]
-    partial class MapTheMuseContextModelSnapshot : ModelSnapshot
+    [Migration("20250814004322_RenameDescriptionToSummary_AddDescriptionAttributes")]
+    partial class RenameDescriptionToSummary_AddDescriptionAttributes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -123,6 +126,7 @@ namespace MapTheMuseApi.Migrations
                         .HasColumnType("character varying(100)");
 
                     b.PrimitiveCollection<List<string>>("CultureHighlights")
+                        .IsRequired()
                         .HasColumnType("text[]");
 
                     b.Property<string>("Description")
@@ -137,9 +141,6 @@ namespace MapTheMuseApi.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
-                    b.Property<Dictionary<string, string>>("QuickFacts")
-                        .HasColumnType("jsonb");
-
                     b.Property<string>("Region")
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
@@ -150,19 +151,14 @@ namespace MapTheMuseApi.Migrations
                         .HasColumnType("character varying(200)");
 
                     b.Property<string>("Summary")
+                        .IsRequired()
                         .HasMaxLength(300)
                         .HasColumnType("character varying(300)");
 
                     b.Property<string>("ThumbUrl")
                         .HasColumnType("text");
 
-                    b.Property<int>("Type")
-                        .HasColumnType("integer");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("Slug")
-                        .IsUnique();
 
                     b.ToTable("Destinations");
                 });

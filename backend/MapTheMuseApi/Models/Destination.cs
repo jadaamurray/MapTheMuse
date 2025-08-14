@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace MapTheMuseApi.Models
 {
+    public enum DestinationType { Country = 0, City = 1, Region = 2 }
     public class Destination
     {
         [Key]
@@ -13,9 +14,30 @@ namespace MapTheMuseApi.Models
         [Required]
         [MaxLength(200)]
         public required string Name { get; set; }
+        [MaxLength(200)]
+        public string Slug { get; set; } = "";
+        public DestinationType Type { get; set; } = DestinationType.Country;
 
-        [MaxLength(500)]
-        public required string Description { get; set; }
+        // Content
+        [MaxLength(300)]
+        public string? Summary { get; set; }
+        [MaxLength(300)]
+        public string? Description { get; set; }
+
+        // Media
+        public string? ImageUrl { get; set; }              // hero/banner
+        public string? ThumbUrl { get; set; }              // card/thumbnail
+
+        // Geography
+        [MaxLength(100)] public string? Continent { get; set; }
+        [MaxLength(100)] public string? Country { get; set; }
+        [MaxLength(100)] public string? Region { get; set; }
+
+        // culture highlights 
+        [Column(TypeName = "jsonb")]
+        public Dictionary<string, string>? QuickFacts { get; set; }
+        public List<string>? CultureHighlights { get; set; } = new();
+
         [JsonIgnore]
         // navigation properties
         public ICollection<PhysicalArt> PhysicalArtworks { get; set; } = new List<PhysicalArt>();

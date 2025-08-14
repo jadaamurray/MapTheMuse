@@ -6,9 +6,14 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using MapTheMuseApi.Controllers;
+using Npgsql;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// ability to deserialise dictionaries
+NpgsqlConnection.GlobalTypeMapper.EnableDynamicJson();
+builder.Services.AddDbContext<MapTheMuseContext>(opts =>
+    opts.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
 // EF Core and Identity
 builder.Services.AddDbContext<MapTheMuseContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));

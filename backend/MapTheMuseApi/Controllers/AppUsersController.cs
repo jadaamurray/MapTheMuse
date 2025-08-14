@@ -1,3 +1,5 @@
+/* Probably not needed until admin is fleshed out
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -157,3 +159,4 @@ namespace MapTheMuseApi.Controllers
         }
     }
 }
+*/
