@@ -12,15 +12,6 @@ const apiClient = axios.create({
 });
 
 // Response Interceptor – handle common errors globally
-apiClient.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    /* if (error.response?.status === 401) {
-      window.location.href = '/login'; // or use navigate() if using react-router. Put this in the useAuth hook
-    } */
-
-    return Promise.reject(error.response?.data || error.message);
-  }
-);
+apiClient.interceptors.response.use(r => r, (error) => Promise.reject(error));
 
 export default apiClient;

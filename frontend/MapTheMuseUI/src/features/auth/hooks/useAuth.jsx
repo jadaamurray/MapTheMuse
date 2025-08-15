@@ -1,12 +1,12 @@
 import { useState } from 'react';
-//import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { AuthService } from '../services/authService';
-import { useAuthContext } from '../context/AuthContext'; // if you're using context
-import toast from 'react-hot-toast'; // optional for better UX
+import { useAuthContext } from '../context/AuthContext'; 
+import toast from 'react-hot-toast';
 
 const useAuth = () => {
-  //const navigate = useNavigate();
-  const { setUser } = useAuthContext(); // assumes you store the user in context
+  const navigate = useNavigate();
+  const { setUser } = useAuthContext(); 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -15,11 +15,13 @@ const useAuth = () => {
     setLoading(true);
     setError(null);
     try {
+      console.log('logging in with', credentials)
       await AuthService.login(credentials); // cookie is set by backend
       const profile = await AuthService.getCurrentUser(); // fetch user details
+      //console.log('profile is', profile)
       setUser(profile); // store user in context
-      //navigate('/dashboard');
-      console.log('Logged in successfully');
+      navigate('/profile');
+      //console.log('Logged in successfully');
       toast.success('Logged in successfully');
     } catch (err) {
       setError(err?.message || 'Login failed');

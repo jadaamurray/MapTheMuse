@@ -12,8 +12,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 // ability to deserialise dictionaries
 NpgsqlConnection.GlobalTypeMapper.EnableDynamicJson();
-builder.Services.AddDbContext<MapTheMuseContext>(opts =>
-    opts.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
 // EF Core and Identity
 builder.Services.AddDbContext<MapTheMuseContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
