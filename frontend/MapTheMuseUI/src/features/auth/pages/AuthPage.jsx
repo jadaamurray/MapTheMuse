@@ -30,7 +30,6 @@ const AuthPage = () => {
   };
 
   const handleSubmit = async (formData) => {
-    //console.log ('Form submitted with data: ', formData);
     if (mode === 'login') {
       await login(formData);
     } else {

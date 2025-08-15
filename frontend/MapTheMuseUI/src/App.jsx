@@ -10,6 +10,7 @@ import { Routes, Route } from 'react-router-dom';
 import Homepage from './pages/Homepage';
 import DestinationsPage from './features/destinations/pages/DestinationsPage';
 import DetailDestinationPage from './features/destinations/pages/DetailDestinationPage';
+import ProfilePage from './features/profile/pages/ProfilePage';
 
 function App() {
 
@@ -41,15 +42,18 @@ function App() {
               <Route path='/homepage' element={<Homepage />} />
               <Route path="/login" element={<AuthPage />} />
               <Route path="/register" element={<AuthPage />} />
-              {/* Group destinations routes */}
+
+              {/* Destinations routes */}
               <Route path="/destinations">
                 {/* List page: /destinations */}
                 <Route index element={<DestinationsPage />} />
                 {/* Detail page: /destinations/:id */}
                 <Route path=":id" element={<DetailDestinationPage />} />
-
-                <Route path="*" element={<div>Not found</div>} />
               </Route>
+              {/* Profile routes */}
+              <Route path='/profile' element={<ProfilePage />} />
+              <Route path="*" element={<div>Not found</div>} />
+
 
             </Routes>
           </Box>

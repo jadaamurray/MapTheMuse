@@ -33,7 +33,6 @@ const AuthForm = ({ toggleType, type, onSubmit, loading, error }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    //console.log('AuthForm.handleSubmit()', formData);
     onSubmit?.(formData);
   };
 

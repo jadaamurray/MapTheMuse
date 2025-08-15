@@ -131,13 +131,27 @@ namespace MapTheMuseApi.Controllers
 
             var jwt = new JwtSecurityTokenHandler().WriteToken(token);
 
-            HttpContext.Response.Cookies.Append("authToken", jwt, new CookieOptions
+            var cookie = new CookieOptions
             {
                 HttpOnly = true,
-                Secure = _env.IsDevelopment() ? false : true, // must be true in production (HTTPS only)
-                SameSite = SameSiteMode.None, // allow cross-site requests
+                Path = "/",
                 Expires = expires
-            });
+            };
+
+            if (_env.IsDevelopment())
+            {
+                // HTTP localhost → same-site 
+                cookie.SameSite = SameSiteMode.Lax;
+                cookie.Secure = false;
+            }
+            else
+            {
+                // Production: cross-site friendly + HTTPS only
+                cookie.SameSite = SameSiteMode.None;
+                cookie.Secure = true;
+            }
+
+            Response.Cookies.Append("authToken", jwt, cookie);
 
             return Ok(new { message = "Login successful" });
         }
