@@ -24,8 +24,14 @@ namespace MapTheMuseApi.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<DestinationListDto>>> GetAll()
-        => Ok(await _destinationService.GetAllDestinationsAsync());
+        public async Task<ActionResult<IEnumerable<DestinationListDto>>> GetAll(
+            [FromQuery] string? continent,
+            [FromQuery] string? factKey,
+            [FromQuery] string? factValue)
+        {
+            var items = await _destinationService.GetAllDestinationsAsync(continent, factKey, factValue);
+            return Ok(items);
+        }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<DestinationDetailDto>> GetById(int id)

@@ -2,6 +2,7 @@ import { Box, Typography, Stack, Container, Divider } from "@mui/material";
 import { useParams } from "react-router-dom";
 import { useDestination } from "../hooks/useDestinations";
 import DestinationSpotifyPlaylist from "../components/DestinationSpotifyPlaylist";
+import QuickFactsCarousel from "../components/QuickFactsCarousel";
 
 export default function DetailDestinationPage() {
     const { id } = useParams();
@@ -88,6 +89,7 @@ export default function DetailDestinationPage() {
                 </Box>
             </Box>
             {/* Information Section */}
+            <QuickFactsCarousel facts={data?.quickFacts} title="Need-to-know" />
             <Stack
                 borderRadius={4}
                 spacing={15}
