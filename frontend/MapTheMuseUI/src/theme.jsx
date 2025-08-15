@@ -106,7 +106,7 @@ let theme = createTheme({
     MuiCssBaseline: {
       styleOverrides: {
         body: {
-          backgroundColor: 'rgba(252,248,239,1)',
+          backgroundColor: 'rgba(255, 254, 251, 1)',
         },
       },
     },

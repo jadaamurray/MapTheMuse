@@ -11,21 +11,38 @@ public class DestinationService : IDestinationService
     public DestinationService(MapTheMuseContext context)
         => _context = context;
 
-    public async Task<List<DestinationListDto>> GetAllDestinationsAsync()
+    public async Task<List<DestinationListDto>> GetAllDestinationsAsync(
+        string? continent = null,
+        string? factKey = null,
+        string? factValue = null)
     {
-        return await _context.Destinations
-            .AsNoTracking()
-            .Select(d => new DestinationListDto
-            {
-                Id = d.Id,
-                Name = d.Name,
-                Summary = string.IsNullOrWhiteSpace(d.Summary)
-                    ? ((d.Description ?? "").Length <= 100 ? d.Description : (d.Description ?? "").Substring(0, 97) + "…")
-                    : d.Summary,
-                Slug = d.Slug,
-                ThumbUrl = d.ThumbUrl
-            })
-            .ToListAsync();
+        var q = _context.Destinations.AsNoTracking();
+
+        if (!string.IsNullOrWhiteSpace(continent))
+            q = q.Where(d => d.Continent == continent);
+
+        if (!string.IsNullOrWhiteSpace(factKey) && string.IsNullOrWhiteSpace(factValue))
+        {
+            // has key
+            q = q.Where(d => EF.Functions.JsonExists(d.QuickFacts, factKey));
+        }
+
+        if (!string.IsNullOrWhiteSpace(factKey) && !string.IsNullOrWhiteSpace(factValue))
+        {
+            var probe = new Dictionary<string, string> { { factKey, factValue } };
+            q = q.Where(d => EF.Functions.JsonContains(d.QuickFacts, probe));
+        }
+
+        return await q.Select(d => new DestinationListDto
+        {
+            Id = d.Id,
+            Name = d.Name,
+            Summary = string.IsNullOrWhiteSpace(d.Summary)
+                ? ((d.Description ?? "").Length <= 100 ? d.Description : (d.Description ?? "").Substring(0, 97) + "…")
+                : d.Summary,
+            Slug = d.Slug,
+            ThumbUrl = d.ThumbUrl,
+        }).ToListAsync();
     }
 
     public async Task<DestinationDetailDto?> GetDestinationByIdAsync(int id)
