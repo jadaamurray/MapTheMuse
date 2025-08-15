@@ -8,6 +8,7 @@ const navItems = [
     { id: 2, label: 'Destinations', path: "/destinations" },
     { id: 3, label: 'My Trips', path: "/trips" },
     { id: 4, label: 'Log in', path: "/login", disabled: false },
+    {id: 5, label: 'Register', path: "/register", disabled: true}
 ];
 
 export default function HeaderNav() {
@@ -15,9 +16,7 @@ export default function HeaderNav() {
     const { pathname } = useLocation();
 
     const handleClick = (item) => {
-        console.log("handling click");
         if (item.disabled) return;
-        console.log("Click handled. Navigating to ", item.path);
         navigate(item.path);
     };
 

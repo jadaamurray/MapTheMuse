@@ -1,5 +1,5 @@
 import { Typography, Box, Stack } from '@mui/material';
-import FlightBoard from '../components/ui/FlightBoard/FlightBoard';
+import FlightBoard from '../features/destinations/components/FlightBoard/FlightBoard';
 import FeatureCard from '../components/ui/FeatureCard';
 import EventNoteTwoTone from "@mui/icons-material/EventNoteTwoTone";
 import LibraryMusicTwoTone from "@mui/icons-material/LibraryMusicTwoTone";
@@ -7,7 +7,7 @@ import AutoStoriesTwoTone from "@mui/icons-material/AutoStoriesTwoTone";
 import MovieCreationTwoTone from "@mui/icons-material/MovieCreationTwoTone";
 import PaletteTwoTone from "@mui/icons-material/PaletteTwoTone"
 import CardRail from '../components/ui/CardRail';
-import { useDestinations } from '../hooks/useDestinations';
+import { useDestinations } from '../features/destinations/hooks/useDestinations';
 
 export default function Homepage() {
     const { data: destinations } = useDestinations();

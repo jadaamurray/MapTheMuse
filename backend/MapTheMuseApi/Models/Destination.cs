@@ -27,7 +27,8 @@ namespace MapTheMuseApi.Models
         // Media
         public string? ImageUrl { get; set; }              // hero/banner
         public string? ThumbUrl { get; set; }              // card/thumbnail
-
+        public string? SpotifyPlaylistId { get; set; }
+ 
         // Geography
         [MaxLength(100)] public string? Continent { get; set; }
         [MaxLength(100)] public string? Country { get; set; }

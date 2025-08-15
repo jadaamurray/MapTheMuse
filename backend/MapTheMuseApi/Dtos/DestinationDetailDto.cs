@@ -8,6 +8,7 @@ namespace MapTheMuseApi.Dtos
     public string? Summary { get; set; }
     public string? Description { get; set; }
     public string? ImageUrl { get; set; }
+    public string? SpotifyPlaylistId { get; set; }
     public string? Continent { get; set; }
     public string? Country { get; set; }
     public string? Region { get; set; }

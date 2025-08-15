@@ -1,15 +1,14 @@
 import { useState } from 'react'
-import './App.css'
 import { Box } from '@mui/material';
 import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider } from './theme';
-import HeaderNav from './components/Header/Header'
-import Footer from './components/Footer/Footer';
-import AuthPage from './pages/AuthPage';
+import HeaderNav from './components/layout/Header/Header'
+import Footer from './components/layout/Footer/Footer';
+import AuthPage from './features/auth/pages/AuthPage';
 import { Routes, Route } from 'react-router-dom';
 import Homepage from './pages/Homepage';
-import DestinationsPage from './pages/DestinationsPage';
-import DetailDestinationPage from './pages/DetailDestinationPage';
+import DestinationsPage from './features/destinations/pages/DestinationsPage';
+import DetailDestinationPage from './features/destinations/pages/DetailDestinationPage';
 
 function App() {
 

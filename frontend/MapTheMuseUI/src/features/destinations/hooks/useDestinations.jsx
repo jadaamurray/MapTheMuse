@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { destinationsService } from "../api/destinationsService";
+import { destinationsService } from "../services/destinationsService";
 
 // Fetch ALL destinations
 export function useDestinations({ enabled = true } = {}) {

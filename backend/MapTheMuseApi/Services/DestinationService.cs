@@ -41,6 +41,7 @@ public class DestinationService : IDestinationService
             Summary = d.Summary,
             Description = d.Description,
             ImageUrl = d.ImageUrl,
+            SpotifyPlaylistId = d.SpotifyPlaylistId,
             Continent = d.Continent,
             Country = d.Country,
             Region = d.Region,
@@ -63,6 +64,7 @@ public class DestinationService : IDestinationService
             Description = dto.Description,
             ImageUrl = dto.ImageUrl,
             ThumbUrl = dto.ThumbUrl,
+            SpotifyPlaylistId = dto.SpotifyPlaylistId,
             Continent = dto.Continent,
             Country = dto.Country,
             Region = dto.Region,
@@ -99,6 +101,7 @@ public class DestinationService : IDestinationService
             Summary = entity.Summary,
             Description = entity.Description,
             ImageUrl = entity.ImageUrl,
+            SpotifyPlaylistId = entity.SpotifyPlaylistId,
             Continent = entity.Continent,
             Country = entity.Country,
             Region = entity.Region,
@@ -118,6 +121,7 @@ public class DestinationService : IDestinationService
         entity.Description = dto.Description ?? entity.Description;
         entity.ImageUrl = dto.ImageUrl ?? entity.ImageUrl;
         entity.ThumbUrl = dto.ThumbUrl ?? entity.ThumbUrl;
+        entity.SpotifyPlaylistId = dto.SpotifyPlaylistId ?? entity.SpotifyPlaylistId;
         entity.Continent = dto.Continent ?? entity.Continent;
         entity.Country = dto.Country ?? entity.Country;
         entity.Region = dto.Region ?? entity.Region;

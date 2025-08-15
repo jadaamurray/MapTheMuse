@@ -1,6 +1,7 @@
-import { Box, Typography, Stack, Container } from "@mui/material";
+import { Box, Typography, Stack, Container, Divider } from "@mui/material";
 import { useParams } from "react-router-dom";
-import { useDestination } from "../hooks/useDestinations"; // your hook
+import { useDestination } from "../hooks/useDestinations";
+import DestinationSpotifyPlaylist from "../components/DestinationSpotifyPlaylist";
 
 export default function DetailDestinationPage() {
     const { id } = useParams();
@@ -13,8 +14,8 @@ export default function DetailDestinationPage() {
     if (error) return <Container sx={{ py: 6 }}><Typography colour="error.main">Couldn’t load destination.</Typography></Container>;
     if (!data) return <Container sx={{ py: 6 }}><Typography>Not found.</Typography></Container>;
 
-    console.log('data loaded', data);
-    console.log(`/destinationPhotos/${encodeURIComponent(data?.name ?? "")}.jpeg`)
+    //console.log('data loaded', data);
+    //console.log(`/destinationPhotos/${encodeURIComponent(data?.name ?? "")}.jpeg`)
 
     return (
         <Box
@@ -22,7 +23,7 @@ export default function DetailDestinationPage() {
                 width: '100%',
                 py: 5,
                 display: 'flex',
-                gap: 15,
+                gap: 8,
                 flexDirection: 'column'
             }}
         >
@@ -86,8 +87,27 @@ export default function DetailDestinationPage() {
                     </Typography>
                 </Box>
             </Box>
-            {/* Description */}
-            <Typography variant="body2">{description}</Typography>
-        </Box>
+            {/* Information Section */}
+            <Stack
+                borderRadius={4}
+                spacing={15}
+                sx={{
+                    backgroundColor: "background.white",
+                    width: '100%',
+                    p: 10,
+                }}
+            >
+                {/* Description */}
+                <Typography variant="body2">
+                    {description}
+                </Typography>
+                <Divider />
+                {/* Spotify embed */}
+                <Box display={"flex"} flexDirection={"column"} gap={5}>
+                    <Typography variant="h2" color="black" textAlign={"left"}>Soundtrack</Typography>
+                    <DestinationSpotifyPlaylist destinationId={id} height={500} theme={0} />
+                </Box>
+            </Stack>
+        </Box >
     )
 }

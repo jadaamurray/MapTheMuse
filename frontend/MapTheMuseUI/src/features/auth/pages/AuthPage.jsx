@@ -8,9 +8,9 @@ import {
   Typography,
 } from "@mui/material";
 import React, { useState } from "react";
-import AuthForm from "../components/ui/AuthForm";
+import AuthForm from "../components/AuthForm";
 import useAuth from "../hooks/useAuth";
-import BlurCircleBackground from "../components/ui/BlurCircleBackground";
+import BlurCircleBackground from "../../../components/ui/BlurCircleBackground";
 import { useLocation, useNavigate } from "react-router-dom";
 
 const AuthPage = () => {
