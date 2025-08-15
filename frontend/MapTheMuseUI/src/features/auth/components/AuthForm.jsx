@@ -38,14 +38,14 @@ const AuthForm = ({ toggleType, type, onSubmit, loading, error }) => {
 
   return (
     <Paper
-      elevation={10}
+      elevation={20}
       sx={{
         width: 500,
         borderRadius: "14px",
         backgroundColor: "background.white",
         position: 'relative',
         border: 1,
-        borderColor: "primary.main",
+        borderColor: "divider",
         px: 8,
         py: 6,
       }}
