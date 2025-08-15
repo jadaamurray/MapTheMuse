@@ -8,7 +8,8 @@ const navItems = [
     { id: 2, label: 'Destinations', path: "/destinations" },
     { id: 3, label: 'My Trips', path: "/trips" },
     { id: 4, label: 'Log in', path: "/login", disabled: false },
-    {id: 5, label: 'Register', path: "/register", disabled: true}
+    {id: 5, label: 'Register', path: "/register", disabled: true},
+    {id: 6, label: 'Profile', path: "/profile"}
 ];
 
 export default function HeaderNav() {
@@ -25,13 +26,15 @@ export default function HeaderNav() {
             position="sticky"
             elevation={0}
             sx={{
-                height: "85px",
+                height: "60px",
                 width: '100%',
-                bgcolor: "background.cream",
+                bgcolor: "background.white",
                 color: "text.primary",
                 px: 2,
                 display: "flex",
                 alignItems: "center",
+                borderBottom: 1,
+                borderBottomColor: "divider"
             }}
         >
             <Toolbar
@@ -44,7 +47,7 @@ export default function HeaderNav() {
                 }}
             >
                 <Typography
-                    variant="h1"
+                    variant="h3"
                     onClick={() => navigate('/homepage')} 
                     color="primary"
                     sx={{
@@ -52,7 +55,8 @@ export default function HeaderNav() {
                         flexGrow: 1,
                         whiteSpace: 'nowrap',
                         textDecoration: "none",
-                        cursor: "pointer"
+                        cursor: "pointer",
+                        fontWeight: "700"
                     }}
                 >
                     Map The Muse
