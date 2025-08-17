@@ -65,15 +65,37 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddScoped<IDestinationService, DestinationService>();
 builder.Services.AddScoped<IDestinationMediaService, DestinationMediaService>();
 // Adding CORS services
-var allowedOrigins = builder.Configuration
-    .GetSection("Cors:AllowedOrigins")
-    .Get<string[]>() ?? new[] { "http://localhost:5173" };
+var allowedFromConfig = builder.Configuration
+    .GetSection("Cors:AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
 
+var csv = builder.Configuration["Cors:AllowedOriginsCsv"];
+if (!string.IsNullOrWhiteSpace(csv))
+{
+    allowedFromConfig = allowedFromConfig
+        .Concat(csv.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+        .Distinct(StringComparer.OrdinalIgnoreCase)
+        .ToArray();
+}    
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("Frontend", policy =>
     {
-        policy.WithOrigins(allowedOrigins)
+        policy
+            .SetIsOriginAllowed(origin =>
+            {
+                if (string.IsNullOrEmpty(origin)) return false;
+
+                // Exact allow-list from config (easiest for prod)
+                if (allowedFromConfig.Contains(origin, StringComparer.OrdinalIgnoreCase))
+                    return true;
+
+                // Allow any Vercel preview like https://pr-123-map-the-muse.vercel.app
+                var host = new Uri(origin).Host;
+                if (host.EndsWith(".vercel.app", true, CultureInfo.InvariantCulture))
+                    return true;
+
+                return false;
+            })
               .AllowCredentials()
               .AllowAnyMethod()
               .AllowAnyHeader();
