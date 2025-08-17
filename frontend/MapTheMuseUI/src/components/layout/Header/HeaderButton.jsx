@@ -4,9 +4,11 @@ import { Button } from '@mui/material';
 
 export default function HeaderButton({
   label,
-  active = false,
-  disabled = false,
+  active,
+  disabled,
   onClick,
+  color = "primary",
+
 }) {
   return (
     <Button
@@ -14,30 +16,31 @@ export default function HeaderButton({
       disabled={disabled}
       variant="text"
       sx={{
-        textTransform: 'none',
-        fontSize: '16px',
+        textTransform: "none",
+        fontSize: "16px",
         fontWeight: 400,
         color: disabled
-          ? 'text.disabled'
+          ? "text.disabled"
           : active
-          ? 'primary.main'
-          : 'text.primary',
+          ? `${color}.main`
+          : "text.primary",
         borderRadius: 0,
-        borderBottom: '2px solid transparent',
-        borderColor:  'transparent',
-        px: 1.5,   // horizontal padding
-        py: 0.5,   // vertical padding
-        // hover underline
-        '&:hover': {
-          backgroundColor: disabled ? 'inherit' : 'action.hover',
-          borderBottomColor: active ? 'transparent': 'primary.dark',    // change border color on hover if active
+        borderBottom: "2px solid transparent",
+        borderColor: "transparent",
+        px: 1.5,
+        py: 0.5,
+        "&:hover": {
+          backgroundColor: disabled ? "inherit" : "action.hover",
+          borderBottomColor: active
+            ? "transparent"
+            : `${color}.dark`,
+          color: disabled ? "text.disabled" : `${color}.main`, 
         },
-        //  Click (mousedown) effect
-        '&:active': {
-            borderBottomColor: 'primary.main',
-            borderBottom  : '2px solid',
-            fontWeight: 600,
-          boxShadow: '0px 0px 0px 2px rgba(16, 55, 74, 0.2)', // subtle glow effect
+        "&:active": {
+          borderBottomColor: `${color}.main`,
+          borderBottom: "2px solid",
+          fontWeight: 600,
+          boxShadow: `0px 0px 0px 2px rgba(16, 55, 74, 0.2)`,
         },
       }}
     >

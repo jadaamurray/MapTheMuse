@@ -11,6 +11,7 @@ import Homepage from './pages/Homepage';
 import DestinationsPage from './features/destinations/pages/DestinationsPage';
 import DetailDestinationPage from './features/destinations/pages/DetailDestinationPage';
 import ProfilePage from './features/profile/pages/ProfilePage';
+import MediaPage from './features/media/pages/MediaPage';
 
 function App() {
 
@@ -52,6 +53,8 @@ function App() {
               </Route>
               {/* Profile routes */}
               <Route path='/profile' element={<ProfilePage />} />
+              {/* Media routes */}
+              <Route path='/media' element={<MediaPage />} />
               <Route path="*" element={<div>Not found</div>} />
 
 

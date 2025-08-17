@@ -41,6 +41,7 @@ namespace MapTheMuseApi.Models
 
         [JsonIgnore]
         // navigation properties
+        ICollection<DestinationMediaLink> MediaLinks { get; set; } = new List<DestinationMediaLink>();
         public ICollection<PhysicalArt> PhysicalArtworks { get; set; } = new List<PhysicalArt>();
         public ICollection<UserArtEngagement> ArtEngagements { get; set; } = new List<UserArtEngagement>();
         public ICollection<UserMediaEngagement> MediaEngagements { get; set; } = new List<UserMediaEngagement>();
@@ -48,4 +49,4 @@ namespace MapTheMuseApi.Models
 
 
     }
-}
+} 
