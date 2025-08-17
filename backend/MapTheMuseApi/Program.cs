@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using MapTheMuseApi.Controllers;
 using Npgsql;
+using System.Globalization;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
