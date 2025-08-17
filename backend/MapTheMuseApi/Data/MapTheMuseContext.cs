@@ -19,6 +19,7 @@ namespace MapTheMuseApi.Data
         public DbSet<UserMediaEngagement> UserMediaEngagements { get; set; } = default!;
         public DbSet<Itinerary> Itineraries { get; set; } = default!;
         public DbSet<ItineraryItem> ItineraryItems { get; set; } = default!;
+        public DbSet<DestinationMediaLink> DestinationMediaLinks { get; set; } = default!;
 
         protected override void OnModelCreating(ModelBuilder b)
         {

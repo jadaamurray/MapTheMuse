@@ -10,7 +10,7 @@ import CardRail from "../../../components/ui/CardRail";
  *  - title?: string
  *  - cardWidth?: number (px, default ~280)
  */
-export default function QuickFactsCarousel({ facts, title = "Quick facts", cardWidth = 280 }) {
+export default function QuickFactsCarousel({ facts, title, cardWidth = 280 }) {
   const items = useMemo(() => Object.entries(facts || {}), [facts]);
   const ref = useRef(null);
 
@@ -27,9 +27,11 @@ export default function QuickFactsCarousel({ facts, title = "Quick facts", cardW
   return (
     <Box sx={{ position: "relative", width: "100%" }}>
       {/* Header */}
-      <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-        <Typography variant="h2" sx={{ flex: 1 }}>{title}</Typography>
-      </Box>
+      {title && (
+        <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+          <Typography variant="h2" sx={{ flex: 1 }}>{title}</Typography>
+        </Box>
+      )}
 
       {/* Rail */}
       <CardRail
