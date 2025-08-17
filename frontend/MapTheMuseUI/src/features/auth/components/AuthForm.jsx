@@ -40,14 +40,15 @@ const AuthForm = ({ toggleType, type, onSubmit, loading, error }) => {
     <Paper
       elevation={20}
       sx={{
-        width: 500,
+        width: "100%",
+        maxWidth: { xs: 350, sm: 450, md: 500 },
         borderRadius: "14px",
         backgroundColor: "background.white",
         position: 'relative',
         border: 1,
         borderColor: "divider",
-        px: 8,
-        py: 6,
+        px: { xs: 3, sm: 6, md: 8 },
+        py: { xs: 4, sm: 5, md: 6 },
       }}
     >
       <Box
