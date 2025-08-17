@@ -19,19 +19,18 @@ export const FlightBoardHeader = () => {
                     alignItems: "flex-start",
                     gap: 10,
                     alignSelf: "stretch",
+                    width: "100%",
+                    justifyContent: "space-between"
                 }}
             >
-                <Stack direction={"row"} spacing={10} sx={{ width: "100%" }}>
                     <Typography
                         sx={{
-                            width: "100%",
                             fontFamily: "monospace",
                             fontSize: 32,
                             fontWeight: 700,
                             color: "#FFFFFF",
-                            display: "flex",
-                            justifyContent: "space-between"
-
+                            whiteSpace: "nowrap",
+                            minWidth: 0
                         }}
                     >
                         DEPARTURES
@@ -39,18 +38,18 @@ export const FlightBoardHeader = () => {
                     
                     <Typography
                         sx={{
-                            width: "100%",
                             fontFamily: "monospace",
                             fontSize: 32,
                             fontWeight: 700,
                             color: "#FFDF29",
                             textAlign: "right",
-                            px: 7
+                            whiteSpace: "nowrap",
+                            flexShrink: 0,
+                            ml: 2
                         }}
                     >
                         18:03
                     </Typography>
-                </Stack>
             </Box>
             {/* Column Headers */}
             <Stack direction={"row"} sx={{ width: '100%', justifyContent: 'space-between' }}>

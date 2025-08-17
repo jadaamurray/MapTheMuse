@@ -34,10 +34,11 @@ export default function Homepage() {
                     gap: 9,
                     width: '100%',
                     flexWrap: 'wrap',
+                    px: 7,
                 }}
             >
                 {/* Left text */}
-                <Box sx={{ flex: '1 1 480px', minWidth: 220, alignItems: 'center' }}>
+                <Box sx={{ flex: '1 1 480px', minWidth: 220, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                     <Typography variant='h1' sx={{ color: 'primary.main' }}>
                         Where are you off to?
                     </Typography>
@@ -48,8 +49,8 @@ export default function Homepage() {
                 </Box>
                 {/* Flight board right */}
                 <Box sx={{ flex: '1 1 480px', minWidth: 220, }}>
-                    <FlightBoard 
-                    destinations={destinations ?? []}/>
+                    <FlightBoard
+                        destinations={destinations ?? []} />
                 </Box>
             </Stack>
             {/* Features Section */}
