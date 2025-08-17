@@ -63,17 +63,35 @@ builder.Services.AddAuthentication(options =>
 
 // Interfaces
 builder.Services.AddScoped<IDestinationService, DestinationService>();
+builder.Services.AddScoped<IDestinationMediaService, DestinationMediaService>();
 // Adding CORS services
+var allowedOrigins = builder.Configuration
+    .GetSection("Cors:AllowedOrigins")
+    .Get<string[]>() ?? new[] { "http://localhost:5173" };
+
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowReactApp", builder =>
+    options.AddPolicy("Frontend", policy =>
     {
-        builder.WithOrigins("http://localhost:5173")     // Allow all origins
-            .AllowCredentials()   // Allow credentials (cookies, authorization headers, etc.)
-            .AllowAnyMethod()     // Allow any HTTP method
-            .AllowAnyHeader();    // Allow any header
+        policy.WithOrigins(allowedOrigins)
+              .AllowCredentials()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
     });
 });
+
+// tmdb api
+builder.Services.AddHttpClient<TmdbClient>(c =>
+{
+    c.BaseAddress = new Uri(builder.Configuration["TMDB:BaseUrl"]!);
+    var bearer = builder.Configuration["TMDB:Bearer"];
+    if (!string.IsNullOrWhiteSpace(bearer))
+    {
+        c.DefaultRequestHeaders.Authorization =
+            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", bearer);
+    }
+});
+
 
 builder.Services.AddAuthorization();
 builder.Services.AddControllers();
@@ -86,12 +104,21 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
+// Auto-apply EF migrations on boot
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<MapTheMuseContext>();
+    db.Database.Migrate();
+}
 
 app.UseHttpsRedirection();
-app.UseCors("AllowReactApp");
+app.UseCors("Frontend");
 app.UseAuthentication();
 app.UseAuthorization();
+
 app.MapControllers();
+app.MapGet("/healthz", () => Results.Ok(new { status = "ok" }));
+
 
 app.Run();
 public partial class Program { }

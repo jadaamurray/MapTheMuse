@@ -1,0 +1,16 @@
+# ---------- Build stage ----------
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+WORKDIR /src
+COPY . .
+RUN dotnet restore MapTheMuseApi.csproj
+RUN dotnet publish MapTheMuseApi.csproj -c Release -o /app/publish /p:UseAppHost=false
+
+# ---------- Runtime stage ----------
+FROM mcr.microsoft.com/dotnet/aspnet:9.0
+WORKDIR /app
+# Bind to 0.0.0.0:8080 (Render will route traffic to this port)
+ENV ASPNETCORE_URLS=http://0.0.0.0:8080
+EXPOSE 8080
+COPY --from=build /app/publish .
+# Optional: set timezone/locale here if you need
+ENTRYPOINT ["dotnet", "MapTheMuseApi.dll"]
