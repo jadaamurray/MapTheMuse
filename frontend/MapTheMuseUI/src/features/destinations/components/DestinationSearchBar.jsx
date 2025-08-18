@@ -20,7 +20,7 @@ export default function DestinationSearchBar({
   const [query, setQuery] = useState("");
   const [selectedContinent, setSelectedContinent] = useState("");
   const [selectedFactKey, setSelectedFactKey] = useState("");
-  const [filtersOpen, setFiltersOpen] = useState(true);
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   // Debounce autosubmit
   useEffect(() => {

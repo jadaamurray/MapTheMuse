@@ -1,6 +1,13 @@
 import { Box, Stack, Typography } from "@mui/material"
 
+const fmt = new Intl.DateTimeFormat(undefined, {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false
+});
+
 export const FlightBoardHeader = () => {
+    const time = fmt.format(new Date);
     return (
         <Box
             sx={{
@@ -48,7 +55,7 @@ export const FlightBoardHeader = () => {
                             ml: 2
                         }}
                     >
-                        18:03
+                        {time}
                     </Typography>
             </Box>
             {/* Column Headers */}

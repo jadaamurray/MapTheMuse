@@ -18,7 +18,8 @@ export function DestinationsProvider({ children, autoLoad = true }) {
   const [busy, setBusy] = useState(false);       // create/update/delete
   const [error, setError] = useState(null);
 
-  // optional: protect setState after unmount
+
+  // protect setState after unmount
   const mountedRef = useRef(true);
   useEffect(() => {
     mountedRef.current = true;
@@ -36,8 +37,10 @@ export function DestinationsProvider({ children, autoLoad = true }) {
     console.log('loading destinations...')
     try {
       const data = await destinationsService.fetchDestinations();
+      //console.log('data: ', data)
       safeSet(() => setItems(Array.isArray(data) ? data : (data?.items ?? [])));
-      console.log('destinations: ', items);
+      //console.log('🧠 Context setItems called');
+      //console.log('destinations: ', items);
     } catch (e) {
       safeSet(() => setError(e));
     } finally {

@@ -7,7 +7,7 @@ import PropTypes from "prop-types";
     // { time: "19:45", destination: "LONDON", status: "ON TIME" },
 ]; */
 
-export const FlightBoardButton = ({ onClick, destination = "", ...props }) => {
+export const FlightBoardButton = ({ onClick, destination = "", time, ...props }) => {
     return (
         <MuiBox sx={{ width: "100%" }}>
             <ButtonBase
@@ -47,7 +47,7 @@ export const FlightBoardButton = ({ onClick, destination = "", ...props }) => {
                         flex: 1,
                     }}
                 >
-                    18:08
+                    {time}
                 </Typography>
 
                 <Typography

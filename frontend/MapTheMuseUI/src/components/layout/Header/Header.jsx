@@ -83,7 +83,7 @@ export default function HeaderNav() {
         {/* Brand */}
         <Typography
           variant="h5" // a bit smaller on mobile
-          onClick={() => navigate("/homepage")}
+          onClick={() => navigate("/")}
           color="primary"
           sx={{
             textAlign: "left",
@@ -132,7 +132,7 @@ export default function HeaderNav() {
             "& .MuiDrawer-paper": { width: 280, p: 2 },
           }}
         >
-          <Typography variant="h6" sx={{ fontWeight: 700, px: 1, mb: 1 }} onClick={() => navigate("/homepage")}>
+          <Typography variant="h6" sx={{ fontWeight: 700, px: 1, mb: 1 }} onClick={() => navigate("/")}>
             Map The Muse
           </Typography>
           <Divider sx={{ mb: 1 }} />

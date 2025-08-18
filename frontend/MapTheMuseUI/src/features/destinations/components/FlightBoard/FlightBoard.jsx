@@ -2,16 +2,31 @@ import FlightBoardButton from "./FlightBoardButton";
 import FlightBoardHeader from "./FlightBoardHeader";
 import { Box, Stack, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { useRef, useMemo } from "react";
+
+const addMinutes = (date, mins) => new Date(date.getTime() + mins * 60000);
+
+// 24h time
+const fmt = new Intl.DateTimeFormat(undefined, {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false
+});
 
 export default function FlightBoard({ destinations = [] }) {
-    //console.log("destinations sample", destinations?.[0]);
     const navigate = useNavigate()
-    /*console.log("COMPONENT destinations prop ->", destinations);
-    console.log(
-  "dest keys",
-  destinations.map(d => d?.id)
-);
-/onsole.log('dest names', destinations.map(d => d?.name))*/
+    const startRef = useRef(new Date()); 
+    // times for the rows
+    const rows = useMemo(() => {
+        return destinations.map((d, i) => {
+            const t = addMinutes(startRef.current, (i+1) * 37);
+            return {
+                id: d.id,
+                name: d.name,
+                timeLabel: fmt.format(t)
+            };
+        });
+    }, [destinations]);
 
     return (
         <Box
@@ -38,8 +53,13 @@ export default function FlightBoard({ destinations = [] }) {
                         No destinations yet.
                     </Typography>
                 ) : (
-                    destinations.map(({ id, name }) => (
-                        <FlightBoardButton key={id} destination={name} onClick={() => navigate(`/destinations/${id}`)} />
+                    rows.map(({ id, name, timeLabel }) => (
+                        <FlightBoardButton
+                            key={id}
+                            destination={name}
+                            onClick={() => navigate(`/destinations/${id}`)}
+                            time={timeLabel}
+                        />
                     ))
                 )}
             </Stack>

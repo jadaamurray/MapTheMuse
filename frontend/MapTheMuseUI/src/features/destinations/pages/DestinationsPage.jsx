@@ -7,10 +7,11 @@ import DestinationSearchBar from "../components/DestinationSearchBar";
 import { searchDestinations } from "../services/searchDestinations";
 import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDestinationsContext } from "../context/DestinationsContext";
 
 export default function DestinationsPage() {
   const navigate = useNavigate();
-  const { data: destinations, loading: initialLoading, error: initialError } = useDestinations();
+  const { items: destinations, loading: initialLoading, error: initialError } = useDestinationsContext();
 
   const [results, setResults] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
@@ -96,7 +97,7 @@ export default function DestinationsPage() {
           : cards.map((d) => {
               const img = d.thumbUrl || d.imageUrl || "";
               return (
-                <Grid item xs={12} sm={6} md={4} lg={3} key={d.id}>
+                <Grid size={2} key={d.id}>
                   <Card
                     sx={{
                       borderRadius: 3,
@@ -105,7 +106,7 @@ export default function DestinationsPage() {
                       transition: "transform .15s ease, box-shadow .15s ease",
                       "&:hover": { transform: "translateY(-2px)", boxShadow: 6 }
                     }}
-                    onClick={() => navigate(`/destinations/${d.slug || d.id}`)}
+                    onClick={() => navigate(`/destinations/${d.id}`)}
                   >
                     {/* image */}
                     {img ? (
@@ -114,7 +115,7 @@ export default function DestinationsPage() {
                         image={img}
                         alt={d.name}
                         loading="lazy"
-                        sx={{ aspectRatio: "4/3", objectFit: "cover" }}
+                        sx={{ aspectRatio: "3/4", objectFit: "cover", width: "100%" }}
                         onError={(e) => { e.currentTarget.style.display = "none"; }}
                       />
                     ) : null}

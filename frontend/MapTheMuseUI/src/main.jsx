@@ -5,12 +5,15 @@ import App from './App.jsx'
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from './features/auth/context/AuthContext'
+import { DestinationsProvider } from './features/destinations/context/DestinationsContext.jsx';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
       <AuthProvider>
-        <App />
+        <DestinationsProvider autoLoad={true}>
+          <App />
+        </DestinationsProvider>
       </AuthProvider>
     </BrowserRouter>
   </StrictMode>,

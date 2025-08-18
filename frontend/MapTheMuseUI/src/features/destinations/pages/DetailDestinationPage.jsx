@@ -4,9 +4,6 @@ import {
     Typography,
     Stack,
     Grid,
-    Card,
-    CardContent,
-    CardMedia,
     Chip,
     Divider,
     Paper,
@@ -20,21 +17,33 @@ import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import { useParams } from "react-router-dom";
-import { useDestination } from "../hooks/useDestinations";
 import DestinationSpotifyPlaylist from "../components/DestinationSpotifyPlaylist";
 import QuickFactsCarousel from "../components/QuickFactsCarousel";
-import { getDestinationMedia } from "../../media/services/destinationMediaService";
 import { useEffect, useMemo, useState } from "react";
 import Section from "../../../components/ui/Section";
 import MediaRail from "../../media/components/MediaRail";
+import { useDestinationsContext } from "../context/DestinationsContext";
+import { useDestinationMedia } from "../../media/hooks/useDestinationMedia";
 
 export default function DetailDestinationPage() {
+    //console.log('🌀 DetailDestinationPage re-rendered');
     const { id } = useParams();
-    const { data, loading, error } = useDestination(id);
-    const [media, setMedia] = useState([]);
+    const { byId, getById, loading: destinationLoading, error } = useDestinationsContext();
+    const { media, loading: mediaLoading, error: mediaError } = useDestinationMedia(id);
+    const [destination, setDestination] = useState(null);
+
+    const numId = Number(id);
 
     useEffect(() => {
-        getDestinationMedia(id).then(setMedia).catch(() => setMedia([]));
+        const existing = byId.get(numId);
+        if (existing) {
+            setDestination(existing);
+            return;
+        }
+
+        getById(numId).then((fetched) => {
+            if (fetched) setDestination(fetched);
+        });
     }, [id]);
 
     const movies = useMemo(
@@ -45,8 +54,9 @@ export default function DetailDestinationPage() {
         () => media.filter((m) => (m.mediaType || "").toLowerCase() === "tv"),
         [media]
     );
+    //console.log('destination: ', destination);
 
-    if (loading) {
+    if (destinationLoading || mediaLoading) {
         return (
             <Container sx={{ py: 6 }}>
                 <Skeleton variant="rectangular" height={360} sx={{ borderRadius: 3 }} />
@@ -62,7 +72,7 @@ export default function DetailDestinationPage() {
             </Container>
         );
     }
-    if (!data) {
+    if (!destination) {
         return (
             <Container sx={{ py: 6 }}>
                 <Typography>Not found.</Typography>
@@ -70,9 +80,10 @@ export default function DetailDestinationPage() {
         );
     }
 
-    const name = data?.name ?? "";
-    const description = data?.description ?? "";
-    const heroSrc = `/destinationPhotos/${encodeURIComponent(name)}.jpeg`;
+    const slug = destination?.slug ?? "";
+    const name = destination?.name ?? "";
+    const description = destination?.description ?? "";
+    const heroSrc = `/destinationPhotos/${encodeURIComponent(slug)}.jpeg`;
 
     return (
         <Box sx={{ pb: 6 }}>
@@ -189,9 +200,9 @@ export default function DetailDestinationPage() {
                     <Grid size={12}>
                         {/* Quick facts carousel (TripAdvisor vibe) */}
                         <Section id="quickFacts" title="Need to know">
-                            {data?.quickFacts && Object.keys(data.quickFacts).length > 0 && (
+                            {destination?.quickFacts && Object.keys(destination.quickFacts).length > 0 && (
                                 <Box sx={{ mb: 3 }}>
-                                    <QuickFactsCarousel facts={data?.quickFacts} />
+                                    <QuickFactsCarousel facts={destination?.quickFacts} />
                                 </Box>
                             )}
                         </Section>

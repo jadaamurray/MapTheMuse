@@ -40,7 +40,7 @@ function App() {
             }}
           >
             < Routes >
-              <Route path='/homepage' element={<Homepage />} />
+              <Route path='/' element={<Homepage />} />
               <Route path="/login" element={<AuthPage />} />
               <Route path="/register" element={<AuthPage />} />
 
