@@ -1,4 +1,4 @@
-import { Typography, Box, Stack } from '@mui/material';
+import { Typography, Box, Stack, Container, Skeleton } from '@mui/material';
 import FlightBoard from '../features/destinations/components/FlightBoard/FlightBoard';
 import FeatureCard from '../components/ui/FeatureCard';
 import EventNoteTwoTone from "@mui/icons-material/EventNoteTwoTone";
@@ -7,10 +7,10 @@ import AutoStoriesTwoTone from "@mui/icons-material/AutoStoriesTwoTone";
 import MovieCreationTwoTone from "@mui/icons-material/MovieCreationTwoTone";
 import PaletteTwoTone from "@mui/icons-material/PaletteTwoTone"
 import CardRail from '../components/ui/CardRail';
-import { useDestinations } from '../features/destinations/hooks/useDestinations';
+import { useDestinationsContext } from '../features/destinations/context/DestinationsContext';
 
 export default function Homepage() {
-    const { data: destinations } = useDestinations();
+    const { items: destinations, loading, error } = useDestinationsContext();
     return (
         <Stack
             gap={5}
@@ -48,10 +48,18 @@ export default function Homepage() {
 
                 </Box>
                 {/* Flight board right */}
+                {loading ? (
+                    <Container sx={{ py: 6 }}>
+                                    <Skeleton variant="rectangular" sx={{ borderRadius: 3 }} />
+                                    <Skeleton height={28} width="40%" sx={{ mt: 3 }} />
+                                    <Skeleton height={18} width="70%" />
+                                </Container>
+                ) :(
                 <Box sx={{ flex: '1 1 480px', minWidth: 220, }}>
                     <FlightBoard
                         destinations={destinations ?? []} />
                 </Box>
+                )}
             </Stack>
             {/* Features Section */}
             <Stack

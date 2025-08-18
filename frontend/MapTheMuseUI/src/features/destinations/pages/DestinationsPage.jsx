@@ -1,8 +1,5 @@
 import FlightBoard from "../components/FlightBoard/FlightBoard";
-import {
-  Box, Typography, Grid, Card, CardContent, CardMedia, Alert, Skeleton, Stack, Button, Container
-} from "@mui/material";
-import { useDestinations } from "../hooks/useDestinations";
+import { Box, Typography, Grid, Card, CardContent, CardMedia, Alert, Skeleton, Stack, Button, Container } from "@mui/material";
 import DestinationSearchBar from "../components/DestinationSearchBar";
 import { searchDestinations } from "../services/searchDestinations";
 import { useState, useCallback } from "react";
@@ -84,7 +81,7 @@ export default function DestinationsPage() {
       <Grid container spacing={3}>
         {searchLoading
           ? Array.from({ length: 8 }).map((_, i) => (
-              <Grid item xs={12} sm={6} md={4} lg={3} key={`sk-${i}`}>
+              <Grid size={{xs: 4, sm: 3, md: 2, lg: 2}} key={`sk-${i}`}>
                 <Card sx={{ borderRadius: 3, overflow: "hidden" }}>
                   <Skeleton variant="rectangular" height={160} />
                   <CardContent>
@@ -97,7 +94,7 @@ export default function DestinationsPage() {
           : cards.map((d) => {
               const img = d.thumbUrl || d.imageUrl || "";
               return (
-                <Grid size={2} key={d.id}>
+                <Grid size={{xs: 4, sm: 3, md: 2, lg: 2}} key={d.id}>
                   <Card
                     sx={{
                       borderRadius: 3,
