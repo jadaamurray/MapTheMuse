@@ -38,6 +38,7 @@ const useAuth = () => {
     console.log('Registering with data: ', data)
     try {
       await AuthService.register(data); // backend sets cookie
+      await AuthService.login(data);
       const profile = await AuthService.getCurrentUser();
       setUser(profile);
       navigate('/profile');
