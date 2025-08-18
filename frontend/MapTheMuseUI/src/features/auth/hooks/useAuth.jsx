@@ -18,10 +18,10 @@ const useAuth = () => {
       console.log('logging in with', credentials)
       await AuthService.login(credentials); // cookie is set by backend
       const profile = await AuthService.getCurrentUser(); // fetch user details
-      //console.log('profile is', profile)
+      console.log('profile is', profile)
       setUser(profile); // store user in context
       navigate('/profile');
-      //console.log('Logged in successfully');
+      console.log('Logged in successfully');
       toast.success('Logged in successfully');
     } catch (err) {
         setError(err.response?.data || 'Login failed');
@@ -37,10 +37,14 @@ const useAuth = () => {
     setError(null);
     console.log('Registering with data: ', data)
     try {
-      await AuthService.register(data); // backend sets cookie
+      await AuthService.register(data);
+      console.log('trying to log in')
       await AuthService.login(data);
+      console.log('getting user profile');
       const profile = await AuthService.getCurrentUser();
+      console.log('user found, setting profile');
       setUser(profile);
+      console.log('moving to profile');
       navigate('/profile');
       toast.success('Account created');
     } catch (err) {
