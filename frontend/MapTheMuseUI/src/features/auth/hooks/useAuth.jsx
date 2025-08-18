@@ -17,8 +17,10 @@ const useAuth = () => {
     try {
       console.log('logging in with', credentials)
       await AuthService.login(credentials); // cookie is set by backend
+      console.log('logged in successfully');
+      console.log('getting profile information');
       const profile = await AuthService.getCurrentUser(); // fetch user details
-      console.log('profile is', profile)
+      console.log('profile is', profile);
       setUser(profile); // store user in context
       navigate('/profile');
       console.log('Logged in successfully');
