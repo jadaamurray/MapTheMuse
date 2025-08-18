@@ -34,7 +34,7 @@ export default function Homepage() {
                     gap: 9,
                     width: '100%',
                     flexWrap: 'wrap',
-                    px: 7,
+                    px: 2,
                 }}
             >
                 {/* Left text */}
