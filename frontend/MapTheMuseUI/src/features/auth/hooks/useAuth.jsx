@@ -66,10 +66,13 @@ const useAuth = () => {
   // LOGOUT
   const logout = async () => {
     try {
+      console.log('logging out');
       await AuthService.logout();
       setUser(null);
-      //navigate('/login');
+      console.log('logged out. user is null')
       toast.success('Logged out');
+      const profile = await AuthService.getCurrentUser();
+      console.log('current user: ', profile);
     } catch (err) {
       toast.error('Logout failed');
     }
