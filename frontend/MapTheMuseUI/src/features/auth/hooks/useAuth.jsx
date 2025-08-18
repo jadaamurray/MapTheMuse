@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthService } from '../services/authService';
-import { useAuthContext } from '../context/AuthContext'; 
+import { useAuthContext } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 
 const useAuth = () => {
   const navigate = useNavigate();
-  const { setUser } = useAuthContext(); 
+  const { setUser } = useAuthContext();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -24,15 +24,15 @@ const useAuth = () => {
       //console.log('Logged in successfully');
       toast.success('Logged in successfully');
     } catch (err) {
-      setError(err?.message || 'Login failed');
-      toast.error('Login failed');
+        setError(err.response?.data || 'Login failed');
+      console.error('Registration error:', err.response?.data);;
     } finally {
       setLoading(false);
     }
   };
 
   // REGISTER
-  const register = async (data) => {
+  const register = async (data, setFieldErrors) => {
     setLoading(true);
     setError(null);
     console.log('Registering with data: ', data)
@@ -40,11 +40,17 @@ const useAuth = () => {
       await AuthService.register(data); // backend sets cookie
       const profile = await AuthService.getCurrentUser();
       setUser(profile);
-      //navigate('/dashboard');
+      navigate('/profile');
       toast.success('Account created');
     } catch (err) {
-      setError(err?.message || 'Registration failed');
-      toast.error('Registration failed');
+      if (err.fieldErrors && setFieldErrors) {
+        setFieldErrors(err.fieldErrors);
+        console.log('field errors: ', fieldErrors);
+      } else {
+        setError(err.response?.data || 'Registration failed');
+      }
+      console.error('Registration error:', err.response?.data);
+
     } finally {
       setLoading(false);
     }

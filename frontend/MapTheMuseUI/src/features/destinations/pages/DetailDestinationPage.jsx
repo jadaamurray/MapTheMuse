@@ -54,7 +54,7 @@ export default function DetailDestinationPage() {
         () => media.filter((m) => (m.mediaType || "").toLowerCase() === "tv"),
         [media]
     );
-    //console.log('destination: ', destination);
+    console.log('destination: ', destination);
 
     if (destinationLoading || mediaLoading) {
         return (

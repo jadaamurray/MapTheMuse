@@ -14,6 +14,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using NuGet.Packaging.Signing;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
+
 
 namespace MapTheMuseApi.Controllers
 {
@@ -36,6 +38,7 @@ namespace MapTheMuseApi.Controllers
             _env = env;
 
         }
+
         [HttpPost("register")]
         public async Task<IActionResult> Register(RegisterDto dto)
         {
@@ -49,28 +52,53 @@ namespace MapTheMuseApi.Controllers
                 PreferredLanguage = dto.PreferredLanguage
             };
 
-            var result = await _userManager.CreateAsync(user, dto.Password);
-
-            if (result.Succeeded)
+            try
             {
-                // Generate an email verification token
-                var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                // Create the verification link
-                var verificationLink = Url.Action("VerifyEmail", "Account", new
-                {
-                    userId = user.Id,
-                    token =
-               token
-                }, Request.Scheme);
-                // Send the verification email
-                var emailSubject = "Email Verification";
-                var emailBody = $"Please verify your email by clicking the following link: {verificationLink}";
-                await _emailService.SendEmailAsync(user.Email, emailSubject, emailBody);
+                var result = await _userManager.CreateAsync(user, dto.Password);
 
-                return Ok("User registered successfully. An email verification link has been sent.");
+                if (result.Succeeded)
+                {
+                    var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    var verificationLink = Url.Action("VerifyEmail", "Account", new
+                    {
+                        userId = user.Id,
+                        token = token
+                    }, Request.Scheme);
+
+                    var emailSubject = "Email Verification";
+                    var emailBody = $"Please verify your email by clicking the following link: {verificationLink}";
+                    await _emailService.SendEmailAsync(user.Email, emailSubject, emailBody);
+
+                    return Ok("User registered successfully. An email verification link has been sent.");
+                }
+
+                // Convert IdentityErrors to field-based structure
+                var fieldErrors = result.Errors
+                    .GroupBy(e =>
+                        e.Code.Contains("Email") ? "email" :
+                        e.Code.Contains("Password") ? "password" :
+                        e.Code.Contains("UserName") ? "username" :
+                        "general")
+                    .ToDictionary(
+                        g => g.Key,
+                        g => g.Select(e => e.Description).ToArray()
+                    );
+
+                return BadRequest(new { errors = fieldErrors });
             }
-            return BadRequest(result.Errors);
+            catch (DbUpdateException ex) when (ex.InnerException?.Message.Contains("idx_users_email_unique") == true)
+            {
+                // Handle unique email constraint from database
+                return BadRequest(new
+                {
+                    errors = new Dictionary<string, string[]>
+            {
+                { "email", new[] { "An account with this email already exists." } }
+            }
+                });
+            }
         }
+
 
         [HttpGet("verify-email")]
         public async Task<IActionResult> VerifyEmail(string userId, string token)

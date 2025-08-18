@@ -12,6 +12,7 @@ import {
 import React, { useState } from "react";
 
 const AuthForm = ({ toggleType, type, onSubmit, loading, error }) => {
+  const [fieldErrors, setFieldErrors] = useState({});
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -79,10 +80,23 @@ const AuthForm = ({ toggleType, type, onSubmit, loading, error }) => {
       </Box>
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
-          {error}
+          {typeof error === "string" && error}
+
+          {typeof error === "object" && (
+            <>
+              <div>{error.title || "Something went wrong"}</div>
+              {error.errors &&
+                Object.entries(error.errors).map(([field, messages]) =>
+                  messages.map((msg, idx) => (
+                    <div key={`${field}-${idx}`}>
+                      {msg}
+                    </div>
+                  ))
+                )}
+            </>
+          )}
         </Alert>
       )}
-
       <Box
         component="form"
         onSubmit={handleSubmit}

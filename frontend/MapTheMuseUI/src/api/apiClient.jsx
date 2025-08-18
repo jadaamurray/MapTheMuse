@@ -12,6 +12,24 @@ const apiClient = axios.create({
 });
 
 // Response Interceptor – handle common errors globally
-apiClient.interceptors.response.use(r => r, (error) => Promise.reject(error));
+apiClient.interceptors.response.use(
+  response => response,
+  error => {
+    const { response } = error;
 
+    if (response?.status === 400 && response?.data?.errors) {
+      // Extract and flatten field-level validation errors
+      const fieldErrors = {};
+
+      for (const key in response.data.errors) {
+        fieldErrors[key] = response.data.errors[key].join(' ');
+      }
+
+      // Attach to error object
+      error.fieldErrors = fieldErrors;
+    }
+
+    return Promise.reject(error);
+  }
+);
 export default apiClient;
