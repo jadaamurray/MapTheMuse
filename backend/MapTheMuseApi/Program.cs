@@ -67,40 +67,27 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddScoped<IDestinationService, DestinationService>();
 builder.Services.AddScoped<IDestinationMediaService, DestinationMediaService>();
 // Adding CORS services
-var allowedFromConfig = builder.Configuration
-    .GetSection("Cors:AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
+var allowed = (builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? Array.Empty<string>())
+    .Concat((builder.Configuration["Cors:AllowedOriginsCsv"] ?? string.Empty)
+        .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+    .Distinct(StringComparer.OrdinalIgnoreCase)
+    .ToArray();
 
-var csv = builder.Configuration["Cors:AllowedOriginsCsv"];
-if (!string.IsNullOrWhiteSpace(csv))
+        // Fail fast (or provide a dev fallback)
+if (allowed.Length == 0)
 {
-    allowedFromConfig = allowedFromConfig
-        .Concat(csv.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
-        .Distinct(StringComparer.OrdinalIgnoreCase)
-        .ToArray();
-}    
+    throw new InvalidOperationException(
+        "CORS:AllowedOrigins is empty.");
+}
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("Frontend", policy =>
     {
-        policy
-            .SetIsOriginAllowed(origin =>
-            {
-                if (string.IsNullOrEmpty(origin)) return false;
-
-                // Exact allow-list from config (easiest for prod)
-                if (allowedFromConfig.Contains(origin, StringComparer.OrdinalIgnoreCase))
-                    return true;
-
-                // Allow any Vercel preview like https://pr-123-map-the-muse.vercel.app
-                var host = new Uri(origin).Host;
-                if (host.EndsWith(".vercel.app", true, CultureInfo.InvariantCulture))
-                    return true;
-
-                return false;
-            })
-              .AllowCredentials()
+        policy.WithOrigins(allowed)
+              .AllowAnyHeader()
               .AllowAnyMethod()
-              .AllowAnyHeader();
+              .AllowCredentials();
     });
 });
 
