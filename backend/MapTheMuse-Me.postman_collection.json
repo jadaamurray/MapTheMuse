@@ -1,0 +1,239 @@
+{
+  "info": {
+    "_postman_id": "a91420a1-d124-425a-84d3-5ef8f433e7c6",
+    "name": "MapTheMuse \u2014 Me endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Collection to test /api/me profile, email, username, and password endpoints. Works with cookie auth or bearer tokens."
+  },
+  "item": [
+    {
+      "name": "GET /me \u2014 profile",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{apiBase}}/me",
+          "host": [
+            "{{apiBase}}/me"
+          ]
+        },
+        "description": ""
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is 200', function(){ pm.response.to.have.status(200); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "PATCH /me \u2014 profile (JSON Patch)",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json-patch+json"
+          }
+        ],
+        "url": {
+          "raw": "{{apiBase}}/me",
+          "host": [
+            "{{apiBase}}/me"
+          ]
+        },
+        "description": "",
+        "body": {
+          "mode": "raw",
+          "raw": "[\n  {\n    \"op\": \"replace\",\n    \"path\": \"/firstName\",\n    \"value\": \"Jada\"\n  },\n  {\n    \"op\": \"replace\",\n    \"path\": \"/country\",\n    \"value\": \"GB\"\n  }\n]"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is 200', function(){ pm.response.to.have.status(200); });",
+              "pm.test('Returns updated profile', function(){ var b = pm.response.json(); pm.expect(b).to.have.property('firstName'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "POST /me/email \u2014 start change",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{apiBase}}/me/email",
+          "host": [
+            "{{apiBase}}/me/email"
+          ]
+        },
+        "description": "",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"newEmail\": \"{{newEmail}}\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is 202 Accepted', function(){ pm.response.to.have.status(202); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "POST /me/email/confirm \u2014 finish change",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{apiBase}}/me/email/confirm",
+          "host": [
+            "{{apiBase}}/me/email/confirm"
+          ]
+        },
+        "description": "",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"userId\": \"{{userId}}\",\n  \"email\": \"{{newEmail}}\",\n  \"token\": \"{{emailChangeToken}}\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('204 No Content', function(){ pm.response.to.have.status(204); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "POST /me/username \u2014 change username",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{apiBase}}/me/username",
+          "host": [
+            "{{apiBase}}/me/username"
+          ]
+        },
+        "description": "",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"newUserName\": \"jada\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('204 No Content', function(){ pm.response.to.have.status(204); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "POST /me/password \u2014 change password",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{apiBase}}/me/password",
+          "host": [
+            "{{apiBase}}/me/password"
+          ]
+        },
+        "description": "",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"currentPassword\": \"OldPass123!\",\n  \"newPassword\": \"NewPass123!\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('204 No Content', function(){ pm.response.to.have.status(204); });"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "key": "apiBase",
+      "value": ""
+    },
+    {
+      "key": "bearerToken",
+      "value": ""
+    },
+    {
+      "key": "userId",
+      "value": ""
+    },
+    {
+      "key": "newEmail",
+      "value": "you+new@example.com"
+    },
+    {
+      "key": "emailChangeToken",
+      "value": ""
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{bearerToken}}",
+        "type": "string"
+      }
+    ]
+  }
+}

@@ -12,6 +12,7 @@ import DestinationsPage from './features/destinations/pages/DestinationsPage';
 import DetailDestinationPage from './features/destinations/pages/DetailDestinationPage';
 import ProfilePage from './features/profile/pages/ProfilePage';
 import MediaPage from './features/media/pages/MediaPage';
+import EditProfilePage from './features/profile/pages/EditProfilePage';
 
 function App() {
 
@@ -53,6 +54,7 @@ function App() {
               </Route>
               {/* Profile routes */}
               <Route path='/profile' element={<ProfilePage />} />
+              <Route path='/profile/edit' element={<EditProfilePage />} />
               {/* Media routes */}
               <Route path='/media' element={<MediaPage />} />
               <Route path="*" element={<div>Not found</div>} />

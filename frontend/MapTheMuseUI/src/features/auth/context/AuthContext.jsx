@@ -1,33 +1,43 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { AuthService } from '../services/authService';
-//import { useNavigate } from 'react-router-dom';
+import { extractError } from '../../../utils/extractError';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null); // stores current user
-  const [loading, setLoading] = useState(true); // for initial fetch
-  //const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true); // initial app load
+  const [refreshing, setRefreshing] = useState(false); // on-demand refreshes
 
-  // On mount, fetch the current user (if JWT cookie exists)
+  const refreshUser = useCallback(async ({ silently = true } = {}) => {
+    if (!silently) setRefreshing(true);
+    try {
+      const profile = await AuthService.getCurrentUser();
+      setUser(profile);
+      return profile;
+    } catch (err) {
+      setUser(null);
+      setError(extractError(e, "Failed to fetch current user"));
+      throw err;
+    } finally {
+      if (!silently) setRefreshing(false);
+    }
+  }, []);
+
+  // On mount, fetch current user (if JWT cookie exists)
   useEffect(() => {
-    const fetchUser = async () => {
-      //console.log('Fetching user...')
+    (async () => {
       try {
-        const profile = await AuthService.getCurrentUser();
-        setUser(profile);
-      } catch (err) {
-        setUser(null); // Not logged in or token invalid
+        console.log('getting current user...')
+        await refreshUser({ silently: true });
       } finally {
         setLoading(false);
       }
-    };
-
-    fetchUser();
-  }, []);
+    })();
+  }, [refreshUser]);
 
   return (
-    <AuthContext.Provider value={{ user, setUser, loading }}>
+    <AuthContext.Provider value={{ user, setUser, loading, refreshing, refreshUser }}>
       {!loading && children}
     </AuthContext.Provider>
   );

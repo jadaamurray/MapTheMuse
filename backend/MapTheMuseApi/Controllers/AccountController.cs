@@ -15,7 +15,7 @@ using Microsoft.IdentityModel.Tokens;
 using NuGet.Packaging.Signing;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
-
+using Microsoft.Extensions.Logging;
 
 namespace MapTheMuseApi.Controllers
 {
@@ -28,14 +28,22 @@ namespace MapTheMuseApi.Controllers
         private readonly EmailService _emailService;
         private readonly IConfiguration _config;
         private readonly IWebHostEnvironment _env;
-        public AccountController(UserManager<AppUser> userManager,
-       SignInManager<AppUser> signInManager, EmailService emailService, IConfiguration config, IWebHostEnvironment env)
+        private readonly ILogger<AccountController> _logger;
+
+        public AccountController(
+            UserManager<AppUser> userManager, 
+            SignInManager<AppUser> signInManager, 
+            EmailService emailService, 
+            IConfiguration config, 
+            IWebHostEnvironment env,
+            ILogger<AccountController> logger)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _emailService = emailService;
             _config = config;
             _env = env;
+            _logger = logger;
 
         }
 
@@ -120,99 +128,98 @@ namespace MapTheMuseApi.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginDto dto)
         {
-            var user = await _userManager.FindByEmailAsync(dto.Email);
-            if (user == null)
-                return Unauthorized("Email or password invalid.");
+            var email = dto.Email?.Trim();
+            var user = await _userManager.FindByEmailAsync(email!);
 
-            // Check password
+            if (user is null)
+            {
+                _logger.LogInformation("Login failed: no user for {Email}", email);
+                await Task.Delay(Random.Shared.Next(60,120)); // tiny blur
+                return Unauthorized(new { error = "InvalidCredentials", message = "InvalidCredentials" });
+            }
+
             var result = await _signInManager.CheckPasswordSignInAsync(
-                user, dto.Password, lockoutOnFailure: false);
-            if (!result.Succeeded)
-                return Unauthorized("Email or password invalid.");
+                user, dto.Password!, lockoutOnFailure: true);
 
-            // Build the token claims
-            var claims = new List<Claim>
-        {
-            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-            new Claim(JwtRegisteredClaimNames.Email, user.Email),
-        };
-
-            // Include role claims
-            var roles = await _userManager.GetRolesAsync(user);
-            claims.AddRange(roles.Select(r => new Claim(ClaimTypes.Role, r)));
-
-            // Create the signing key
-            var keyBytes = Encoding.UTF8.GetBytes(_config["Jwt:Key"]!);
-            var creds = new SigningCredentials(
-                new SymmetricSecurityKey(keyBytes),
-                SecurityAlgorithms.HmacSha256);
-
-            var expires = DateTime.UtcNow
-                        .AddDays(double.Parse(_config["Jwt:ExpiryDays"]!));
-
-            // Build the JWT
-            var token = new JwtSecurityToken(
-                issuer: _config["Jwt:Issuer"],
-                audience: _config["Jwt:Audience"],
-                claims: claims,
-                expires: expires,
-                signingCredentials: creds
-            );
-
-            var jwt = new JwtSecurityTokenHandler().WriteToken(token);
-
-            var cookie = new CookieOptions
+            if (result.Succeeded)
             {
-                HttpOnly = true,
-                Path = "/",
-                Expires = expires
-            };
 
-            if (_env.IsDevelopment())
-            {
-                // HTTP localhost → same-site 
-                cookie.SameSite = SameSiteMode.Lax;
-                cookie.Secure = false;
+                // Build the token claims
+                var claims = new List<Claim>
+                {
+                    new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+                    new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                };
+
+                // Include role claims
+                var roles = await _userManager.GetRolesAsync(user);
+                claims.AddRange(roles.Select(r => new Claim(ClaimTypes.Role, r)));
+
+                // Create the signing key
+                var keyBytes = Encoding.UTF8.GetBytes(_config["Jwt:Key"]!);
+                var creds = new SigningCredentials(
+                    new SymmetricSecurityKey(keyBytes),
+                    SecurityAlgorithms.HmacSha256);
+
+                var expires = DateTime.UtcNow
+                            .AddDays(double.Parse(_config["Jwt:ExpiryDays"]!));
+
+                // Build the JWT
+                var token = new JwtSecurityToken(
+                    issuer: _config["Jwt:Issuer"],
+                    audience: _config["Jwt:Audience"],
+                    claims: claims,
+                    expires: expires,
+                    signingCredentials: creds
+                );
+
+                var jwt = new JwtSecurityTokenHandler().WriteToken(token);
+
+                var cookie = new CookieOptions
+                {
+                    HttpOnly = true,
+                    Path = "/",
+                    Expires = expires
+                };
+
+                if (_env.IsDevelopment())
+                {
+                    // HTTP localhost → same-site 
+                    cookie.SameSite = SameSiteMode.Lax;
+                    cookie.Secure = false;
+                }
+                else
+                {
+                    // Production: cross-site friendly + HTTPS only
+                    cookie.SameSite = SameSiteMode.None;
+                    cookie.Secure = true;
+                }
+
+                Response.Cookies.Append("authToken", jwt, cookie);
+
+                return Ok(new { message = "Login successful" });
             }
-            else
+            if (result.IsNotAllowed)
             {
-                // Production: cross-site friendly + HTTPS only
-                cookie.SameSite = SameSiteMode.None;
-                cookie.Secure = true;
+                var emailConfirmed = await _userManager.IsEmailConfirmedAsync(user);
+                _logger.LogInformation("Login not allowed for {UserId}. EmailConfirmed={EmailConfirmed}", user.Id, emailConfirmed);
+                return StatusCode(StatusCodes.Status403Forbidden, new {error = "EmailNotConfirmed", message = "Please verify your email." });
             }
 
-            Response.Cookies.Append("authToken", jwt, cookie);
+            if (result.IsLockedOut)
+            {
+                _logger.LogWarning("Login locked out for {UserId}", user.Id);
+                return StatusCode(423, new { error = "LockedOut", message = "Too many attempts. Try again later." });
+            }
 
-            return Ok(new { message = "Login successful" });
+            _logger.LogInformation("Login failed: bad password for {UserId}", user.Id);
+            return Unauthorized(new { error = "InvalidCredentials", message = "InvalidCredentials" });
         }
         [HttpPost("logout")]
         public IActionResult Logout()
         {
             Response.Cookies.Delete("authToken");
             return Ok(new { message = "Logged out" });
-        }
-        // GET: api/account/me
-        [HttpGet("me")]
-        [Authorize]
-        public IActionResult GetCurrentUser()
-        {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ??
-                         User.FindFirstValue(JwtRegisteredClaimNames.Sub); // in case you're using Sub
-
-            var email = User.FindFirstValue(ClaimTypes.Email) ??
-                        User.FindFirstValue(JwtRegisteredClaimNames.Email);
-
-            var roles = User.Claims
-                .Where(c => c.Type == ClaimTypes.Role)
-                .Select(c => c.Value)
-                .ToList();
-
-            return Ok(new
-            {
-                userId,
-                email,
-                roles
-            });
         }
     }
 }
