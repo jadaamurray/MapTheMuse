@@ -46,6 +46,8 @@ namespace MapTheMuseApi.Models
         public ICollection<UserArtEngagement> ArtEngagements { get; set; } = new List<UserArtEngagement>();
         public ICollection<UserMediaEngagement> MediaEngagements { get; set; } = new List<UserMediaEngagement>();
         public ICollection<ItineraryItem> ItineraryItems { get; set; } = new List<ItineraryItem>();
+        public ICollection<FavouriteDestination> FavouritedBy { get; set; } = new List<FavouriteDestination>();
+
 
 
     }

@@ -76,6 +76,8 @@ builder.Services.AddAuthentication(options =>
 // Interfaces
 builder.Services.AddScoped<IDestinationService, DestinationService>();
 builder.Services.AddScoped<IDestinationMediaService, DestinationMediaService>();
+builder.Services.AddScoped<IMediaSpineService, MediaSpineService>();
+builder.Services.AddScoped<IFavouritesService, FavouritesService>();
 // Adding CORS services
 var allowed = (builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? Array.Empty<string>())
     .Concat((builder.Configuration["Cors:AllowedOriginsCsv"] ?? string.Empty)
@@ -114,7 +116,12 @@ builder.Services.AddHttpClient<TmdbClient>(c =>
 });
 
 builder.Services.AddAuthorization();
-builder.Services.AddControllers().AddNewtonsoftJson();
+builder.Services.AddControllers()
+    .AddNewtonsoftJson()
+     .AddJsonOptions(opt =>
+        opt.JsonSerializerOptions.Converters.Add(
+            new System.Text.Json.Serialization.JsonStringEnumConverter()
+        ));
 builder.Services.AddOpenApi();
 
 var app = builder.Build();

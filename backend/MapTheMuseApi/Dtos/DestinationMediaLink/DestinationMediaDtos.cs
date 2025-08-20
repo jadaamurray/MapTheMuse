@@ -1,22 +1,26 @@
+using MapTheMuseApi.Models;
+
 namespace MapTheMuseApi.Dtos
 {
     public record DestinationMediaItemDto(
         int LinkId,
-        string MediaType,
         string Title,
         int? Year,
         string? Creator,
-        string? PosterUrl,
+        string? PosterPath,
         string? Overview,
         string Source,
         string ExternalId,
-        string? ContextNote
+        string? ContextNote,
+        MediaType Type
     );
 
     public record CreateDestinationMediaLinkDto(
         string Source,
         string ExternalId,
-        string MediaType,
+        MediaType Type,
+        string? PosterPath,
+        string Title,
         string? ContextNote,
         int? OrderIndex
     );

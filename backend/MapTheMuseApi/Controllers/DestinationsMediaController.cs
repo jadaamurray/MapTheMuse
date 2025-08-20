@@ -1,5 +1,6 @@
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using MapTheMuseApi.Dtos;
 
 [ApiController]
@@ -7,20 +8,33 @@ using MapTheMuseApi.Dtos;
 public class DestinationsMediaController : ControllerBase
 {
     private readonly IDestinationMediaService _svc;
-
     public DestinationsMediaController(IDestinationMediaService svc) => _svc = svc;
+
+    private string? GetUserId() => User.FindFirstValue(ClaimTypes.NameIdentifier);
 
     [HttpGet]
     public async Task<ActionResult<List<DestinationMediaItemDto>>> Get(int destinationId)
-        => Ok(await _svc.GetForDestinationAsync(destinationId));
+    {
+        var items = await _svc.GetForDestinationAsync(destinationId, HttpContext.RequestAborted);
+        return Ok(items);
+    }
 
     [Authorize]
     [HttpPost]
     public async Task<ActionResult> Link(int destinationId, [FromBody] CreateDestinationMediaLinkDto dto)
     {
-        var id = await _svc.LinkAsync(destinationId, dto, User.Identity?.Name);
-        return CreatedAtAction(nameof(Get), new { destinationId }, new { id });
+        try
+        {
+            var id = await _svc.LinkAsync(destinationId, dto, GetUserId(), HttpContext.RequestAborted);
+            return CreatedAtAction(nameof(Get), new { destinationId }, new { id });
+        }
+        catch (InvalidOperationException ex) // duplicate, etc.
+        {
+            return Conflict(new { message = ex.Message });
+        }
     }
+
+    [Authorize]
     [HttpPost("bulk")]
     public async Task<ActionResult> Bulk(int destinationId, [FromBody] List<CreateDestinationMediaLinkDto> items)
     {
@@ -35,10 +49,10 @@ public class DestinationsMediaController : ControllerBase
         {
             try
             {
-                var id = await _svc.LinkAsync(destinationId, dto, User.Identity?.Name);
+                var id = await _svc.LinkAsync(destinationId, dto, GetUserId(), HttpContext.RequestAborted);
                 createdIds.Add(id);
             }
-            catch (InvalidOperationException) // e.g. your service throws on duplicates
+            catch (InvalidOperationException) // duplicate
             {
                 duplicates.Add(new { dto.Source, dto.ExternalId });
             }
@@ -48,18 +62,32 @@ public class DestinationsMediaController : ControllerBase
             }
         }
 
-        return Ok(new
-        {
-            created = createdIds.Count,
-            createdIds,
-            duplicates,
-            errors
-        });
+        return Ok(new { created = createdIds.Count, createdIds, duplicates, errors });
+    }
+
+    // update context note
+    [Authorize]
+    [HttpPatch("{linkId:int}/note")]
+    public async Task<ActionResult> UpdateNote(int destinationId, int linkId, [FromBody] string? note)
+    {
+        await _svc.UpdateContextNoteAsync(linkId, note, HttpContext.RequestAborted);
+        return NoContent();
+    }
+
+    // reorder links (pass an array of { linkId, orderIndex })
+    public record ReorderItem(int linkId, int? orderIndex);
+
+    [Authorize]
+    [HttpPost("reorder")]
+    public async Task<ActionResult> Reorder(int destinationId, [FromBody] List<ReorderItem> order)
+    {
+        if (order is null) return BadRequest("Body required.");
+        var pairs = order.Select(o => (o.linkId, o.orderIndex)).ToList();
+        await _svc.ReorderAsync(destinationId, pairs, HttpContext.RequestAborted);
+        return NoContent();
     }
 }
 
-
-// separate route for unlink
 [ApiController]
 [Route("api/destinations/media")]
 public class DestinationMediaLinksController : ControllerBase
@@ -71,7 +99,7 @@ public class DestinationMediaLinksController : ControllerBase
     [HttpDelete("{linkId:int}")]
     public async Task<ActionResult> Delete(int linkId)
     {
-        await _svc.UnlinkAsync(linkId);
+        await _svc.UnlinkAsync(linkId, HttpContext.RequestAborted);
         return NoContent();
     }
 }
