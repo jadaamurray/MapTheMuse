@@ -8,17 +8,27 @@ using Microsoft.IdentityModel.Tokens;
 using MapTheMuseApi.Controllers;
 using Npgsql;
 using System.Globalization;
+using Microsoft.AspNetCore.Mvc.NewtonsoftJson;
 
 
 var builder = WebApplication.CreateBuilder(args);
 
 // ability to deserialise dictionaries
 NpgsqlConnection.GlobalTypeMapper.EnableDynamicJson();
-// EF Core and Identity
+// EF Core
 builder.Services.AddDbContext<MapTheMuseContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-builder.Services.AddIdentity<AppUser, IdentityRole>()
-    .AddEntityFrameworkStores<MapTheMuseContext>().AddDefaultTokenProviders();
+// Identity
+builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
+{
+    options.User.RequireUniqueEmail = true;
+    options.Password.RequiredLength = 6;
+    options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyz0123456789._";
+    options.SignIn.RequireConfirmedEmail = true;
+})
+    .AddPasswordValidator<NotSameAsCurrentPasswordValidator<AppUser>>()
+    .AddEntityFrameworkStores<MapTheMuseContext>()
+    .AddDefaultTokenProviders();
 // Email services
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 builder.Services.AddScoped<EmailService>();
@@ -103,9 +113,8 @@ builder.Services.AddHttpClient<TmdbClient>(c =>
     }
 });
 
-
 builder.Services.AddAuthorization();
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddNewtonsoftJson();
 builder.Services.AddOpenApi();
 
 var app = builder.Build();

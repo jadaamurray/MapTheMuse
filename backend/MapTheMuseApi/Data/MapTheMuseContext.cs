@@ -34,6 +34,10 @@ namespace MapTheMuseApi.Data
             b.Entity<Destination>()
                 .Property(d => d.CultureHighlights)
                 .HasColumnType("text[]");
+            
+            b.Entity<AppUser>()
+                .HasIndex(u => u.NormalizedEmail)
+                .IsUnique();
         }
     }
 }

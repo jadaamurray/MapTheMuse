@@ -42,10 +42,12 @@ namespace MapTheMuseApi.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register(RegisterDto dto)
         {
+            var desired = dto.UserName?.Trim().ToLowerInvariant();
+
             var user = new AppUser
             {
                 Email = dto.Email,
-                UserName = dto.UserName,
+                UserName = desired,
                 FirstName = dto.FirstName,
                 LastName = dto.LastName,
                 Country = dto.Country,
