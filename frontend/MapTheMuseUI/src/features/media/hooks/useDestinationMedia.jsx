@@ -7,11 +7,8 @@ const MEDIA_TYPE_NAME = { 1: "Movie", 2: "Tv", 3: "Book", 4: "Song", 5: "Album",
 const normaliseType = (t) => (typeof t === "string" ? t : (MEDIA_TYPE_NAME[t] ?? String(t)));
 const normaliseItems = (arr) => (Array.isArray(arr) ? arr.map(i => ({ ...i, type: normaliseType(i.type) })) : []);
 
-/**
- * useDestinationMedia
- * Returns:
- *   [ { items, loading, error }, { refresh, addLink, addLinksBulk, updateNote, reorder, removeLink } ]
- */
+// { refresh, addLink, addLinksBulk, updateNote, reorder, removeLink }
+
 export function useDestinationMedia(destinationId) {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
