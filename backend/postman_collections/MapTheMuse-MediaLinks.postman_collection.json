@@ -1,0 +1,260 @@
+{
+  "info": {
+    "_postman_id": "a7b7b59a-6e4a-4a0a-ae3f-0d5f1c1a8b77",
+    "name": "MapTheMuse – Media & Destination Links",
+    "description": "Tests Media spine + DestinationMediaLinks endpoints.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      { "key": "token", "value": "{{token}}", "type": "string" }
+    ]
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5000" },
+    { "key": "destinationId", "value": "1" },
+    { "key": "token", "value": "" },
+    { "key": "mediaId", "value": "" },
+    { "key": "linkId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Media",
+      "item": [
+        {
+          "name": "GET /api/Media (list)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/Media", "host": [ "{{baseUrl}}" ], "path": [ "api", "Media" ] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.code === 200);",
+                  "// If any exist, capture the first mediaId",
+                  "const arr = pm.response.json();",
+                  "if (Array.isArray(arr) && arr.length) {",
+                  "  pm.collectionVariables.set('mediaId', arr[0].id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /api/Media/{mediaId}",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Accept", "value": "application/json" } ],
+            "url": {
+              "raw": "{{baseUrl}}/api/Media/{{mediaId}}",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "api", "Media", "{{mediaId}}" ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200 or 404', () => [200,404].includes(pm.response.code));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Destination ↔ Media Links",
+      "item": [
+        {
+          "name": "GET links for destination",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Accept", "value": "application/json" } ],
+            "url": {
+              "raw": "{{baseUrl}}/api/destinations/{{destinationId}}/media",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "api", "destinations", "{{destinationId}}", "media" ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.code === 200);",
+                  "const arr = pm.response.json();",
+                  "if (Array.isArray(arr) && arr.length) {",
+                  "  pm.collectionVariables.set('linkId', arr[0].linkId);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST link TMDB movie to destination",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/destinations/{{destinationId}}/media",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "api", "destinations", "{{destinationId}}", "media" ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"source\": \"TMDB\",\n  \"mediaType\": \"Movie\",\n  \"externalId\": \"603\",\n  \"title\": \"The Matrix\",\n  \"posterPath\": null,\n  \"contextNote\": \"Set in Sydney doubling for urban America\",\n  \"orderIndex\": 1\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Created 201 or NoContent 204/OK 200', () => [201,204,200].includes(pm.response.code));",
+                  "try {",
+                  "  const data = pm.response.json();",
+                  "  if (data && data.id) pm.collectionVariables.set('linkId', data.id);",
+                  "} catch(e) { /* ignore non-json */ }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST link TMDB TV to destination",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/destinations/{{destinationId}}/media",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "api", "destinations", "{{destinationId}}", "media" ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"source\": \"TMDB\",\n  \"mediaType\": \"Tv\",\n  \"externalId\": \"1399\",\n  \"title\": \"Game of Thrones\",\n  \"posterPath\": null,\n  \"contextNote\": \"Filmed in Northern Ireland & Croatia\",\n  \"orderIndex\": 2\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Created/Conflict', () => [201,200,204,409].includes(pm.response.code));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST bulk link",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/destinations/{{destinationId}}/media/bulk",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "api", "destinations", "{{destinationId}}", "media", "bulk" ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"source\": \"TMDB\",\n    \"mediaType\": \"Movie\",\n    \"externalId\": \"603692\",\n    \"title\": \"John Wick: Chapter 4\",\n    \"posterPath\": null,\n    \"contextNote\": \"Paris arc\",\n    \"orderIndex\": 3\n  },\n  {\n    \"source\": \"TMDB\",\n    \"mediaType\": \"Tv\",\n    \"externalId\": \"76479\",\n    \"title\": \"The Boys\",\n    \"posterPath\": null,\n    \"contextNote\": null,\n    \"orderIndex\": 4\n  }\n]"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.code === 200);",
+                  "const res = pm.response.json();",
+                  "if (res && Array.isArray(res.createdIds) && res.createdIds.length) {",
+                  "  pm.collectionVariables.set('linkId', res.createdIds[0]);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "PATCH update context note",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/destinations/{{destinationId}}/media/{{linkId}}/note",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "api", "destinations", "{{destinationId}}", "media", "{{linkId}}", "note" ]
+            },
+            "body": { "mode": "raw", "raw": "\"Updated filming note\"" }
+          },
+          "event": [
+            { "listen": "test", "script": { "exec": [ "pm.test('No Content', () => pm.response.code === 204);" ], "type": "text/javascript" } }
+          ]
+        },
+        {
+          "name": "POST reorder links",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/destinations/{{destinationId}}/media/reorder",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "api", "destinations", "{{destinationId}}", "media", "reorder" ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "[ { \"linkId\": {{linkId}}, \"orderIndex\": 1 } ]"
+            }
+          },
+          "event": [
+            { "listen": "test", "script": { "exec": [ "pm.test('No Content', () => pm.response.code === 204);" ], "type": "text/javascript" } }
+          ]
+        },
+        {
+          "name": "DELETE unlink by linkId",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/destinations/media/{{linkId}}",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "api", "destinations", "media", "{{linkId}}" ]
+            }
+          },
+          "event": [
+            { "listen": "test", "script": { "exec": [ "pm.test('No Content', () => pm.response.code === 204);" ], "type": "text/javascript" } }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -8,7 +8,8 @@ using Microsoft.IdentityModel.Tokens;
 using MapTheMuseApi.Controllers;
 using Npgsql;
 using System.Globalization;
-using Microsoft.AspNetCore.Mvc.NewtonsoftJson;
+using System.Text.Json.Serialization;
+
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -117,11 +118,8 @@ builder.Services.AddHttpClient<TmdbClient>(c =>
 
 builder.Services.AddAuthorization();
 builder.Services.AddControllers()
-    .AddNewtonsoftJson()
-     .AddJsonOptions(opt =>
-        opt.JsonSerializerOptions.Converters.Add(
-            new System.Text.Json.Serialization.JsonStringEnumConverter()
-        ));
+    .AddJsonOptions(o =>
+        o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 builder.Services.AddOpenApi();
 
 var app = builder.Build();

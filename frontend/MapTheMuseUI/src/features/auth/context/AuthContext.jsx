@@ -8,17 +8,20 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true); // initial app load
   const [refreshing, setRefreshing] = useState(false); // on-demand refreshes
+  const [error, setError] = useState(null);
 
   const refreshUser = useCallback(async ({ silently = true } = {}) => {
     if (!silently) setRefreshing(true);
     try {
       const profile = await AuthService.getCurrentUser();
       setUser(profile);
+      setError(null);
       return profile;
     } catch (err) {
       setUser(null);
-      setError(extractError(e, "Failed to fetch current user"));
-      throw err;
+      setError(extractError(err, "Failed to fetch current user"));
+/*       if(!silently) throw err;
+ */      return null;
     } finally {
       if (!silently) setRefreshing(false);
     }
@@ -37,7 +40,7 @@ export const AuthProvider = ({ children }) => {
   }, [refreshUser]);
 
   return (
-    <AuthContext.Provider value={{ user, setUser, loading, refreshing, refreshUser }}>
+    <AuthContext.Provider value={{ user, setUser, loading, refreshing, refreshUser, error }}>
       {!loading && children}
     </AuthContext.Provider>
   );

@@ -1,12 +1,13 @@
 import { Card, CardContent, CardMedia, Typography, Box, Chip } from "@mui/material";
 
-/** media: { id, title, creator, mediaType, releaseDate, posterUrl? } */
+/** media: { id, title, creator, mediaType, releaseDate, posterPath? } */
 export default function MediaCard({ media }) {
   const year = media?.releaseDate
     ? String(media.releaseDate).slice(0, 4) // works with DateOnly serialised as "YYYY-MM-DD"
     : undefined;
 
-  const poster = media?.posterUrl; // optional – add when you enrich
+  const poster = media?.posterPath; // optional – add when you enrich
+
   return (
     <Card sx={{ borderRadius: 3, overflow: "hidden" }}>
       <Box sx={{ position: "relative" }}>
