@@ -1,0 +1,181 @@
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { favouritesService as svc } from "../services/favouritesService";
+import { useAuthContext } from "../../auth/context/AuthContext";
+
+const Ctx = createContext(null);
+const keyForUser = (userId) => `mtm:favs:v1:${userId || "anon"}`;
+const mediaKey = (m) => `${m.source}|${m.type}|${m.externalId}`; // stable key for quick lookups
+
+export function FavouritesProvider({ children }) {
+  const { user } = useAuthContext();
+  const userId = user?.id ?? "anon";
+
+  const [mediaSet, setMediaSet] = useState(() => new Set());
+  const [destinationSet, setDestinationSet] = useState(() => new Set());
+  const [loading, setLoading] = useState(true);
+  const [savedMedia, setSavedMedia] = useState([]);
+  const [savedDestinations, setSavedDestinations] = useState([]);
+
+
+  // load from localStorage immediately for snappy boot
+  useEffect(() => {
+  let cancelled = false;
+  const fromLocal = localStorage.getItem(keyForUser(userId));
+  if (fromLocal) {
+    try {
+      const parsed = JSON.parse(fromLocal);
+      setMediaSet(new Set(parsed.media || []));
+      setDestinationSet(new Set(parsed.destinations || []));
+      setSavedMedia(parsed.savedMedia || []);               // hydrate fast from cache if present
+      setSavedDestinations(parsed.savedDestinations || []);
+    } catch {}
+  }
+
+  setLoading(true);
+  Promise.all([svc.fetchMyMedia(), svc.fetchMyDestinations()])
+    .then(([media, dests]) => {
+      if (cancelled) return;
+      const mSet = new Set(media.map(x => mediaKey({ source: x.source, type: x.type, externalId: x.externalId })));
+      const dSet = new Set(dests.map(x => x.id));
+      setMediaSet(mSet);
+      setDestinationSet(dSet);
+      setSavedMedia(media);                                 // <-- keep full lists
+      setSavedDestinations(dests);
+    })
+    .catch(e => !cancelled && console.error(e))
+    .finally(() => !cancelled && setLoading(false));
+
+  return () => { cancelled = true; };
+}, [userId]);
+
+  // persist snapshot
+  useEffect(() => {
+    const snapshot = JSON.stringify({
+      media: Array.from(mediaSet),
+      destinations: Array.from(destinationSet),
+      savedMedia,
+      savedDestinations
+    });
+    localStorage.setItem(keyForUser(userId), snapshot);
+  }, [mediaSet, destinationSet, userId, savedMedia, savedDestinations]);
+
+  const isMediaFavourited = useCallback(
+    (source, type, externalId) => mediaSet.has(mediaKey({ source, type, externalId })),
+    [mediaSet]
+  );
+
+  const isDestinationFavourited = useCallback(
+    (destinationId) => destinationSet.has(destinationId),
+    [destinationSet]
+  );
+
+  // --- optimistic actions ---
+
+  const favouriteMedia = useCallback(async ({ source, type, externalId, title = null, posterPath = null }) => {
+    const k = mediaKey({ source, type, externalId });
+    setMediaSet(prev => new Set(prev).add(k));
+    try {
+      await svc.favouriteMedia({ source, mediaType: type, externalId, title, posterPath });
+    } catch (e) {
+      // rollback
+      setMediaSet(prev => {
+        const next = new Set(prev);
+        next.delete(k);
+        return next;
+      });
+      throw e;
+    }
+  }, []);
+
+  const unfavouriteMedia = useCallback(async ({ source, type, externalId, mediaId = null }) => {
+    const k = mediaKey({ source, type, externalId });
+    setMediaSet(prev => {
+      const next = new Set(prev);
+      next.delete(k);
+      return next;
+    });
+    try {
+      if (mediaId != null) await svc.unfavouriteMediaByMediaId(mediaId);
+      else await svc.unfavouriteMediaByExternal(source, type, externalId);
+    } catch (e) {
+      // rollback
+      setMediaSet(prev => new Set(prev).add(k));
+      throw e;
+    }
+  }, []);
+
+  const toggleMedia = useCallback(async ({ source, type, externalId, mediaId = null, title = null, posterPath = null }) => {
+    if (isMediaFavourited(source, type, externalId))
+      return unfavouriteMedia({ source, type, externalId, mediaId });
+    return favouriteMedia({ source, type, externalId, title, posterPath });
+  }, [isMediaFavourited, favouriteMedia, unfavouriteMedia]);
+
+  const favouriteDestination = useCallback(async (destinationId) => {
+    setDestinationSet(prev => new Set(prev).add(destinationId));
+    try {
+      await svc.favouriteDestination(destinationId);
+    } catch (e) {
+      setDestinationSet(prev => {
+        const next = new Set(prev);
+        next.delete(destinationId);
+        return next;
+      });
+      throw e;
+    }
+  }, []);
+
+  const unfavouriteDestination = useCallback(async (destinationId) => {
+    setDestinationSet(prev => {
+      const next = new Set(prev);
+      next.delete(destinationId);
+      return next;
+    });
+    try {
+      await svc.unfavouriteDestination(destinationId);
+    } catch (e) {
+      setDestinationSet(prev => new Set(prev).add(destinationId));
+      throw e;
+    }
+  }, []);
+
+  const toggleDestination = useCallback(async (destinationId) => {
+    if (isDestinationFavourited(destinationId)) return unfavouriteDestination(destinationId);
+    return favouriteDestination(destinationId);
+  }, [isDestinationFavourited, favouriteDestination, unfavouriteDestination]);
+
+  const value = useMemo(() => ({
+    loading,
+    // queries
+    isMediaFavourited,
+    isDestinationFavourited,
+    // commands
+    favouriteMedia,
+    unfavouriteMedia,
+    toggleMedia,
+    favouriteDestination,
+    unfavouriteDestination,
+    toggleDestination,
+    savedDestinations,
+    savedMedia
+  }), [
+    loading,
+    isMediaFavourited,
+    isDestinationFavourited,
+    favouriteMedia,
+    unfavouriteMedia,
+    toggleMedia,
+    favouriteDestination,
+    unfavouriteDestination,
+    toggleDestination,
+    savedDestinations,
+    savedMedia
+  ]);
+
+  return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
+}
+
+export const useFavourites = () => {
+  const ctx = useContext(Ctx);
+  if (!ctx) throw new Error("useFavourites must be used within FavouritesProvider");
+  return ctx;
+};

@@ -15,5 +15,6 @@ public record MediaFavouriteDto(
     MediaType Type,
     string? Title,
     string? PosterPath,
+    string? Overview,
     DateTime CreatedUtc
 );

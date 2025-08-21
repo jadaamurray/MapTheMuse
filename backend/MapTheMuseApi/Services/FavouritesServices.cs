@@ -7,8 +7,9 @@ public class FavouritesService : IFavouritesService
 {
     private readonly MapTheMuseContext _db;
     private readonly IMediaSpineService _mediaSpine;
-    public FavouritesService(MapTheMuseContext db, IMediaSpineService mediaSpine)
-    { _db = db; _mediaSpine = mediaSpine; }
+    private readonly TmdbClient _tmdb;
+    public FavouritesService(MapTheMuseContext db, IMediaSpineService mediaSpine, TmdbClient tmdb)
+    { _db = db; _mediaSpine = mediaSpine; _tmdb = tmdb;}
 
     // ---- Destinations ----
     public async Task FavouriteDestinationAsync(string userId, int destinationId, CancellationToken ct = default)
@@ -41,7 +42,9 @@ public class FavouritesService : IFavouritesService
             {
                 Id = f.Destination.Id,
                 Name = f.Destination.Name,
-                Summary = f.Destination.Summary})
+                Summary = f.Destination.Summary,
+                Slug = f.Destination.Slug,
+                ThumbUrl = f.Destination.ThumbUrl})
             .ToListAsync(ct);
     }
 
@@ -78,23 +81,82 @@ public class FavouritesService : IFavouritesService
         var skip = Math.Max(0, (page - 1) * pageSize);
         var query = _db.FavouriteMedia
             .AsNoTracking()
+            .Include(f => f.Media)
             .Where(f => f.UserId == userId);
 
         if (type.HasValue)
             query = query.Where(f => f.Media.Type == type.Value);
 
-        return await query
+        var favs = await query
             .OrderByDescending(f => f.CreatedUtc)
             .Skip(skip).Take(pageSize)
-            .Select(f => new MediaFavouriteDto(
-                f.MediaId,
-                f.Media.Source,
-                f.Media.ExternalId,
-                f.Media.Type,
-                f.Media.Title,
-                f.Media.PosterPath,
-                f.CreatedUtc
-            ))
             .ToListAsync(ct);
+            
+        var tasks = favs.Select(f => BuildFavouriteDtoAsync(f, ct)).ToArray();
+        await Task.WhenAll(tasks);
+        return tasks.Select(t => t.Result).ToList();
+    }
+    private async Task<MediaFavouriteDto> BuildFavouriteDtoAsync(FavouriteMedia fav, CancellationToken ct)
+    {
+        var m = fav.Media ?? throw new InvalidOperationException("Favourite has no Media.");
+
+        string? title = m.Title;
+        string? posterPath = m.PosterPath;  // we store full url here
+        string? overview = m.Description;
+
+        var isStale = m.LastSyncedUtc == null || (DateTime.UtcNow - m.LastSyncedUtc.Value).TotalDays > 7;
+        var needsEnrich = string.Equals(m.Source, "TMDB", StringComparison.OrdinalIgnoreCase) &&
+                          (isStale || string.IsNullOrEmpty(title) || string.IsNullOrEmpty(posterPath));
+
+        if (needsEnrich)
+        {
+            try
+            {
+                if (m.Type == MediaType.Movie)
+                {
+                    var (t, _, _, p, o) = await _tmdb.GetMovieAsync(m.ExternalId, null, ct);
+                    title = t ?? title;
+                    posterPath = p ?? posterPath;
+                    overview = o ?? overview;
+                }
+                else if (m.Type == MediaType.Tv)
+                {
+                    var (t, _, _, p, o) = await _tmdb.GetTvAsync(m.ExternalId, null, ct);
+                    title = t ?? title;
+                    posterPath = p ?? posterPath;
+                    overview = o ?? overview;
+                }
+
+                // (optional) update cache if we improved anything
+                if ((title != m.Title) || (posterPath != m.PosterPath) || (overview != m.Description))
+                {
+                    // track and save
+                    var tracked = await _db.Media.FirstOrDefaultAsync(x => x.Id == m.Id, ct);
+                    if (tracked != null)
+                    {
+                        tracked.Title = title ?? tracked.Title;
+                        tracked.PosterPath = posterPath ?? tracked.PosterPath;
+                        tracked.Description = overview ?? tracked.Description;
+                        tracked.LastSyncedUtc = DateTime.UtcNow;
+                        await _db.SaveChangesAsync(ct);
+                    }
+                }
+            }
+            catch
+            {
+                // swallow TMDB/network errors and fall back to cached values
+            }
+        }
+
+        return new MediaFavouriteDto(
+            MediaId: m.Id,
+            Source: m.Source,
+            ExternalId: m.ExternalId,
+            Type: m.Type,
+            Title: title,
+            PosterPath: posterPath,
+            Overview: overview,
+            CreatedUtc: fav.CreatedUtc
+        );
     }
 }
