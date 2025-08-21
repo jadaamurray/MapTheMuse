@@ -20,6 +20,9 @@ namespace MapTheMuseApi.Data
         public DbSet<Itinerary> Itineraries { get; set; } = default!;
         public DbSet<ItineraryItem> ItineraryItems { get; set; } = default!;
         public DbSet<DestinationMediaLink> DestinationMediaLinks { get; set; } = default!;
+        public DbSet<FavouriteMedia> FavouriteMedia { get; set; } = default!;
+        public DbSet<FavouriteDestination> FavouriteDestinations { get; set; } = default!;
+
 
         protected override void OnModelCreating(ModelBuilder b)
         {
@@ -38,6 +41,18 @@ namespace MapTheMuseApi.Data
             b.Entity<AppUser>()
                 .HasIndex(u => u.NormalizedEmail)
                 .IsUnique();
+
+            b.Entity<Media>(b =>
+            {
+                b.HasIndex(m => new { m.Source, m.Type, m.ExternalId }).IsUnique();
+                b.Property(m => m.Type).HasConversion<string>(); // store enum as text (readable)
+            });
+
+            // Favourites PK
+            b.Entity<FavouriteDestination>().HasKey(x => new { x.UserId, x.DestinationId });
+            b.Entity<FavouriteMedia>().HasKey(x => new { x.UserId, x.MediaId });
+
+
         }
     }
 }

@@ -8,7 +8,8 @@ using Microsoft.IdentityModel.Tokens;
 using MapTheMuseApi.Controllers;
 using Npgsql;
 using System.Globalization;
-using Microsoft.AspNetCore.Mvc.NewtonsoftJson;
+using System.Text.Json.Serialization;
+
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -76,6 +77,8 @@ builder.Services.AddAuthentication(options =>
 // Interfaces
 builder.Services.AddScoped<IDestinationService, DestinationService>();
 builder.Services.AddScoped<IDestinationMediaService, DestinationMediaService>();
+builder.Services.AddScoped<IMediaSpineService, MediaSpineService>();
+builder.Services.AddScoped<IFavouritesService, FavouritesService>();
 // Adding CORS services
 var allowed = (builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? Array.Empty<string>())
     .Concat((builder.Configuration["Cors:AllowedOriginsCsv"] ?? string.Empty)
@@ -114,7 +117,9 @@ builder.Services.AddHttpClient<TmdbClient>(c =>
 });
 
 builder.Services.AddAuthorization();
-builder.Services.AddControllers().AddNewtonsoftJson();
+builder.Services.AddControllers()
+    .AddJsonOptions(o =>
+        o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 builder.Services.AddOpenApi();
 
 var app = builder.Build();

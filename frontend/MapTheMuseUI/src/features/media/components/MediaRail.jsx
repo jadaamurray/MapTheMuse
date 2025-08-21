@@ -43,7 +43,7 @@ export default function MediaRail({ items = [] }) {
           <Box sx={{ position: "relative" }}>
             <CardMedia
               component="img"
-              image={m.posterUrl || "/placeholder/cover-gradient.jpg"}
+              image={m.posterPath || "/placeholder/cover-gradient.jpg"}
               alt={m.title}
               sx={{ aspectRatio: "2/3", objectFit: "cover" }}
             />

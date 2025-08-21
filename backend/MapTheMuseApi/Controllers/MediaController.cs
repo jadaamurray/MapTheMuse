@@ -32,13 +32,15 @@ namespace MapTheMuseApi.Controllers
                             .Select(m => new MediaListDto
                             {
                                 Id = m.Id,
+                                ExternalId = m.ExternalId,
+                                Source = m.Source,
                                 Title = m.Title,
                                 ShortDescription =
                                     m.Description.Length <= 100
                                         ? m.Description
                                         : m.Description.Substring(0, 97) + "...",
                                 Creator = m.Creator,
-                                MediaType = m.MediaType,
+                                Type = m.Type,
                                 ReleaseDate = m.ReleaseDate
                             })
                             .ToListAsync();
@@ -59,11 +61,15 @@ namespace MapTheMuseApi.Controllers
             var dto = new MediaDetailDto
             {
                 Id = m.Id,
+                ExternalId = m.ExternalId,
+                Source = m.Source,
                 Title = m.Title,
                 Description = m.Description,
                 Creator = m.Creator,
-                MediaType = m.MediaType,
-                ReleaseDate = m.ReleaseDate
+                Type = m.Type,
+                ReleaseDate = m.ReleaseDate,
+                PosterPath = m.PosterPath,
+                LastSyncedUtc = m.LastSyncedUtc
             };
 
             return Ok(dto);

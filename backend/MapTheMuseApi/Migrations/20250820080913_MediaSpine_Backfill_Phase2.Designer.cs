@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using MapTheMuseApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MapTheMuseApi.Migrations
 {
     [DbContext(typeof(MapTheMuseContext))]
-    partial class MapTheMuseContextModelSnapshot : ModelSnapshot
+    [Migration("20250820080913_MediaSpine_Backfill_Phase2")]
+    partial class MediaSpine_Backfill_Phase2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -192,11 +195,25 @@ namespace MapTheMuseApi.Migrations
                     b.Property<int>("DestinationId")
                         .HasColumnType("integer");
 
+                    b.Property<string>("ExternalId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<int?>("MediaId")
                         .HasColumnType("integer");
 
+                    b.Property<string>("MediaType")
+                        .IsRequired()
+                        .HasMaxLength(24)
+                        .HasColumnType("character varying(24)");
+
                     b.Property<int?>("OrderIndex")
                         .HasColumnType("integer");
+
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
 
                     b.HasKey("Id");
 
@@ -207,42 +224,6 @@ namespace MapTheMuseApi.Migrations
                     b.HasIndex("MediaId");
 
                     b.ToTable("DestinationMediaLinks");
-                });
-
-            modelBuilder.Entity("MapTheMuseApi.Models.FavouriteDestination", b =>
-                {
-                    b.Property<string>("UserId")
-                        .HasColumnType("text");
-
-                    b.Property<int>("DestinationId")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("CreatedUtc")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("UserId", "DestinationId");
-
-                    b.HasIndex("DestinationId");
-
-                    b.ToTable("FavouriteDestinations");
-                });
-
-            modelBuilder.Entity("MapTheMuseApi.Models.FavouriteMedia", b =>
-                {
-                    b.Property<string>("UserId")
-                        .HasColumnType("text");
-
-                    b.Property<int>("MediaId")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("CreatedUtc")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("UserId", "MediaId");
-
-                    b.HasIndex("MediaId");
-
-                    b.ToTable("FavouriteMedia");
                 });
 
             modelBuilder.Entity("MapTheMuseApi.Models.Itinerary", b =>
@@ -636,44 +617,6 @@ namespace MapTheMuseApi.Migrations
                     b.Navigation("Media");
                 });
 
-            modelBuilder.Entity("MapTheMuseApi.Models.FavouriteDestination", b =>
-                {
-                    b.HasOne("MapTheMuseApi.Models.Destination", "Destination")
-                        .WithMany("FavouritedBy")
-                        .HasForeignKey("DestinationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("MapTheMuseApi.Models.AppUser", "User")
-                        .WithMany("FavouriteDestinations")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Destination");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("MapTheMuseApi.Models.FavouriteMedia", b =>
-                {
-                    b.HasOne("MapTheMuseApi.Models.Media", "Media")
-                        .WithMany("FavouritedBy")
-                        .HasForeignKey("MediaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("MapTheMuseApi.Models.AppUser", "User")
-                        .WithMany("FavouriteMedia")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Media");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("MapTheMuseApi.Models.Itinerary", b =>
                 {
                     b.HasOne("MapTheMuseApi.Models.AppUser", "User")
@@ -828,18 +771,12 @@ namespace MapTheMuseApi.Migrations
                 {
                     b.Navigation("ArtEngagements");
 
-                    b.Navigation("FavouriteDestinations");
-
-                    b.Navigation("FavouriteMedia");
-
                     b.Navigation("MediaEngagements");
                 });
 
             modelBuilder.Entity("MapTheMuseApi.Models.Destination", b =>
                 {
                     b.Navigation("ArtEngagements");
-
-                    b.Navigation("FavouritedBy");
 
                     b.Navigation("ItineraryItems");
 
@@ -856,8 +793,6 @@ namespace MapTheMuseApi.Migrations
             modelBuilder.Entity("MapTheMuseApi.Models.Media", b =>
                 {
                     b.Navigation("DestinationLinks");
-
-                    b.Navigation("FavouritedBy");
                 });
 
             modelBuilder.Entity("MapTheMuseApi.Models.PhysicalArt", b =>

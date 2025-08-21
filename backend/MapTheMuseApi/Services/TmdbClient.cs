@@ -1,4 +1,5 @@
 using System.Net.Http.Json;
+using System.Threading;
 
 public class TmdbClient
 {
@@ -14,9 +15,12 @@ public class TmdbClient
     }
 
     public async Task<(string title, int? year, string? creator, string? poster, string? overview)>
-        GetMovieAsync(string id, string? language = null)
+        GetMovieAsync(string id, string? language = null, CancellationToken ct = default)
     {
-        var res = await _http.GetFromJsonAsync<MovieDto>($"movie/{id}?language={(language ?? _lang)}");
+        var res = await _http.GetFromJsonAsync<MovieDto>(
+            $"movie/{id}?language={(language ?? _lang)}",
+            ct);
+
         if (res is null) return (id, null, null, null, null);
 
         var year = TryYear(res.release_date);
@@ -25,9 +29,12 @@ public class TmdbClient
     }
 
     public async Task<(string title, int? year, string? creator, string? poster, string? overview)>
-        GetTvAsync(string id, string? language = null)
+        GetTvAsync(string id, string? language = null, CancellationToken ct = default)
     {
-        var res = await _http.GetFromJsonAsync<TvDto>($"tv/{id}?language={(language ?? _lang)}");
+        var res = await _http.GetFromJsonAsync<TvDto>(
+            $"tv/{id}?language={(language ?? _lang)}",
+            ct);
+
         if (res is null) return (id, null, null, null, null);
 
         var year = TryYear(res.first_air_date);
@@ -36,7 +43,10 @@ public class TmdbClient
     }
 
     private static int? TryYear(string? isoDate) =>
-        !string.IsNullOrWhiteSpace(isoDate) && DateOnly.TryParse(isoDate, out var d) ? d.Year : null;
+        !string.IsNullOrWhiteSpace(isoDate) &&
+        DateOnly.TryParseExact(isoDate, "yyyy-MM-dd", null, System.Globalization.DateTimeStyles.None, out var d)
+            ? d.Year
+            : null;
 
     private sealed class MovieDto
     {
