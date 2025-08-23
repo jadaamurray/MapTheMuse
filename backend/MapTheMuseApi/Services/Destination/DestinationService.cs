@@ -6,17 +6,17 @@ using MapTheMuseApi.Infrastructure.Text;
 using Npgsql;
 public class DestinationService : IDestinationService
 {
-    private readonly MapTheMuseContext _context;
+    private readonly IDestinationRepository _repo;
 
-    public DestinationService(MapTheMuseContext context)
-        => _context = context;
+    public DestinationService(IDestinationRepository repo)
+        => _repo = repo;
 
     public async Task<List<DestinationListDto>> GetAllDestinationsAsync(
         string? continent = null,
         string? factKey = null,
         string? factValue = null)
     {
-        var q = _context.Destinations.AsNoTracking();
+        var q = _repo.Query();
 
         if (!string.IsNullOrWhiteSpace(continent))
             q = q.Where(d => d.Continent == continent);
@@ -47,8 +47,7 @@ public class DestinationService : IDestinationService
 
     public async Task<DestinationDetailDto?> GetDestinationByIdAsync(int id)
     {
-        return await _context.Destinations
-        .AsNoTracking()
+        return await _repo.Query()
         .Where(x => x.Id == id)
         .Select(d => new DestinationDetailDto
         {
@@ -89,8 +88,8 @@ public class DestinationService : IDestinationService
             QuickFacts = dto.QuickFacts ?? new Dictionary<string, string>()
 
         };
-        _context.Destinations.Add(entity);
-        await _context.SaveChangesAsync();
+        await _repo.AddAsync(entity);
+        await _repo.SaveChangesAsync();
 
         var baseSlug = Slugify.From(entity.Name);
         if (string.IsNullOrWhiteSpace(baseSlug))
@@ -100,13 +99,13 @@ public class DestinationService : IDestinationService
         entity.Slug = baseSlug;
         try
         {
-            await _context.SaveChangesAsync();
+            await _repo.SaveChangesAsync();
         }
         catch (DbUpdateException ex) when (IsUniqueViolation(ex))
         {
             // If taken, append the Id
             entity.Slug = $"{baseSlug}-{entity.Id}";
-            await _context.SaveChangesAsync();
+            await _repo.SaveChangesAsync();
         }
 
         // map back to a detail DTO
@@ -130,7 +129,7 @@ public class DestinationService : IDestinationService
 
     public async Task<bool> UpdateDestinationAsync(int id, DestinationCreateUpdateDto dto)
     {
-        var entity = await _context.Destinations.FindAsync(id);
+        var entity = await _repo.GetByIdAsync(id);
         if (entity == null) return false;
 
         entity.Name = dto.Name;
@@ -159,26 +158,24 @@ public class DestinationService : IDestinationService
             entity.Slug = baseSlug;
             try
             {
-                await _context.SaveChangesAsync();
+                await _repo.SaveChangesAsync();
             }
             catch (DbUpdateException ex) when (IsUniqueViolation(ex))
             {
                 entity.Slug = $"{baseSlug}-{entity.Id}";
-                await _context.SaveChangesAsync();
+                await _repo.SaveChangesAsync();
             }
             return true;
         }
 
-        await _context.SaveChangesAsync();
+        await _repo.SaveChangesAsync();
         return true;
     }
 
     public async Task<bool> DeleteDestinationAsync(int id)
     {
-        var entity = await _context.Destinations.FindAsync(id);
-        if (entity == null) return false;
-        _context.Destinations.Remove(entity);
-        await _context.SaveChangesAsync();
+        if (!await _repo.ExistsAsync(id)) return false;
+        await _repo.DeleteAsync(id);
         return true;
     }
     private static bool IsUniqueViolation(DbUpdateException ex)
