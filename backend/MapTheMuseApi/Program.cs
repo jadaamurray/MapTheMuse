@@ -116,6 +116,17 @@ builder.Services.AddHttpClient<TmdbClient>(c =>
     }
 });
 
+// --- Sharing services ---
+// http image cache
+builder.Services.AddMemoryCache();
+builder.Services.AddHttpClient<IImageFetcher, HttpImageFetcher>();
+// collage renderer
+builder.Services.AddSingleton<CollageRenderer>();
+// collage query
+builder.Services.AddScoped<CollageQuery>();
+
+
+
 builder.Services.AddAuthorization();
 builder.Services.AddControllers()
     .AddJsonOptions(o =>

@@ -5,6 +5,7 @@ import ShareIcon from "@mui/icons-material/Share";
 import EditIcon from "@mui/icons-material/Edit";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import LanguageIcon from "@mui/icons-material/Language";
+import ProfileShareButton from "./ProfileShareButton";
 
 export default function ProfileHeader({ user, actions }) {
   const fullName = (() => {
@@ -64,9 +65,7 @@ export default function ProfileHeader({ user, actions }) {
         <Stack direction="row" spacing={1.2} sx={{ mt: 1 }}>
           {actions ?? (
             <>
-              <Button variant="outlined" startIcon={<ShareIcon />} sx={{ borderRadius: 3 }}>
-                Share
-              </Button>
+              <ProfileShareButton user={user}/>
               <Button
                 variant="contained"
                 startIcon={<EditIcon />}
