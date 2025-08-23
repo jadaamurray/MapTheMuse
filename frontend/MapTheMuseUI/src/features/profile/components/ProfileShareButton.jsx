@@ -2,7 +2,10 @@ import ShareIcon from "@mui/icons-material/Share";
 import { Button } from "@mui/material";
 
 async function shareOrDownloadImage({ userId, title = "My picks · Map The Muse", text = "" }) {
-  const imgUrl = `http://localhost:5062/og/collage/user/${userId}.png`;
+  const baseUrl = import.meta.env.vite_IMG_URL;
+  const imgUrl = `{baseUrl}${userId}.png`
+
+  console.log('image url is: ', imgUrl)
 
   // Fetch the PNG
   const res = await fetch(imgUrl, { mode: "cors", cache: "no-cache" });
