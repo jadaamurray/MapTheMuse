@@ -9,7 +9,9 @@ using MapTheMuseApi.Controllers;
 using Npgsql;
 using System.Globalization;
 using System.Text.Json.Serialization;
-
+using System.Text.Json;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -124,6 +126,11 @@ builder.Services.AddHttpClient<IImageFetcher, HttpImageFetcher>();
 builder.Services.AddSingleton<CollageRenderer>();
 // collage query
 builder.Services.AddScoped<CollageQuery>();
+// health services
+builder.Services.AddHealthChecks()
+    .AddCheck("self", () => HealthCheckResult.Healthy(), tags: new[] { "live" })
+    // Tag DB check as "ready" so we can filter for /readyz
+    .AddCheck<DatabaseHealthCheck>("database", tags: new[] { "ready" });
 
 
 
@@ -146,6 +153,33 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<MapTheMuseContext>();
     db.Database.Migrate();
 }
+// JSON response writer
+static Task WriteHealthJson(HttpContext context, HealthReport report)
+{
+    context.Response.ContentType = "application/json; charset=utf-8";
+
+    var payload = new
+    {
+        status = report.Status.ToString(),
+        totalDuration = report.TotalDuration.TotalMilliseconds,
+        checks = report.Entries.Select(kvp => new
+        {
+            name = kvp.Key,
+            status = kvp.Value.Status.ToString(),
+            duration = kvp.Value.Duration.TotalMilliseconds,
+            error = kvp.Value.Exception?.Message,
+            description = kvp.Value.Description,
+            tags = kvp.Value.Tags
+        })
+    };
+
+    var json = JsonSerializer.Serialize(payload, new JsonSerializerOptions
+    {
+        WriteIndented = false
+    });
+
+    return context.Response.WriteAsync(json);
+}
 
 app.UseHttpsRedirection();
 app.UseCors("Frontend");
@@ -153,8 +187,29 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-app.MapGet("/healthz", () => Results.Ok(new { status = "ok" }));
 
+
+// /livez – only self check
+app.MapHealthChecks("/livez", new HealthCheckOptions
+{
+    Predicate = r => r.Tags.Contains("live"),
+    ResponseWriter = WriteHealthJson
+});
+
+// /readyz – checks required to serve traffic (DB, external deps)
+// Tag those checks with "ready"
+app.MapHealthChecks("/readyz", new HealthCheckOptions
+{
+    Predicate = r => r.Tags.Contains("ready"),
+    ResponseWriter = WriteHealthJson
+});
+
+// /healthz – everything
+app.MapHealthChecks("/healthz", new HealthCheckOptions
+{
+    Predicate = _ => true,
+    ResponseWriter = WriteHealthJson
+});
 
 app.Run();
 public partial class Program { }
