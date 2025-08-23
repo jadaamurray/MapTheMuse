@@ -12,6 +12,11 @@ using System.Text.Json.Serialization;
 using System.Text.Json;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.RateLimiting;
+using System.Threading.RateLimiting;
+using Microsoft.Extensions.Primitives;
+using Microsoft.AspNetCore.HttpOverrides;
+using System.Net;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -76,11 +81,18 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// Interfaces
+// ---- Interfaces ----
+// services
 builder.Services.AddScoped<IDestinationService, DestinationService>();
 builder.Services.AddScoped<IDestinationMediaService, DestinationMediaService>();
 builder.Services.AddScoped<IMediaSpineService, MediaSpineService>();
 builder.Services.AddScoped<IFavouritesService, FavouritesService>();
+builder.Services.AddScoped<IMediaService, MediaService>();
+
+// repositories
+builder.Services.AddScoped<IDestinationRepository, DestinationRepository>();
+builder.Services.AddScoped<IMediaRepository, MediaRepository>();
+
 // Adding CORS services
 var allowed = (builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? Array.Empty<string>())
     .Concat((builder.Configuration["Cors:AllowedOriginsCsv"] ?? string.Empty)
@@ -132,7 +144,23 @@ builder.Services.AddHealthChecks()
     // Tag DB check as "ready" so we can filter for /readyz
     .AddCheck<DatabaseHealthCheck>("database", tags: new[] { "ready" });
 
-
+// Rate limiting
+builder.Services.AddRateLimiter(opts =>
+{
+    opts.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, IPAddress>(httpContext =>
+    {
+        var ip = httpContext.Connection.RemoteIpAddress ?? IPAddress.IPv6Loopback;
+        return RateLimitPartition.GetFixedWindowLimiter(ip, _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = 100,          // 100 req
+            Window = TimeSpan.FromMinutes(1),
+            QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+            QueueLimit = 0
+        });
+    });
+    // Exempt health and static files
+    opts.AddPolicy("NoLimit", context => RateLimitPartition.GetNoLimiter(string.Empty));
+});
 
 builder.Services.AddAuthorization();
 builder.Services.AddControllers()
@@ -181,8 +209,45 @@ static Task WriteHealthJson(HttpContext context, HealthReport report)
     return context.Response.WriteAsync(json);
 }
 
+// exception handling
+if (app.Environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage();
+}
+else
+{
+    app.UseExceptionHandler("/error"); // map a minimal /error endpoint that returns ProblemDetails
+}
+
+// forwarded headers in production
+if (!app.Environment.IsDevelopment())
+{
+    app.UseForwardedHeaders(new ForwardedHeadersOptions
+    {
+        ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
+        // TODO: add KnownProxies/Networks if you can
+    });
+    app.UseHsts();
+}
+
 app.UseHttpsRedirection();
 app.UseCors("Frontend");
+app.UseRateLimiter();
+
+// security headers
+app.Use(async (ctx, next) =>
+{
+    var h = ctx.Response.Headers;
+    h["X-Content-Type-Options"] = "nosniff";
+    h["X-Frame-Options"] = "DENY";
+    h["Referrer-Policy"] = "strict-origin-when-cross-origin";
+    h["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()";
+    h["Cross-Origin-Opener-Policy"] = "same-origin";
+    h["Cross-Origin-Resource-Policy"] = "same-site";
+    await next();
+});
+
+
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -194,7 +259,9 @@ app.MapHealthChecks("/livez", new HealthCheckOptions
 {
     Predicate = r => r.Tags.Contains("live"),
     ResponseWriter = WriteHealthJson
-});
+})
+    .RequireRateLimiting("NoLimit")
+    .AllowAnonymous();
 
 // /readyz – checks required to serve traffic (DB, external deps)
 // Tag those checks with "ready"
@@ -202,14 +269,18 @@ app.MapHealthChecks("/readyz", new HealthCheckOptions
 {
     Predicate = r => r.Tags.Contains("ready"),
     ResponseWriter = WriteHealthJson
-});
+})
+    .RequireRateLimiting("NoLimit")
+    .AllowAnonymous();
 
 // /healthz – everything
 app.MapHealthChecks("/healthz", new HealthCheckOptions
 {
     Predicate = _ => true,
     ResponseWriter = WriteHealthJson
-});
+})
+    .RequireRateLimiting("NoLimit")
+    .AllowAnonymous();
 
 app.Run();
 public partial class Program { }

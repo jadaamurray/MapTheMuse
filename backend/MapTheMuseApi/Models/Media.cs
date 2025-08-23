@@ -18,7 +18,7 @@ namespace MapTheMuseApi.Models
         public string ExternalId { get; set; } = default!;
 
         [Required]
-        public MediaType Type { get; set; } // Movie or Tv (for now)
+        public MediaType Type { get; set; }
 
         // Optional cache fields (all nullable)
         [MaxLength(400)] public string? Title { get; set; }
