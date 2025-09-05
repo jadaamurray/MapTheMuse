@@ -20,13 +20,12 @@ namespace MapTheMuseApi.Controllers
         // HTML share page for a user's collage (favourited destinations + media).
         // Social platforms read the OG/Twitter meta; humans are redirected to the SPA profile.
         // Example: GET /share/user/7b7f7a2d-2b0b-4e5e-a2fd-9f6a9f5a1b23
-        // Optional: ?v=12345 (cache-busting version added to og:image URL)
         [HttpGet("user/{userId:guid}")]
         public async Task<IActionResult> User(string userId)
         {
             var (title, _, spaUrl) = await _query.ForUserAsync(userId);
             if (string.IsNullOrWhiteSpace(spaUrl))
-                return NotFound(); // e.g., user not found or not shareable
+                return NotFound(); // user not found or not shareable
 
             // Build the OG image URL; pass through a version param if present (forces re-scrape)
             var ogBase = $"https://api.mapthemuse.world/og/collage/user/{userId}.png";
@@ -66,7 +65,7 @@ namespace MapTheMuseApi.Controllers
 <body></body>
 </html>";
 
-            // Short cache helps social scrapers; adjust if you prefer
+            // Short cache helps social scrapers
             Response.Headers.CacheControl = "public, max-age=300, s-maxage=300";
             return Content(html, "text/html", Encoding.UTF8);
         }
