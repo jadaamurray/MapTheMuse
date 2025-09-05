@@ -1,5 +1,5 @@
 {
-  "rewrtes": [
+  "rewrites": [
     {
       "source": "/og/(.*)",
       "destination": "https://api.mapthemuse.world/og/$1"
