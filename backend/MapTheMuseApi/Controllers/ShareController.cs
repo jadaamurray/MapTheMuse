@@ -50,12 +50,6 @@ namespace MapTheMuseApi.Controllers
 <meta property=""og:image:width"" content=""1200"">
 <meta property=""og:image:height"" content=""630"">
 
-<!-- Twitter -->
-<meta name=""twitter:card"" content=""summary_large_image"">
-<meta name=""twitter:title"" content=""{enc.Encode(title)}"">
-<meta name=""twitter:description"" content=""Curated picks on Map The Muse"">
-<meta name=""twitter:image"" content=""{ogImg}"">
-
 <link rel=""canonical"" href=""{spaUrl}"">
 
 <!-- Instant redirect for humans -->

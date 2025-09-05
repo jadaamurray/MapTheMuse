@@ -1,6 +1,6 @@
 public record CollageStyle(
-    int Width = 1200,
-    int Height = 1200,
+    int Width = 1080,
+    int Height = 1080,
     int Cols = 3,
     int Padding = 32,
     int Gap = 12,
