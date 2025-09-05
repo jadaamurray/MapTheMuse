@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 public class MediaService : IMediaService
 {
     private readonly IMediaRepository _repo;
-    private readonly IMediaSpineService _spine; // your existing ensure logic
+    private readonly IMediaSpineService _spine;
 
     public MediaService(IMediaRepository repo, IMediaSpineService spine)
     { _repo = repo; _spine = spine; }
@@ -55,13 +55,13 @@ public class MediaService : IMediaService
 
     public async Task<MediaDetailDto> CreateAsync(MediaCreateUpdateDto dto)
     {
-        // Optional: use Spine to dedupe by source/externalId
+        // use Spine to dedupe by source/externalId
         Media entity;
         if (!string.IsNullOrWhiteSpace(dto.Source) &&
             !string.IsNullOrWhiteSpace(dto.ExternalId))
         {
             entity = await _spine.EnsureAsync(dto.Type, dto.ExternalId!, dto.Source!, dto.Title, dto.PosterPath);
-            // Optionally hydrate remaining fields below
+            // fill remaining fields below
             entity.Description = dto.Description ?? entity.Description;
             entity.Creator = dto.Creator ?? entity.Creator;
             entity.ReleaseDate = dto.ReleaseDate ?? entity.ReleaseDate;

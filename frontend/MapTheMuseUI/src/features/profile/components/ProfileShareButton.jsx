@@ -2,8 +2,8 @@ import ShareIcon from "@mui/icons-material/Share";
 import { Button } from "@mui/material";
 
 async function shareOrDownloadImage({ userId, title = "My picks · Map The Muse", text = "" }) {
-  const baseUrl = import.meta.env.vite_IMG_URL;
-  const imgUrl = `{baseUrl}${userId}.png`
+  const baseUrl = import.meta.env.VITE_IMG_URL;
+  const imgUrl = `${baseUrl}${userId}.png`
 
   console.log('image url is: ', imgUrl)
 

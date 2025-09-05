@@ -18,8 +18,7 @@ namespace MapTheMuseApi.Controllers
             _renderer = renderer;
         }
 /*      Open Graph image for a user's collage (favourited destinations + media).
-        Example: GET /og/collage/user/7b7f7a2d-2b0b-4e5e-a2fd-9f6a9f5a1b23.png
-        Optional: ?v=ticks for cache-busting when favourites change. */
+        Example: GET /og/collage/user/7b7f7a2d-2b0b-4e5e-a2fd-9f6a9f5a1b23.png */
         [HttpGet("collage/user/{userId:guid}.png")]
         public async Task<IActionResult> CollageForUser(string userId, CancellationToken ct)
         {
@@ -35,7 +34,7 @@ namespace MapTheMuseApi.Controllers
             // Cache for a day; downstream CDNs can also cache (s-maxage)
             Response.Headers.CacheControl = "public, max-age=86400, s-maxage=86400";
 
-            // Optional: strong validator if you pass ?v=… on the URL
+            // strong validator if you pass ?v=… on the URL
             if (Request.Query.TryGetValue("v", out var v))
                 Response.Headers.ETag = $"W/\"{v}\"";
 

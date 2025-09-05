@@ -30,7 +30,7 @@ public class CollageQuery
             .Select(u => UrlHelper.ToAbsolute(u, _assetBase))
             .Where(u => !string.IsNullOrWhiteSpace(u))
             .Distinct()
-            .Take(9)
+            .Take(16)
             .Select(u => new CollageItem(u!))
             .ToList();
 

@@ -19,24 +19,9 @@ namespace MapTheMuseApi.Models
         [ForeignKey("PhysicalArt")]
         public int? PhysicalArtId { get; set; }
 
-        /// <summary>
-        /// Optional start date/time for this stop in the itinerary
-        /// </summary>
         public DateTime? StartDate { get; set; }
-
-        /// <summary>
-        /// Optional end date/time for this stop in the itinerary
-        /// </summary>
         public DateTime? EndDate { get; set; }
-
-        /// <summary>
-        /// Ordering index
-        /// </summary>
         public int Order { get; set; }
-
-        /// <summary>
-        /// Any notes or comments about this itinerary item
-        /// </summary>
         public string? Note { get; set; }
 
         [JsonIgnore]

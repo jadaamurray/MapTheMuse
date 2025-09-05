@@ -38,19 +38,15 @@ public class CollageRenderer
 
         
         // Draw tiles
-        var rr = new SKRoundRect();
-
         for (int i = 0; i < count; i++)
         {
             int row = i / cols, col = i % cols;
-            int x = padding + col * (cell + style.Gap);
-            int y = startY + row * (cell + style.Gap);
+            int x = padding + col * cell;
+            int y = startY + row * cell;
             var rect = new SKRect(x, y, x + cell, y + cell);
-            rr.SetRect(rect, 16, 16);
 
             var img = await _fetcher.FetchAsSkImageAsync(items[i].ImageUrl, ct);
             canvas.Save();
-            canvas.ClipRoundRect(rr, SKClipOperation.Intersect, antialias: true);
             if (img is not null)
             {
                 // centre‑crop to square
@@ -62,7 +58,6 @@ public class CollageRenderer
             else
             {
                 using var ph = new SKPaint { Color = new SKColor(225, 225, 225) };
-                canvas.DrawRoundRect(rr, ph);
             }
             canvas.Restore();
         }

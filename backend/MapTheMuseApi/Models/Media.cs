@@ -31,6 +31,8 @@ namespace MapTheMuseApi.Models
         // Navigation properties
         public ICollection<DestinationMediaLink> DestinationLinks { get; set; } = [];
         public ICollection<FavouriteMedia> FavouritedBy { get; set; } = [];
+        public ICollection<UserMediaEngagement> UserEngagements { get; set; } = new List<UserMediaEngagement>();
+
 
     }
 }

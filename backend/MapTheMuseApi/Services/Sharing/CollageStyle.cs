@@ -1,6 +1,6 @@
 public record CollageStyle(
     int Width = 1200,
-    int Height = 630,
+    int Height = 1200,
     int Cols = 3,
     int Padding = 32,
     int Gap = 12,
@@ -18,7 +18,7 @@ public record CollageStyle(
     byte GradientOpacity = 170,         // 0–255
     float TitleSize = 44f,
     uint TitleColour = 0xFFFFFFFF,
-    string? WatermarkPath = null,       // optional logo
+    string? WatermarkPath = null,       // later add logo
     float WatermarkScale = 0.18f,       // % of height
-    int PreferredColsWhenFew = 0        // e.g., 2 for small sets
+    int PreferredColsWhenFew = 0        // e.g. 2 for small sets
 );
