@@ -1,20 +1,15 @@
-import { useState } from 'react'
+import { Suspense } from 'react'
+import { useRoutes } from "react-router-dom";
 import './App.css';
 import { Box } from '@mui/material';
 import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider } from './theme';
 import HeaderNav from './components/layout/Header/Header'
 import Footer from './components/layout/Footer/Footer';
-import AuthPage from './features/auth/pages/AuthPage';
-import { Routes, Route } from 'react-router-dom';
-import Homepage from './pages/Homepage';
-import DestinationsPage from './features/destinations/pages/DestinationsPage';
-import DetailDestinationPage from './features/destinations/pages/DetailDestinationPage';
-import ProfilePage from './features/profile/pages/ProfilePage';
-import MediaPage from './features/media/pages/MediaPage';
-import EditProfilePage from './features/profile/pages/EditProfilePage';
+import { routes } from './routes';
 
 function App() {
+  const element = useRoutes(routes);
 
   return (
     <ThemeProvider>
@@ -40,27 +35,7 @@ function App() {
               px: 2, py: 4,         // padding
             }}
           >
-            < Routes >
-              <Route path='/' element={<Homepage />} />
-              <Route path="/login" element={<AuthPage />} />
-              <Route path="/register" element={<AuthPage />} />
-
-              {/* Destinations routes */}
-              <Route path="/destinations">
-                {/* List page: /destinations */}
-                <Route index element={<DestinationsPage />} />
-                {/* Detail page: /destinations/:id */}
-                <Route path=":id" element={<DetailDestinationPage />} />
-              </Route>
-              {/* Profile routes */}
-              <Route path='/profile' element={<ProfilePage />} />
-              <Route path='/profile/edit' element={<EditProfilePage />} />
-              {/* Media routes */}
-              <Route path='/media' element={<MediaPage />} />
-              <Route path="*" element={<div>Not found</div>} />
-
-
-            </Routes>
+            <Suspense fallback={<div>Loading…</div>}>{element}</Suspense>
           </Box>
         </main>
         {/* footer */}
@@ -70,4 +45,4 @@ function App() {
   );
 }
 
-export default App
+export default App;

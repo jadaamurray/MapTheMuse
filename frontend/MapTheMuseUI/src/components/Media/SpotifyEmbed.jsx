@@ -1,5 +1,3 @@
-import React from "react";
-
 export default function SpotifyEmbed({ playlistId, height = 500, theme = 0 }) {
   if (!playlistId) return null;
   const src = `https://open.spotify.com/embed/playlist/${encodeURIComponent(
@@ -12,7 +10,6 @@ export default function SpotifyEmbed({ playlistId, height = 500, theme = 0 }) {
       src={src}
       width="100%"
       height={height}
-      frameBorder="0"
       allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
       loading="lazy"
       style={{ borderRadius: 12 }}

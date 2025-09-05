@@ -18,7 +18,7 @@ namespace MapTheMuseApi.Controllers
         }
 
         // HTML share page for a user's collage (favourited destinations + media).
-        // Social platforms read the OG/Twitter meta; humans are redirected to the SPA profile.
+        // Social platforms read the OG meta; humans are redirected to the SPA profile.
         // Example: GET /share/user/7b7f7a2d-2b0b-4e5e-a2fd-9f6a9f5a1b23
         [HttpGet("user/{userId:guid}")]
         public async Task<IActionResult> User(string userId)
@@ -44,7 +44,7 @@ namespace MapTheMuseApi.Controllers
 <!-- Open Graph -->
 <meta property=""og:type"" content=""profile"">
 <meta property=""og:title"" content=""{enc.Encode(title)}"">
-<meta property=""og:description"" content=""Curated destinations & media I love · Map The Muse"">
+<meta property=""og:description"" content=""My Travel Style · Map The Muse"">
 <meta property=""og:url"" content=""{spaUrl}"">
 <meta property=""og:image"" content=""{ogImg}"">
 <meta property=""og:image:width"" content=""1200"">

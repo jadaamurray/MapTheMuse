@@ -1,4 +1,3 @@
-// CardRail.jsx
 import React, { useRef } from "react";
 import { Box, IconButton } from "@mui/material";
 import ArrowBackIosNew from "@mui/icons-material/ArrowBackIosNew";
@@ -12,7 +11,7 @@ export default function CardRail({
     py = 9,
     showArrows = true,
     snap = "start", // 'start' | 'center'
-    cardWidth,      // optional: if provided, scrolls exactly one card per click
+    cardWidth,      // scrolls exactly one card per click
     sx = {},
 }) {
     const ref = useRef(null);
@@ -62,12 +61,9 @@ export default function CardRail({
                     px,
                     py,
                     overflowX: "auto",
-                    overflowY: "hidden",
                     scrollSnapType: "x mandatory",
                     scrollBehavior: "smooth",
-                    touchAction: "pan-x",
-                    overscrollBehavior: "none",
-                    overscrollBehaviorX: "contain",
+                    overscrollBehaviorX: "auto",
                     WebkitOverflowScrolling: "touch",
                     "&::-webkit-scrollbar": { height: 0 },
                     scrollbarWidth: "none",

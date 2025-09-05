@@ -1,8 +1,7 @@
-// src/features/media/hooks/useDestinationMedia.jsx
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { destinationMediaService as svc } from "../services/destinationMediaService";
 
-// If the API ever returns numeric enums, normalise them to strings:
+// If the API ever returns numeric enums, normalise them to strings
 const MEDIA_TYPE_NAME = { 1: "Movie", 2: "Tv", 3: "Book", 4: "Song", 5: "Album", 6: "Artwork" };
 const normaliseType = (t) => (typeof t === "string" ? t : (MEDIA_TYPE_NAME[t] ?? String(t)));
 const normaliseItems = (arr) => (Array.isArray(arr) ? arr.map(i => ({ ...i, type: normaliseType(i.type) })) : []);

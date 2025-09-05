@@ -9,7 +9,7 @@ import {
   CircularProgress,
   Alert
 } from "@mui/material";
-import React, { useState } from "react";
+import { useState } from "react";
 
 const AuthForm = ({ toggleType, type, onSubmit, loading, error }) => {
   const [fieldErrors, setFieldErrors] = useState({});

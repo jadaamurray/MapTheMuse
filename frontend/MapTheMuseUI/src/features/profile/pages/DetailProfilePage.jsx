@@ -1,3 +1,4 @@
+// not in use. potentially implement parts of this later like stats, interests, itineraries
 import {
     Box,
     Stack,

@@ -32,7 +32,6 @@ export default function FlightBoard({ destinations = [] }) {
         <Box
             sx={{
                 display: "flex",
-                height: 460,
                 flexDirection: "column",
                 alignItems: "flex-start",
                 gap: 4,
@@ -53,7 +52,7 @@ export default function FlightBoard({ destinations = [] }) {
                         No destinations yet.
                     </Typography>
                 ) : (
-                    rows.map(({ id, name, timeLabel }) => (
+                    rows.slice(0, 5).map(({ id, name, timeLabel }) => (
                         <FlightBoardButton
                             key={id}
                             destination={name}

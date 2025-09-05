@@ -77,11 +77,11 @@ export default function Homepage() {
                 {/* Feature Cards */}
                 <CardRail cardWidth={289 + 24} showArrows snap="start">
                     <FeatureCard
-                        title='Itinerary'
-                        subtitle='Create your own'
-                        description='Create a specialised plan for your trip. Whether that’s one destination or multiple cities!'
-                        Icon={EventNoteTwoTone}
-                        bg='secondary.main'
+                        title='Film & TV'
+                        subtitle="Watch the world's"
+                        description='From blockbuster favourites to hidden gems, explore films and shows that capture the spirit of your destination.'
+                        Icon={MovieCreationTwoTone}
+                        bg='primary.main'
                     />
                     <FeatureCard
                         title='Music'
@@ -91,18 +91,18 @@ export default function Homepage() {
                         bg='secondary.burntSienna'
                     />
                     <FeatureCard
+                        title='Itinerary'
+                        subtitle='Create your own'
+                        description='Create a specialised plan for your trip. Whether that’s one destination or multiple cities!'
+                        Icon={EventNoteTwoTone}
+                        bg='secondary.main'
+                    />
+                    <FeatureCard
                         title='Books'
                         subtitle='Read your way through'
                         description='Pair your journey with the perfect story. From local legends to world-renowned novels, let every page bring your destination to life.'
                         Icon={AutoStoriesTwoTone}
                         bg='secondary.apricot'
-                    />
-                    <FeatureCard
-                        title='Film & TV'
-                        subtitle="Watch the world's"
-                        description='From blockbuster favourites to hidden gems, explore films and shows that capture the spirit of your destination.'
-                        Icon={MovieCreationTwoTone}
-                        bg='primary.main'
                     />
                     <FeatureCard
                         title='Artwork'
