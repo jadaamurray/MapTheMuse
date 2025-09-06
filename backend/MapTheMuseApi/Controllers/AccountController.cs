@@ -7,6 +7,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using NuGet.Packaging.Signing;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace MapTheMuseApi.Controllers
 {
@@ -17,49 +26,90 @@ namespace MapTheMuseApi.Controllers
         private readonly UserManager<AppUser> _userManager;
         private readonly SignInManager<AppUser> _signInManager;
         private readonly EmailService _emailService;
-        public AccountController(UserManager<AppUser> userManager,
-       SignInManager<AppUser> signInManager, EmailService emailService)
+        private readonly IConfiguration _config;
+        private readonly IWebHostEnvironment _env;
+        private readonly ILogger<AccountController> _logger;
+
+        public AccountController(
+            UserManager<AppUser> userManager, 
+            SignInManager<AppUser> signInManager, 
+            EmailService emailService, 
+            IConfiguration config, 
+            IWebHostEnvironment env,
+            ILogger<AccountController> logger)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _emailService = emailService;
+            _config = config;
+            _env = env;
+            _logger = logger;
+
         }
+
         [HttpPost("register")]
         public async Task<IActionResult> Register(RegisterDto dto)
         {
+            var desired = dto.UserName?.Trim().ToLowerInvariant();
+
             var user = new AppUser
             {
                 Email = dto.Email,
-                UserName = dto.UserName,
+                UserName = desired,
                 FirstName = dto.FirstName,
                 LastName = dto.LastName,
                 Country = dto.Country,
                 PreferredLanguage = dto.PreferredLanguage
             };
 
-            var result = await _userManager.CreateAsync(user, dto.Password);
-            
-            if (result.Succeeded)
+            try
             {
-                // Generate an email verification token
-                var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                // Create the verification link
-                var verificationLink = Url.Action("VerifyEmail", "Account", new
-                {
-                    userId = user.Id,
-                    token =
-               token
-                }, Request.Scheme);
-                // Send the verification email
-                var emailSubject = "Email Verification";
-                var emailBody = $"Please verify your email by clicking the following link: {verificationLink}";
-                await _emailService.SendEmailAsync(user.Email, emailSubject, emailBody);
+                var result = await _userManager.CreateAsync(user, dto.Password);
 
-                return Ok("User registered successfully. An email verification link has been sent.");
+                if (result.Succeeded)
+                {
+                    var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    var verificationLink = Url.Action("VerifyEmail", "Account", new
+                    {
+                        userId = user.Id,
+                        token = token
+                    }, Request.Scheme);
+
+                    var emailSubject = "Email Verification";
+                    var emailBody = $"Please verify your email by clicking the following link: {verificationLink}";
+                    await _emailService.SendEmailAsync(user.Email, emailSubject, emailBody);
+
+                    return Ok("User registered successfully. An email verification link has been sent.");
+                }
+
+                // Convert IdentityErrors to field-based structure
+                var fieldErrors = result.Errors
+                    .GroupBy(e =>
+                        e.Code.Contains("Email") ? "email" :
+                        e.Code.Contains("Password") ? "password" :
+                        e.Code.Contains("UserName") ? "username" :
+                        "general")
+                    .ToDictionary(
+                        g => g.Key,
+                        g => g.Select(e => e.Description).ToArray()
+                    );
+
+                return BadRequest(new { errors = fieldErrors });
             }
-            return BadRequest(result.Errors);
+            catch (DbUpdateException ex) when (ex.InnerException?.Message.Contains("idx_users_email_unique") == true)
+            {
+                // Handle unique email constraint from database
+                return BadRequest(new
+                {
+                    errors = new Dictionary<string, string[]>
+            {
+                { "email", new[] { "An account with this email already exists." } }
+            }
+                });
+            }
         }
-        // Add an action to handle email verification
+
+
         [HttpGet("verify-email")]
         public async Task<IActionResult> VerifyEmail(string userId, string token)
         {
@@ -76,15 +126,100 @@ namespace MapTheMuseApi.Controllers
             return BadRequest("Email verification failed.");
         }
         [HttpPost("login")]
-        public async Task<IActionResult> Login(Auth model)
+        public async Task<IActionResult> Login(LoginDto dto)
         {
-            var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password,
-           isPersistent: false, lockoutOnFailure: false);
+            var email = dto.Email?.Trim();
+            var user = await _userManager.FindByEmailAsync(email!);
+
+            if (user is null)
+            {
+                _logger.LogInformation("Login failed: no user for {Email}", email);
+                await Task.Delay(Random.Shared.Next(60,120)); // tiny blur
+                return Unauthorized(new { error = "InvalidCredentials", message = "InvalidCredentials" });
+            }
+
+            var result = await _signInManager.CheckPasswordSignInAsync(
+                user, dto.Password!, lockoutOnFailure: true);
+
             if (result.Succeeded)
             {
-                return Ok("Login successful.");
+
+                // Build the token claims
+                var claims = new List<Claim>
+                {
+                    new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+                    new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                };
+
+                // Include role claims
+                var roles = await _userManager.GetRolesAsync(user);
+                claims.AddRange(roles.Select(r => new Claim(ClaimTypes.Role, r)));
+
+                // Create the signing key
+                var keyBytes = Encoding.UTF8.GetBytes(_config["Jwt:Key"]!);
+                var creds = new SigningCredentials(
+                    new SymmetricSecurityKey(keyBytes),
+                    SecurityAlgorithms.HmacSha256);
+
+                var expires = DateTime.UtcNow
+                            .AddDays(double.Parse(_config["Jwt:ExpiryDays"]!));
+
+                // Build the JWT
+                var token = new JwtSecurityToken(
+                    issuer: _config["Jwt:Issuer"],
+                    audience: _config["Jwt:Audience"],
+                    claims: claims,
+                    expires: expires,
+                    signingCredentials: creds
+                );
+
+                var jwt = new JwtSecurityTokenHandler().WriteToken(token);
+
+                var cookie = new CookieOptions
+                {
+                    HttpOnly = true,
+                    Path = "/",
+                    Expires = expires
+                };
+
+                if (_env.IsDevelopment())
+                {
+                    // HTTP localhost → same-site 
+                    cookie.SameSite = SameSiteMode.Lax;
+                    cookie.Secure = false;
+                }
+                else
+                {
+                    // Production: cross-site friendly + HTTPS only
+                    cookie.SameSite = SameSiteMode.None;
+                    cookie.Secure = true;
+                }
+
+                Response.Cookies.Append("authToken", jwt, cookie);
+
+                return Ok(new { message = "Login successful" });
             }
-            return Unauthorized("Invalid login attempt.");
+            if (result.IsNotAllowed)
+            {
+                var emailConfirmed = await _userManager.IsEmailConfirmedAsync(user);
+                _logger.LogInformation("Login not allowed for {UserId}. EmailConfirmed={EmailConfirmed}", user.Id, emailConfirmed);
+                return StatusCode(StatusCodes.Status403Forbidden, new {error = "EmailNotConfirmed", message = "Please verify your email." });
+            }
+
+            if (result.IsLockedOut)
+            {
+                _logger.LogWarning("Login locked out for {UserId}", user.Id);
+                return StatusCode(423, new { error = "LockedOut", message = "Too many attempts. Try again later." });
+            }
+
+            _logger.LogInformation("Login failed: bad password for {UserId}", user.Id);
+            return Unauthorized(new { error = "InvalidCredentials", message = "InvalidCredentials" });
+        }
+        [HttpPost("logout")]
+        public IActionResult Logout()
+        {
+            Response.Cookies.Delete("authToken");
+            return Ok(new { message = "Logged out" });
         }
     }
 }

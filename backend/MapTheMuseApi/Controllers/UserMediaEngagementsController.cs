@@ -8,11 +8,14 @@ using Microsoft.EntityFrameworkCore;
 using MapTheMuseApi.Data;
 using MapTheMuseApi.Models;
 using MapTheMuseApi.Dtos;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MapTheMuseApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin")]
+
     public class UserMediaEngagementsController : ControllerBase
     {
         private readonly MapTheMuseContext _context;
@@ -30,7 +33,7 @@ namespace MapTheMuseApi.Controllers
         }
 
         // GET: api/UserMediaEngagements/5
-        [HttpGet("{id}", Name = nameof(GetById))]
+        [HttpGet("{id}")]
         public async Task<ActionResult<UserMediaEngagementReadDto>> GetById(int id)
         {
             var e = await _context.UserMediaEngagements

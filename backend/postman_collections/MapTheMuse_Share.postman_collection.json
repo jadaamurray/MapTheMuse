@@ -1,0 +1,61 @@
+{
+  "info": {
+    "name": "MapTheMuse Share API",
+    "_postman_id": "d5e2d050-9f89-4f9f-bf1f-7b1234567890",
+    "description": "Collection to test user-personal share endpoints (Open Graph HTML and collage PNG)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Share User HTML",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://api.mapthemuse.world/share/user/{{userId}}",
+          "protocol": "https",
+          "host": ["api", "mapthemuse", "world"],
+          "path": ["share", "user", "{{userId}}"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Share User HTML with version",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://api.mapthemuse.world/share/user/{{userId}}?v=12345",
+          "protocol": "https",
+          "host": ["api", "mapthemuse", "world"],
+          "path": ["share", "user", "{{userId}}"],
+          "query": [
+            { "key": "v", "value": "12345" }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Collage User PNG",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://api.mapthemuse.world/og/collage/user/{{userId}}.png",
+          "protocol": "https",
+          "host": ["api", "mapthemuse", "world"],
+          "path": ["og", "collage", "user", "{{userId}}.png"]
+        }
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "userId",
+      "value": "00000000-0000-0000-0000-000000000000"
+    }
+  ]
+}

@@ -1,3 +1,5 @@
+/* Probably not needed until admin is fleshed out
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,19 +11,27 @@ using Microsoft.AspNetCore.Identity;
 using MapTheMuseApi.Data;
 using MapTheMuseApi.Models;
 using MapTheMuseApi.Dtos;
+using Microsoft.AspNetCore.Authorization;
+
 
 namespace MapTheMuseApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin")]
+
     public class AppUsersController : ControllerBase
     {
         private readonly UserManager<AppUser> _userManager;
         private readonly MapTheMuseContext _context;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
-        public AppUsersController(MapTheMuseContext context)
+        public AppUsersController(MapTheMuseContext context, UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager)
         {
+            _userManager = userManager;
             _context = context;
+            _roleManager = roleManager;
+
         }
 
         // GET: api/AppUsers
@@ -125,9 +135,28 @@ namespace MapTheMuseApi.Controllers
             return NoContent();
         }
 
+        // Assign role to user: api/AppUsers/5/roles
+        [HttpPost("{userId}/roles")]
+        public async Task<IActionResult> AddRoleToUser(string userId, [FromBody] RoleNameDto dto)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+                return NotFound($"User '{userId}' not found.");
+
+            if (!await _roleManager.RoleExistsAsync(dto.RoleName))
+                return NotFound($"Role '{dto.RoleName}' not found.");
+
+            var result = await _userManager.AddToRoleAsync(user, dto.RoleName);
+            if (!result.Succeeded)
+                return BadRequest(result.Errors);
+            return NoContent();
+        }
+
+
         private bool AppUserExists(string id)
         {
             return _context.AppUsers.Any(e => e.Id == id);
         }
     }
 }
+*/

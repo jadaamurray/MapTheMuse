@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using MapTheMuseApi.Data;
 using MapTheMuseApi.Models;
 using MapTheMuseApi.Dtos;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MapTheMuseApi.Controllers
 {
@@ -71,7 +72,7 @@ namespace MapTheMuseApi.Controllers
 
             return Ok(dto);
         }
-
+        [Authorize(Roles = "Admin")]
         // PUT: api/PhysicalArtworks/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
