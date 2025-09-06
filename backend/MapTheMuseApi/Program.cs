@@ -147,6 +147,21 @@ builder.Services.AddHealthChecks()
 // Rate limiting
 builder.Services.AddRateLimiter(opts =>
 {
+    // Return 429 instead of 503 when limited
+    opts.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+    opts.OnRejected = async (context, token) =>
+    {
+       if (context.Lease.TryGetMetadata(MetadataName.RetryAfter, out var retryAfter))
+    {
+        context.HttpContext.Response.Headers["Retry-After"] = ((int)retryAfter.TotalSeconds).ToString();
+    }
+
+    // small body for humans/logs
+    await context.HttpContext.Response
+        .WriteAsync("Too many requests. Please try again later.", token);
+    };
+
     opts.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, IPAddress>(httpContext =>
     {
         var ip = httpContext.Connection.RemoteIpAddress ?? IPAddress.IPv6Loopback;
