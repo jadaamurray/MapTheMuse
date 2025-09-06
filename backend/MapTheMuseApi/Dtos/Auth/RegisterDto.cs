@@ -11,6 +11,7 @@ namespace MapTheMuseApi.Dtos
         public string Password { get; set; }
         [Required, Compare("Password", ErrorMessage = "Passwords do not match")]
         public string ConfirmPassword { get; set; }
+        [MinLength(3, ErrorMessage = "Username must be at least 3 characters long"), MaxLength(16, ErrorMessage = "Username cannot exceed 16 characters")]
         public string UserName { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }

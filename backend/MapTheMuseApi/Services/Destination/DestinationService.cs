@@ -33,7 +33,9 @@ public class DestinationService : IDestinationService
             q = q.Where(d => EF.Functions.JsonContains(d.QuickFacts, probe));
         }
 
-        return await q.Select(d => new DestinationListDto
+        return await q
+        .OrderBy(d => d.Id)
+        .Select(d => new DestinationListDto
         {
             Id = d.Id,
             Name = d.Name,
@@ -42,7 +44,8 @@ public class DestinationService : IDestinationService
                 : d.Summary,
             Slug = d.Slug,
             ThumbUrl = d.ThumbUrl,
-        }).ToListAsync();
+        })
+        .ToListAsync();
     }
 
     public async Task<DestinationDetailDto?> GetDestinationByIdAsync(int id)

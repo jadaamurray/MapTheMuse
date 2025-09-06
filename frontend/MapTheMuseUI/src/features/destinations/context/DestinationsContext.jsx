@@ -34,12 +34,11 @@ export function DestinationsProvider({ children, autoLoad = true }) {
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
-    console.log('loading destinations...')
+    console.log('loading destinations...');
     try {
       const data = await destinationsService.fetchDestinations();
       //console.log('data: ', data)
       safeSet(() => setItems(Array.isArray(data) ? data : (data?.items ?? [])));
-      //console.log('🧠 Context setItems called');
       //console.log('destinations: ', items);
     } catch (e) {
       safeSet(() => setError(e));
