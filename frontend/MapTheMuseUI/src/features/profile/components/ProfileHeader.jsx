@@ -7,7 +7,7 @@ import LocationOnIcon from "@mui/icons-material/LocationOn";
 import LanguageIcon from "@mui/icons-material/Language";
 import ProfileShareButton from "./ProfileShareButton";
 
-export default function ProfileHeader({ user, actions }) {
+export default function ProfileHeader({ user, actions, canEdit = false }) {
   const fullName = (() => {
     const f = user?.firstName ?? "";
     const l = user?.lastName ?? "";
@@ -65,15 +65,18 @@ export default function ProfileHeader({ user, actions }) {
         <Stack direction="row" spacing={1.2} sx={{ mt: 1 }}>
           {actions ?? (
             <>
-              <ProfileShareButton user={user}/>
-              <Button
-                variant="contained"
-                startIcon={<EditIcon />}
-                sx={{ borderRadius: 3 }}
-                href="/profile/edit"
-              >
-                Edit profile
-              </Button>
+              <ProfileShareButton user={user} />
+              {canEdit && (
+                <Button
+                  variant="contained"
+                  startIcon={<EditIcon />}
+                  sx={{ borderRadius: 3 }}
+                  href="/profile/edit"
+                >
+                  Edit profile
+                </Button>
+              )}
+
             </>
           )}
         </Stack>

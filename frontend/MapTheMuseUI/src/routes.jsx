@@ -2,7 +2,7 @@ import { lazy } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuthContext } from "./features/auth/context/AuthContext";
 
-// Lazy-loaded pages for performance
+// Lazy-loaded pages
 const Homepage = lazy(() => import("./pages/Homepage"));
 const DestinationsPage = lazy(() =>
     import("./features/destinations/pages/DestinationsPage")
@@ -68,6 +68,7 @@ export const routes = [
             </RequireAuth>
         ),
     },
+    { path: "/profile/:userId", element: <ProfilePage /> },
 
     { path: "/media", element: <MediaPage /> },
     { path: "/about", element: <div>Coming Soon...</div> },

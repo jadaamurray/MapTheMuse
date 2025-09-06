@@ -15,11 +15,10 @@ import {
 } from "@mui/material";
 import { useMemo, useState } from "react";
 import { useAuthContext } from "../../auth/context/AuthContext";
-import { useNavigate } from "react-router-dom";
 import ProfileHeader from "../components/ProfileHeader";
 import { useFavourites } from "../../favourites/context/FavouritesContext";
 import MediaRail from "../../media/components/MediaRail";
-import { Link as RouterLink } from "react-router-dom";
+import { useParams, useNavigate, Link as RouterLink } from "react-router-dom";
 import MediaCard from "../../media/components/MediaCard";
 
 
@@ -36,20 +35,41 @@ const mockSaved = [
   { id: "S3", type: "Music", title: "Fado Classics", location: "Lisbon, Portugal", image: "https://images.unsplash.com/photo-1505761671935-60b3a7427bad?q=80&w=1600&auto=format&fit=crop" },
 ];
 
+// ---replace with real API in separate hook file when ready ----------------------
+// decide which user's profile to show
+function useUserProfile(routeUserId, currentUser) {
+  // If no :userId, this is "me"
+  if (!routeUserId) return { profileUser: currentUser, loading: false };
+
+  // TODO: replace with real fetch for someone else’s profile
+  // e.g. const {data, isLoading} = useGetUserByIdQuery(routeUserId)
+  // For now, return a minimal object so the page renders.
+  return { profileUser: { id: routeUserId, userName: "traveller" }, loading: false };
+}
+// ------------------------------------------------------------
 export default function ProfilePage() {
-  const { user, loading: authLoading } = useAuthContext();
+  const { user: currentUser, loading: authLoading } = useAuthContext();
+  const { userId: routeUserId } = useParams();
   const [tab, setTab] = useState(0);
-  const { loading: favLoading, savedDestinations, savedMedia } = useFavourites();
+  const { loading: favLoading, savedDestinations, savedMedia } = useFavourites(); // TODO: fix favourites so they pull profileUser favourites and not currentUser favourites
   const navigate = useNavigate();
 
+  console.log('profile userId: ', routeUserId);
+
+  const { profileUser, loading: profileLoading } = useUserProfile(routeUserId, currentUser);
+
+  // ownber check (toggle edit button and private sections)
+  const isOwner = !!(currentUser?.id && profileUser?.id && currentUser.id === profileUser.id);
+
   console.log('saved destinations: ', savedDestinations);
-  // Map AppUser → UI fields
+
+  // Map AppUser to UI fields
   const fullName = useMemo(() => {
-    const f = user?.firstName ?? "";
-    const l = user?.lastName ?? "";
+    const f = profileUser?.firstName ?? "";
+    const l = profileUser?.lastName ?? "";
     const name = `${f} ${l}`.trim();
-    return name || user?.userName || "Your profile";
-  }, [user]);
+    return name || profileUser?.userName || "Your profile";
+  }, [profileUser, isOwner]);
 
   const initials = useMemo(
     () =>
@@ -63,10 +83,10 @@ export default function ProfilePage() {
     [fullName]
   );
 
-  const username = user?.userName;
-  const avatarUrl = user?.profilePictureUrl || "";
-  const country = user?.country;
-  const preferredLanguage = user?.preferredLanguage;
+  const username = profileUser?.userName;
+  const avatarUrl = profileUser?.profilePictureUrl || "";
+  const country = profileUser?.country;
+  const preferredLanguage = profileUser?.preferredLanguage;
 
   const mediaRailItems = useMemo(
     () => (savedMedia || []).map(m => ({
@@ -85,10 +105,31 @@ export default function ProfilePage() {
     [savedMedia]
   );
 
+  if (authLoading || profileLoading) {
+    return (
+      <Box sx={{ p: 3 }}>
+        <Skeleton variant="rectangular" height={160} sx={{ borderRadius: 3, mb: 3 }} />
+        <Skeleton variant="text" width={220} />
+        <Skeleton variant="text" width={160} />
+      </Box>
+    );
+  }
+
+  if (!profileUser) {
+    return (
+      <Box sx={{ p: 3 }}>
+        <Typography variant="h6">Profile not found</Typography>
+        <Typography sx={{ color: "text.secondary" }}>
+          The link might be broken or this profile doesn’t exist.
+        </Typography>
+      </Box>
+    );
+  }
+
   return (
     <Box sx={{ pb: 6, height: "100%" }}>
-      <ProfileHeader user={user} />
-      {/* Tabs: Itineraries / Saved */}
+      <ProfileHeader user={profileUser} canEdit={isOwner} />
+      {/* Tabs for saved */}
       <Box sx={{ maxWidth: 1280, mx: "auto", px: { xs: 1.5, md: 3 }, mt: 2 }}>
         <Typography variant="h5" sx={{ fontWeight: 800, mb: 1 }}>Saved</Typography>
         <Divider sx={{ mt: 1.5, mb: 2 }} />
@@ -119,7 +160,7 @@ export default function ProfilePage() {
             (savedDestinations?.length ? (
               <Grid container spacing={2}>
                 {savedDestinations.map((d) => (
-                  <Grid key={d.id} size={{ xs:6, sm: 6, md: 4, lg: 3 }}>
+                  <Grid key={d.id} size={{ xs: 6, sm: 6, md: 4, lg: 3 }}>
                     <Card sx={{ borderRadius: 3, overflow: "hidden" }}>
                       <CardActionArea component={RouterLink} to={`/destinations/${d.id}`}>
                         <CardMedia
@@ -150,17 +191,17 @@ export default function ProfilePage() {
             <Grid container spacing={2}>
               {mediaRailItems?.length ? (
                 mediaRailItems.map((m) => (
-                <Grid key={m.linkId} size={{xs: 6, sm: 6, md: 4, lg: 3}}>
-                  <MediaCard item={m} />
-                </Grid>
+                  <Grid key={m.linkId} size={{ xs: 6, sm: 6, md: 4, lg: 3 }}>
+                    <MediaCard item={m} />
+                  </Grid>
                 ))
               ) : (
                 <Grid size={12}>
                   <Typography sx={{ color: "text.secondary" }}>You haven’t saved any media yet.</Typography>
-                
+
                 </Grid>
-              )}            
-          </Grid>
+              )}
+            </Grid>
           )}
         </Box>
       </Box>

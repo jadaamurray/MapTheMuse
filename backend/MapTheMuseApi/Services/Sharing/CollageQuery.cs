@@ -38,7 +38,7 @@ public class CollageQuery
             urls.Add(new CollageItem(UrlHelper.ToAbsolute("/og/fallback.png", _assetBase)!));
 
         var title = "My Travel Style · Map The Muse";
-        var spaUrl = $"https://mapthemuse.world/u/{userId}";
+        var spaUrl = $"https://mapthemuse.world/profile/{userId}";
         return (title, urls, spaUrl);
     }
 }
