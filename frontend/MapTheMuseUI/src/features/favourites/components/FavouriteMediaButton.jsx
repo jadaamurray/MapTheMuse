@@ -1,9 +1,8 @@
-// src/features/favourites/components/FavouriteMediaButton.jsx
 import { useState } from "react";
 import { IconButton, Tooltip } from "@mui/material";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
-import { useFavourites } from "../context/FavouritesContext";
+import { useFavouritesContext } from "../context/FavouritesContext";
 
 /**
  * Props:
@@ -25,7 +24,7 @@ export default function FavouriteMediaButton({
     size = "small",
     light = false,
 }) {
-    const { isMediaFavourited, toggleMedia } = useFavourites();
+    const { isMediaFavourited, toggleMedia } = useFavouritesContext();
     const [pending, setPending] = useState(false);
     const fav = isMediaFavourited(source, type, externalId);
 

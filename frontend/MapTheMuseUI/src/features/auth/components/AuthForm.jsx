@@ -84,7 +84,7 @@ const AuthForm = ({ toggleType, type, onSubmit, loading, error }) => {
 
           {typeof error === "object" && (
             <>
-              <div>{error.title || "Something went wrong"}</div>
+              <div>{error.message || "Something went wrong"}</div>
               {error.errors &&
                 Object.entries(error.errors).map(([field, messages]) =>
                   messages.map((msg, idx) => (

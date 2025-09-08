@@ -9,8 +9,8 @@ export default function FeatureCard({
   Icon,
   iconSize = 120,
   // allow string or fn(theme) for bg
-  bg = (t) => t.palette.secondary.main,
-  fg = "rgba(255,254,251,1)",
+  bg = (t) => t.palette.background.cream,
+  fg = (t) => t.palette.primary.main,
   sx = {},
   titleProps = {},
   subtitleProps = {},
@@ -22,14 +22,14 @@ export default function FeatureCard({
       sx={(theme) => ({
         width: 289,
         height: 379,
-        bgcolor: typeof bg === "function" ? bg(theme) : bg,
-        borderRadius: 2,
+        background: bg,
+        //borderRadius: 2,
         p: "12px 21px",
         overflow: "hidden",
-        boxShadow: `
+        /*boxShadow: `
           10px 16px 9.8px 3px rgba(12, 12, 13, 0.10),
           inset 2px 11px 20.6px rgba(255, 255, 255, 0.25)
-        `,
+        `, */
         ...(typeof sx === "function" ? sx(theme) : sx),
       })}
     >
@@ -37,9 +37,9 @@ export default function FeatureCard({
         <Stack spacing={1} alignItems="flex-start" width="100%">
           <Typography
             sx={{
-              fontFamily: '"Outfit", Helvetica',
+              fontFamily: "inter",
               fontWeight: 550,
-              color: fg,
+              color: "text.primary",
               fontSize: 20,
               lineHeight: 1.2,
             }}
@@ -50,7 +50,7 @@ export default function FeatureCard({
 
           <Typography
             sx={{
-              fontFamily: '"Outfit", Helvetica',
+              fontFamily: "Outfit",
               fontWeight: 800,
               color: fg,
               fontSize: 40,
@@ -66,9 +66,9 @@ export default function FeatureCard({
 
         <Typography
           sx={{
-            fontFamily: '"Inter", Helvetica',
+            fontFamily: "Inter",
             fontWeight: 500,
-            color: fg,
+            color: "text.primary",
             fontSize: 16,
             lineHeight: "22.4px",
             width: 258,

@@ -18,49 +18,79 @@ export default function Homepage() {
                 flex: 1,
                 justifyContent: 'center',
                 alignItems: 'center',
-                p: 2,
                 display: "flex",
                 width: "100%",
                 alignSelf: 'stretch'
             }}
         >
             {/* Hero Section */}
-            <Stack
-                direction='row'
+            <Box
                 sx={{
-                    width: '100%',
-                    justifyContent: 'center',
-                    alignItems: 'stretch',
-                    gap: 9,
-                    width: '100%',
-                    flexWrap: 'wrap',
-                    px: 2,
+                    position: "relative",
+                    height: "100vh",
+                    width: "100%",
+                    backgroundImage: {
+                        xs: "url('/homepage-hero-mobile.jpg')", // phones
+                        sm: "url('/homepage-hero-desktop.jpg')",
+                    },
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                    backgroundRepeat: "no-repeat",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "white",
+                    textAlign: "center",
+                    p: 4
                 }}
             >
-                {/* Left text */}
-                <Box sx={{ flex: '1 1 480px', minWidth: 220, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                    <Typography variant='h1' sx={{ color: 'primary.main' }}>
-                        Where are you off to?
-                    </Typography>
-                    <Typography variant='body2'>
-                        Pick your next adventure from our curated flight board
-                    </Typography>
+                <Box
+                    sx={{
+                        position: "absolute",
+                        inset: 0,
+                        background:
+                            "linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5))",
+                    }}
+                />
+                <Stack
+                    direction='row'
+                    sx={{
+                        width: '100%',
+                        justifyContent: 'center',
+                        alignItems: 'stretch',
+                        gap: 9,
+                        width: '100%',
+                        flexWrap: 'wrap',
+                        px: 2,
+                        zIndex: 1
+                    }
+                    }
+                >
+                    {/* Left text */}
+                    < Box sx={{ flex: '1 1 480px', minWidth: 220, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                        <Typography variant='h1' sx={{ color: 'background.white' }}>
+                            Boarding Pass to Inspiration
+                        </Typography>
+                        <Typography variant='body2'>
+                            Choose your flight and we’ll connect you with the media that transforms travel into experience.
+                        </Typography>
 
-                </Box>
-                {/* Flight board right */}
-                {loading ? (
-                    <Container sx={{ py: 6 }}>
-                                    <Skeleton variant="rectangular" sx={{ borderRadius: 3 }} />
-                                    <Skeleton height={28} width="40%" sx={{ mt: 3 }} />
-                                    <Skeleton height={18} width="70%" />
-                                </Container>
-                ) :(
-                <Box sx={{ flex: '1 1 480px', minWidth: 220, }}>
-                    <FlightBoard
-                        destinations={destinations ?? []} />
-                </Box>
-                )}
-            </Stack>
+                    </Box>
+                    {/* Flight board right */}
+                    {loading ? (
+                        <Container sx={{ py: 6 }}>
+                            <Skeleton variant="rectangular" sx={{ borderRadius: 3 }} />
+                            <Skeleton height={28} width="40%" sx={{ mt: 3 }} />
+                            <Skeleton height={18} width="70%" />
+                        </Container>
+                    ) : (
+                        <Box sx={{ flex: '1 1 480px', minWidth: 220, }}>
+                            <FlightBoard
+                                destinations={destinations ?? []} />
+                        </Box>
+                    )}
+                </Stack>
+            </Box>
             {/* Features Section */}
             <Stack
                 alignItems={'center'}
@@ -79,36 +109,31 @@ export default function Homepage() {
                     <FeatureCard
                         title='Film & TV'
                         subtitle="Watch the world's"
-                        description='From blockbuster favourites to hidden gems, explore films and shows that capture the spirit of your destination.'
+                        description="From blockbusters to hidden gems, explore films and shows that capture your destination's spirit."
                         Icon={MovieCreationTwoTone}
-                        bg='primary.main'
                     />
                     <FeatureCard
                         title='Music'
                         subtitle='Discover linked'
-                        description='Discover the soundtrack to your journey. From local legends to global hits, match the music to every moment of your travels.'
+                        description='Discover the soundtrack to your journey. From global hits to local legends.'
                         Icon={LibraryMusicTwoTone}
-                        bg='secondary.burntSienna'
                     />
                     <FeatureCard
                         title='Itinerary'
                         subtitle='Create your own'
-                        description='Create a specialised plan for your trip. Whether that’s one destination or multiple cities!'
+                        description='Build your own trip plan, whether for one city or many.'
                         Icon={EventNoteTwoTone}
-                        bg='secondary.main'
                     />
                     <FeatureCard
                         title='Books'
                         subtitle='Read your way through'
-                        description='Pair your journey with the perfect story. From local legends to world-renowned novels, let every page bring your destination to life.'
+                        description='Pair your journey with stories that bring places to life.'
                         Icon={AutoStoriesTwoTone}
-                        bg='secondary.apricot'
                     />
                     <FeatureCard
                         title='Artwork'
                         subtitle='Experience the'
                         description='From timeless masterpieces to vibrant local creations, explore art that captures the essence of your destination.'
-                        bg='secondary.main'
                         Icon={PaletteTwoTone}
                     />
                 </CardRail>

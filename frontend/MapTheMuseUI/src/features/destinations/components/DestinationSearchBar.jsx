@@ -1,11 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   Box, Paper, Stack, TextField, Chip, IconButton, Button,
-  InputAdornment, Typography, CircularProgress, Divider
+  InputAdornment, Typography, CircularProgress, Divider,
+  Select, MenuItem, Tooltip
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import TuneIcon from "@mui/icons-material/Tune";
 import ClearIcon from "@mui/icons-material/Clear";
+import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
+import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 
 const DEFAULT_CONTINENTS = ["Africa","Asia","Europe","North America","South America","Oceania","Antarctica"];
 const DEFAULT_FACT_KEYS  = ["History","Culture","Food","Art","Architecture","Nature","Film","Music","Literature"];
@@ -22,6 +25,10 @@ export default function DestinationSearchBar({
   const [selectedFactKey, setSelectedFactKey] = useState("");
   const [filtersOpen, setFiltersOpen] = useState(false);
 
+  // NEW: sort state
+  const [sortBy, setSortBy] = useState("name");   // name | newest | popular | mediaCount
+  const [sortDir, setSortDir] = useState("asc");  // asc | desc
+
   // Debounce autosubmit
   useEffect(() => {
     if (!autoSearch || !onSearch) return;
@@ -29,21 +36,26 @@ export default function DestinationSearchBar({
       onSearch({
         continent: selectedContinent || undefined,
         factKey: selectedFactKey || undefined,
-        // q: query || undefined, // add if your API supports free text
+        // q: query || undefined,
+        sortBy,
+        sortDir,
       });
     }, 400);
     return () => clearTimeout(t);
-  }, [query, selectedContinent, selectedFactKey, autoSearch, onSearch]);
+  }, [query, selectedContinent, selectedFactKey, sortBy, sortDir, autoSearch, onSearch]);
 
   const canClear = useMemo(
-    () => !!(query || selectedContinent || selectedFactKey),
-    [query, selectedContinent, selectedFactKey]
+    () => !!(query || selectedContinent || selectedFactKey || sortBy !== "name" || sortDir !== "asc"),
+    [query, selectedContinent, selectedFactKey, sortBy, sortDir]
   );
 
   const submit = () => {
     onSearch?.({
       continent: selectedContinent || undefined,
       factKey: selectedFactKey || undefined,
+      // q: query || undefined,
+      sortBy,
+      sortDir,
     });
   };
 
@@ -51,13 +63,15 @@ export default function DestinationSearchBar({
     setQuery("");
     setSelectedContinent("");
     setSelectedFactKey("");
+    setSortBy("name");
+    setSortDir("asc");
     onSearch?.({});
   };
 
   return (
     <Stack spacing={2}>
       <Paper elevation={6} sx={{ p: 1, borderRadius: 3, backdropFilter: "blur(6px)" }}>
-        <Stack direction="row" alignItems="center" spacing={1} sx={{ px: 1 }}>
+        <Stack direction="row" alignItems="center" spacing={1} sx={{ px: 1, flexWrap: "wrap", rowGap: 1 }}>
           <TextField
             fullWidth placeholder="Search destinations…"
             value={query} onChange={(e) => setQuery(e.target.value)}
@@ -68,14 +82,40 @@ export default function DestinationSearchBar({
               ),
             }}
           />
+
+          {/* NEW: sort controls */}
+          <Select
+            size="small"
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            sx={{ minWidth: 160, borderRadius: 2 }}
+          >
+            <MenuItem value="name">Name (A–Z)</MenuItem>
+            <MenuItem value="newest">Newest</MenuItem>
+            <MenuItem value="popular">Most Popular</MenuItem>
+            <MenuItem value="mediaCount">Most Media</MenuItem>
+          </Select>
+
+          <Tooltip title={sortDir === "asc" ? "Ascending" : "Descending"}>
+            <IconButton
+              aria-label="Toggle sort direction"
+              onClick={() => setSortDir((d) => (d === "asc" ? "desc" : "asc"))}
+              size="small"
+            >
+              {sortDir === "asc" ? <ArrowUpwardIcon /> : <ArrowDownwardIcon />}
+            </IconButton>
+          </Tooltip>
+
           <IconButton aria-label="Filters" onClick={() => setFiltersOpen(v => !v)} size="large">
             <TuneIcon />
           </IconButton>
+
           {canClear && (
             <IconButton aria-label="Clear filters" onClick={clearAll} size="large">
               <ClearIcon />
             </IconButton>
           )}
+
           <Button onClick={submit} variant="contained" disableElevation sx={{ borderRadius: 2, px: 2 }}>
             {loading ? <CircularProgress size={20} /> : "Search"}
           </Button>

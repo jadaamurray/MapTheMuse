@@ -15,7 +15,7 @@ namespace MapTheMuseApi.Models
         [ForeignKey("User")]
         public required string UserId { get; set; }
         [ForeignKey("Destination")]
-        public int DestinationId { get; set; }
+        public int? DestinationId { get; set; }
         [ForeignKey("Media")]
         public int MediaId { get; set; }
         // Metadata

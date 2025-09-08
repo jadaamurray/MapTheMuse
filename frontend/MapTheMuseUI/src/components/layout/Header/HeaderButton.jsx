@@ -17,8 +17,9 @@ export default function HeaderButton({
       variant="text"
       sx={{
         textTransform: "none",
+        fontFamily: 'Inter',
         fontSize: "16px",
-        fontWeight: 400,
+        fontWeight: 500,
         color: disabled
           ? "text.disabled"
           : active

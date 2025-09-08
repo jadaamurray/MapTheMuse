@@ -2,14 +2,14 @@ import { useMemo, useState } from "react";
 import { IconButton, Tooltip } from "@mui/material";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
-import { useFavourites } from "../context/FavouritesContext";
+import { useFavouritesContext } from "../context/FavouritesContext";
 
 export default function FavouriteDestinationButton({
   destinationId,
   size = "medium",
   light = false, // white-on-hero style
 }) {
-  const { isDestinationFavourited, toggleDestination } = useFavourites();
+  const { isDestinationFavourited, toggleDestination } = useFavouritesContext();
   const [pending, setPending] = useState(false);
 
   // Normalise id once (avoid string/number mismatches in Set.has)

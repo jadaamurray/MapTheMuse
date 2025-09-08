@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Box, AppBar, Toolbar, Typography, Stack, IconButton, Drawer, Divider } from "@mui/material";
+import { Box, AppBar, Toolbar, Typography, Stack, IconButton, Drawer, Divider, Avatar } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import HeaderButton from "./HeaderButton";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -7,13 +7,13 @@ import { useAuthContext } from "../../../features/auth/context/AuthContext";
 import useAuth from "../../../features/auth/hooks/useAuth";
 
 const ALL_ITEMS = [
-  { id: "about", label: "About", path: "/about" },
-  { id: "destinations", label: "Destinations", path: "/destinations" },
-  { id: "mytrips", label: "My Trips", path: "/trips" },
-  { id: "login", label: "Log in", path: "/login" },
-  { id: "profile", label: "Profile", path: "/profile" },
-  { id: "admin", label: "Admin", path: "/admin" },
-  { id: "logout", label: "Log Out" }
+  { id: "about", label: "about", path: "/about" },
+  { id: "destinations", label: "destinations", path: "/destinations" },
+  { id: "mytrips", label: "my trips", path: "/trips" },
+  { id: "login", label: "log in", path: "/login" },
+  { id: "profile", label: "profile", path: "/profile" },
+  { id: "admin", label: "admin", path: "/admin" },
+  { id: "logout", label: "log out" }
 ];
 
 const NAV_BY_ROLE = {
@@ -82,7 +82,7 @@ export default function HeaderNav() {
 
         {/* Brand */}
         <Typography
-          variant="h5" // a bit smaller on mobile
+          variant="h3" // a bit smaller on mobile
           onClick={() => navigate("/")}
           color="primary"
           sx={{
@@ -118,6 +118,9 @@ export default function HeaderNav() {
                 color={item.id === "logout" ? "error" : "primary"}
               />
             ))}
+            {/* <IconButton size="small">
+              <Avatar alt="Profile" onClick={() => handleClick(ALL_ITEMS.find(item => item.id === "profile"))} sx={{ bgcolor: "primary.main"}} />
+            </IconButton> */}
           </Stack>
         </Box>
 

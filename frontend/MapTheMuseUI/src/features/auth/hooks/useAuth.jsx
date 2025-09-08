@@ -27,7 +27,7 @@ const useAuth = () => {
       toast.success('Logged in successfully');
     } catch (err) {
         setError(err.response?.data || 'Login failed');
-      console.error('Registration error:', err.response?.data);;
+      console.error('registration/login error:', err.response?.data);;
     } finally {
       setLoading(false);
     }
@@ -69,11 +69,10 @@ const useAuth = () => {
       console.log('logging out');
       await AuthService.logout();
       setUser(null);
-      console.log('logged out. user is null')
+      console.log('logged out.')
       toast.success('Logged out');
-      const profile = await AuthService.getCurrentUser();
-      console.log('current user: ', profile);
     } catch (err) {
+      console.log('logout error', err);
       toast.error('Logout failed');
     }
   };

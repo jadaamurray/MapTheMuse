@@ -68,7 +68,7 @@ export const routes = [
             </RequireAuth>
         ),
     },
-    { path: "/profile/:userId", element: <ProfilePage /> },
+    { path: "/:userName", element: <ProfilePage /> },
 
     { path: "/media", element: <MediaPage /> },
     { path: "/about", element: <div>Coming Soon...</div> },

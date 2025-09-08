@@ -7,6 +7,7 @@ import { ThemeProvider } from './theme';
 import HeaderNav from './components/layout/Header/Header'
 import Footer from './components/layout/Footer/Footer';
 import { routes } from './routes';
+import { Toaster } from "react-hot-toast";
 
 function App() {
   const element = useRoutes(routes);
@@ -36,6 +37,7 @@ function App() {
             }}
           >
             <Suspense fallback={<div>Loading…</div>}>{element}</Suspense>
+            <Toaster position="top-center" reverseOrder={false} />
           </Box>
         </main>
         {/* footer */}

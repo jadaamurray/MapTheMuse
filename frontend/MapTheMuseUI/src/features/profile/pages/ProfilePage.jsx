@@ -1,4 +1,3 @@
-// src/features/profile/pages/ProfilePage.jsx
 import {
   Box,
   Typography,
@@ -16,7 +15,7 @@ import {
 import { useMemo, useState } from "react";
 import { useAuthContext } from "../../auth/context/AuthContext";
 import ProfileHeader from "../components/ProfileHeader";
-import { useFavourites } from "../../favourites/context/FavouritesContext";
+import { useFavouritesContext } from "../../favourites/context/FavouritesContext";
 import MediaRail from "../../media/components/MediaRail";
 import { useParams, useNavigate, Link as RouterLink } from "react-router-dom";
 import MediaCard from "../../media/components/MediaCard";
@@ -37,29 +36,39 @@ const mockSaved = [
 
 // ---replace with real API in separate hook file when ready ----------------------
 // decide which user's profile to show
-function useUserProfile(routeUserId, currentUser) {
-  // If no :userId, this is "me"
-  if (!routeUserId) return { profileUser: currentUser, loading: false };
+function useUserProfile(routeUserName, currentUser) {
+  // Support /profile (me) and /profile/me as aliases
+  const isMe = !routeUserName || routeUserName.toLowerCase() === "me";
 
-  // TODO: replace with real fetch for someone else’s profile
-  // e.g. const {data, isLoading} = useGetUserByIdQuery(routeUserId)
-  // For now, return a minimal object so the page renders.
-  return { profileUser: { id: routeUserId, userName: "traveller" }, loading: false };
+  if (isMe) {
+    return { profileUser: currentUser ?? null, loading: false };
+  }
+
+  // TODO: replace with real fetch by userName
+  // e.g. const { data, isLoading } = useGetUserByUserNameQuery(routeUserName);
+  return {
+    profileUser: { userName: routeUserName }, // don't fake an 'id' here
+    loading: false,
+  };
 }
 // ------------------------------------------------------------
 export default function ProfilePage() {
   const { user: currentUser, loading: authLoading } = useAuthContext();
-  const { userId: routeUserId } = useParams();
+  const { userName: routeUserName } = useParams();
   const [tab, setTab] = useState(0);
-  const { loading: favLoading, savedDestinations, savedMedia } = useFavourites(); // TODO: fix favourites so they pull profileUser favourites and not currentUser favourites
+  const { loading: favLoading, savedDestinations, savedMedia } = useFavouritesContext(); // TODO: fix favourites so they pull profileUser favourites and not currentUser favourites
   const navigate = useNavigate();
 
-  console.log('profile userId: ', routeUserId);
+  console.log('profile userName: ', routeUserName);
 
-  const { profileUser, loading: profileLoading } = useUserProfile(routeUserId, currentUser);
+  const { profileUser, loading: profileLoading } = useUserProfile(routeUserName, currentUser);
 
   // ownber check (toggle edit button and private sections)
-  const isOwner = !!(currentUser?.id && profileUser?.id && currentUser.id === profileUser.id);
+  const isOwner =
+    !!currentUser &&
+    (!!profileUser?.id
+      ? currentUser.id === profileUser.id
+      : currentUser.userName?.toLowerCase() === profileUser?.userName?.toLowerCase());
 
   console.log('saved destinations: ', savedDestinations);
 
@@ -185,7 +194,7 @@ export default function ProfilePage() {
                 ))}
               </Grid>
             ) : (
-              <Typography sx={{ color: "text.secondary" }}>You haven’t saved any destinations yet.</Typography>
+              <Typography sx={{ color: "text.secondary" }}>You haven’t saved any destinations yet. Start exploring!</Typography>
             ))
           ) : (
             <Grid container spacing={2}>
@@ -197,7 +206,7 @@ export default function ProfilePage() {
                 ))
               ) : (
                 <Grid size={12}>
-                  <Typography sx={{ color: "text.secondary" }}>You haven’t saved any media yet.</Typography>
+                  <Typography sx={{ color: "text.secondary" }}>You haven’t saved any media yet. Start exploring!</Typography>
 
                 </Grid>
               )}

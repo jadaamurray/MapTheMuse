@@ -1,4 +1,6 @@
-import React from 'react';
+import "@fontsource/outfit/latin.css";
+import "@fontsource/inter/latin.css";
+
 import {
   CssBaseline,
   ThemeProvider as MuiThemeProvider,
@@ -22,7 +24,7 @@ let theme = createTheme({
     },
     background: {
       white: 'rgba(255, 254, 251, 1)', // white
-      cream: 'rgba(252, 248, 239, 1)', // cream
+      cream: 'rgba(249, 246, 239, 1)', // cream
     },
     text: {
       primary: 'rgba(30, 30, 30, 1)',  // grey900
@@ -38,14 +40,14 @@ let theme = createTheme({
     boarding: { main: "rgba(28,184,17,1)" },
   },
   typography: {
-    fontFamily: ['Inter', 'Outfit', 'Helvetica', 'sans-serif'].join(','),
-    h1: { fontFamily: 'Outfit, Helvetica', fontSize: '64px', fontWeight: 700 },
-    h2: { fontFamily: 'Outfit, Helvetica', fontSize: '36px', fontWeight: 500 },
-    h3: { fontFamily: 'Outfit, Helvetica', fontSize: '28px', fontWeight: 500 },
-    body1: { fontFamily: 'Inter, Helvetica', fontSize: '16px', fontWeight: 400 },
-    body2: { fontFamily: 'Inter, Helvetica', fontSize: '18px', fontWeight: 400 },
-    subtitle1: { fontFamily: 'Inter, Helvetica', fontSize: '16px', fontWeight: 600 },
-    button: { fontFamily: 'Inter, Helvetica', fontSize: '16px', fontWeight: 400 },
+    fontFamily: ['Inter', 'Outfit', 'sans-serif'].join(','),
+    h1: { fontFamily: 'Outfit', fontSize: '64px', fontWeight: 600 },
+    h2: { fontFamily: 'Outfit', fontSize: '36px', fontWeight: 500 },
+    h3: { fontFamily: 'Outfit', fontSize: '28px', fontWeight: 500 },
+    body1: { fontFamily: 'Inter', fontSize: '16px', fontWeight: 400 },
+    body2: { fontFamily: 'Inter', fontSize: '18px', fontWeight: 400 },
+    subtitle1: { fontFamily: 'Inter', fontSize: '16px', fontWeight: 600 },
+    button: { fontFamily: 'Inter', fontSize: '16px', fontWeight: 400 },
   },
   shape: {
     borderRadius: 8,
