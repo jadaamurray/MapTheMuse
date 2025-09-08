@@ -31,7 +31,7 @@ export default function Homepage() {
                     width: "100%",
                     backgroundImage: {
                         xs: "url('/homepage-hero-mobile.jpg')", // phones
-                        sm: "url('/homepage-hero-desktop.jpg')",
+                        md: "url('/homepage-hero-desktop.jpg')",
                     },
                     backgroundSize: "cover",
                     backgroundPosition: "center",

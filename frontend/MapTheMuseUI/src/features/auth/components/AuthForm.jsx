@@ -13,6 +13,7 @@ import { useState } from "react";
 
 const AuthForm = ({ toggleType, type, onSubmit, loading, error }) => {
   const [fieldErrors, setFieldErrors] = useState({});
+  const [successMessage, setSuccessMessage] = useState('');
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -32,9 +33,12 @@ const AuthForm = ({ toggleType, type, onSubmit, loading, error }) => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onSubmit?.(formData);
+    const res = await onSubmit?.(formData);
+    if (res?.success) {
+      setSuccessMessage("Registration successful! Please check your email to verify your account.");
+    }
   };
 
   return (
@@ -78,6 +82,7 @@ const AuthForm = ({ toggleType, type, onSubmit, loading, error }) => {
           </>
         )}
       </Box>
+      {/* Error message */}
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
           {typeof error === "string" && error}
@@ -95,6 +100,12 @@ const AuthForm = ({ toggleType, type, onSubmit, loading, error }) => {
                 )}
             </>
           )}
+        </Alert>
+      )}
+      {/* Success message */}
+      {successMessage && (
+        <Alert severity="success" sx={{ mb: 2 }}>
+          {successMessage}
         </Alert>
       )}
       <Box

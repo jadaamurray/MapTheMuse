@@ -15,12 +15,12 @@ const useAuth = () => {
     setLoading(true);
     setError(null);
     try {
-      console.log('logging in with', credentials)
+      console.log('logging in... ')
       await AuthService.login(credentials); // cookie is set by backend
       console.log('logged in successfully');
       console.log('getting profile information');
       const profile = await AuthService.getCurrentUser(); // fetch user details
-      console.log('profile is', profile);
+      console.log('profile found.');
       setUser(profile); // store user in context
       navigate('/profile');
       console.log('Logged in successfully');
@@ -37,10 +37,11 @@ const useAuth = () => {
   const register = async (data, setFieldErrors) => {
     setLoading(true);
     setError(null);
-    console.log('Registering with data: ', data)
+    console.log('Registering account...')
     try {
       await AuthService.register(data);
-      console.log('trying to log in')
+      toast.success('Account created. Please click the link in your email');
+      /* console.log('trying to log in')
       await AuthService.login(data);
       console.log('getting user profile');
       const profile = await AuthService.getCurrentUser();
@@ -48,7 +49,7 @@ const useAuth = () => {
       setUser(profile);
       console.log('moving to profile');
       navigate('/profile');
-      toast.success('Account created');
+      toast.success('Account created'); */
     } catch (err) {
       if (err.fieldErrors && setFieldErrors) {
         setFieldErrors(err.fieldErrors);
