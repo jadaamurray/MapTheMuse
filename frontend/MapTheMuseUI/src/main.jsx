@@ -2,9 +2,9 @@ import { StrictMode, useEffect, Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import App from "./App";
-import { AuthProvider } from "./context/AuthProvider";
-import { DestinationsProvider } from "./context/DestinationsProvider";
-import { FavouritesProvider } from "./context/FavouritesProvider";
+import { AuthProvider } from "./features/auth/context/AuthContext";
+import { DestinationsProvider } from "./features/destinations/context/DestinationsContext";
+import { FavouritesProvider } from "./features/favourites/context/FavouritesContext";
 
 function Boot() {
   useEffect(() => {
