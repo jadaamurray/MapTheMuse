@@ -2,12 +2,101 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/logo_icon.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
     <title>Map The Muse</title>
+
+    <!-- Icons -->
+    <link rel="icon" type="image/png" href="/logo_icon.png" />
+    <!-- Optional: add larger icons if you have them -->
+    <!-- <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180"> -->
+
+    <!-- Improve perceived load -->
+    <meta name="theme-color" content="#ffffff" />
+    <meta name="color-scheme" content="light dark" />
+
+    <!-- OPTIONAL: fonts (uncomment/update if you use hosted fonts)
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preload" as="style" href="/outfit.css">
+    <link rel="stylesheet" href="/outfit.css" media="print" onload="this.media='all'">
+    <style> @font-face { font-display: swap; } </style>
+    -->
+
+    <style>
+      /* Minimal, inlined styles for instant splash */
+      :root { color-scheme: light dark; }
+      html, body { height: 100%; }
+      body {
+        margin: 0;
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, "Helvetica Neue", Arial, sans-serif;
+        background: Canvas;
+        color: CanvasText;
+      }
+      #boot-splash {
+        position: fixed; inset: 0;
+        display: grid; place-items: center;
+        padding: 24px;
+      }
+      .boot-card {
+        display: flex; flex-direction: column; align-items: center;
+        gap: 12px; padding: 20px 24px; border-radius: 12px;
+        box-shadow: 0 2px 16px rgba(0,0,0,.08);
+        background: color-mix(in oklab, Canvas 92%, CanvasText 8%);
+      }
+      .boot-logo {
+        display: flex; align-items: center; gap: 10px;
+        font-weight: 700; letter-spacing: .3px;
+      }
+      .boot-logo img { width: 28px; height: 28px; }
+      .boot-shimmer {
+        width: 180px; height: 10px; border-radius: 6px; overflow: hidden;
+        background: linear-gradient(90deg, #e9e9e9 25%, #f5f5f5 37%, #e9e9e9 63%);
+        background-size: 400% 100%;
+        animation: sh 1.1s infinite;
+      }
+      @keyframes sh {
+        0% { background-position: 100% 0; }
+        100% { background-position: 0 0; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .boot-shimmer { animation: none; }
+      }
+      /* Ensure the app content is behind until React mounts */
+      #root { isolation: isolate; }
+    </style>
   </head>
+
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- Instant, non-blocking splash (removed when React hydrates) -->
+      <div id="boot-splash" role="status" aria-live="polite" aria-busy="true">
+        <div class="boot-card">
+          <div class="boot-logo">
+            <img src="/logo_icon.png" alt="" aria-hidden="true" />
+            <span>Map The Muse</span>
+          </div>
+          <div class="boot-shimmer" aria-hidden="true"></div>
+        </div>
+      </div>
+      <noscript>
+        <p style="padding:1rem;max-width:60ch;margin:auto">
+          Map The Muse needs JavaScript enabled to run.
+        </p>
+      </noscript>
+    </div>
+
+    <script>
+      // Called from React once the app mounts to remove the splash
+      window.__removeBootSplash = function () {
+        const s = document.getElementById('boot-splash');
+        if (s && s.parentNode) s.parentNode.removeChild(s);
+      };
+    </script>
+
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

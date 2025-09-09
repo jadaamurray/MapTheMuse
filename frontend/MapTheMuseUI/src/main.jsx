@@ -1,23 +1,34 @@
-import { StrictMode, React } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import App from './App.jsx'
-import ReactDOM from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom';
-import { AuthProvider } from './features/auth/context/AuthContext'
-import { DestinationsProvider } from './features/destinations/context/DestinationsContext.jsx';
-import { FavouritesProvider } from './features/favourites/context/FavouritesContext.jsx';
+import { StrictMode, useEffect, Suspense } from "react";
+import { createRoot } from "react-dom/client";
+import { BrowserRouter } from "react-router-dom";
+import App from "./App";
+import { AuthProvider } from "./context/AuthProvider";
+import { DestinationsProvider } from "./context/DestinationsProvider";
+import { FavouritesProvider } from "./context/FavouritesProvider";
 
-createRoot(document.getElementById('root')).render(
-  <StrictMode>
+function Boot() {
+  useEffect(() => {
+    window.__removeBootSplash?.(); // remove the splash as soon as React mounts
+  }, []);
+
+  return (
     <BrowserRouter>
       <AuthProvider>
-        <DestinationsProvider autoLoad={true}>
+        <DestinationsProvider autoload={true}>
           <FavouritesProvider>
-          <App />
+            {/* keep this Suspense tiny; add route/section Suspense inside App */}
+            <Suspense fallback={null}>
+              <App />
+            </Suspense>
           </FavouritesProvider>
         </DestinationsProvider>
       </AuthProvider>
     </BrowserRouter>
-  </StrictMode>,
-)
+  );
+}
+
+createRoot(document.getElementById("root")).render(
+  <StrictMode>
+    <Boot />
+  </StrictMode>
+);
